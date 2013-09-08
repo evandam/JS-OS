@@ -86,6 +86,18 @@ function shellInit() {
     //
     // Display the initial prompt.
     this.putPrompt();
+    
+    // date
+    sc = new ShellCommand();
+    sc.command = "date";
+    sc.description = " - Displays the current date and time (duh)";
+    sc.function = function() {
+    	date = new Date();
+    	_StdIn.putText(date.toLocaleDateString() + " " + date.toLocaleTimeString());
+    	
+    };
+    this.commandList[this.commandList.length] = sc;
+    
 }
 
 function shellPutPrompt()
