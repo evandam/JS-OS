@@ -79,13 +79,6 @@ function shellInit() {
     sc.description = "<string> - Sets the prompt.";
     sc.function = shellPrompt;
     this.commandList[this.commandList.length] = sc;
-
-    // processes - list the running processes and their IDs
-    // kill <id> - kills the specified process id.
-
-    //
-    // Display the initial prompt.
-    this.putPrompt();
     
     // date
     sc = new ShellCommand();
@@ -97,6 +90,33 @@ function shellInit() {
     	
     };
     this.commandList[this.commandList.length] = sc;
+    
+    // whereami
+    sc = new ShellCommand();
+    sc.command = "whereami";
+    sc.description = " - Displays the user's current location";
+    sc.function = function() {
+    	_StdIn.putText("In a poorly lit room in front of a laptop.");
+    }
+    this.commandList[this.commandList.length] = sc;
+    
+    // bacon ipsum
+    sc = new ShellCommand();
+    sc.command = "bacon";
+    sc.description = " - For the best filler text possible.";
+    sc.function = function() {
+    	_StdIn.putText("Bacon ipsum dolor sit amet pastrami sirloin brisket swine ham pork belly. Strip steak bacon pork loin jerky ground round tri-tip meatloaf shank.");
+    }
+    this.commandList[this.commandList.length] = sc;
+
+    // processes - list the running processes and their IDs
+    // kill <id> - kills the specified process id.
+
+    //
+    // Display the initial prompt.
+    this.putPrompt();
+    
+    
     
 }
 

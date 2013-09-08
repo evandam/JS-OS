@@ -52,6 +52,24 @@ function krnKbdDispatchKeyPress(params)
                (keyCode == 13) )                        // enter
     {
         chr = String.fromCharCode(keyCode);
+        
+        if( (keyCode >= 48 && keyCode <= 57) && isShifted)
+        	chr = String.fromCharCode(keyCode + 32);
+        
         _KernelInputQueue.enqueue(chr); 
+    }
+    
+    // punctuation
+    // TODO: Convert punctuation keycodes to ascii characters
+    else if( keyCode >= 188 && keyCode <= 191) {
+    	chr = !isShifted ? String.fromCharCode(keyCode - 144) : String.fromCharCode(keyCode - 128);
+    	console.log(chr);
+    	_KernelInputQueue.enqueue(chr);
+    }
+    
+    // backspace keycode = 8
+    // TODO: Handle backspacing
+    else if(keyCode === 8) {
+    	console.log('backspace');
     }
 }
