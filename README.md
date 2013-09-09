@@ -1,8 +1,7 @@
 JS-OS
 =====
-
 Evan Van Dam
 ------------
+CMSC 422L111
 
-JavaScript based operating system utilizing the HTML5 Canvas.
-Operating Systems - Labouseur
+A JavaScript based operating system utilizing the HTML5 Canvas.
