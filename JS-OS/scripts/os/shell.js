@@ -28,63 +28,63 @@ function shellInit() {
     sc = new ShellCommand();
     sc.command = "ver";
     sc.description = "- Displays the current version data.";
-    sc.function = shellVer;
+    sc.func = shellVer;
     this.commandList[this.commandList.length] = sc;
     
     // help
     sc = new ShellCommand();
     sc.command = "help";
     sc.description = "- This is the help command. Seek help.";
-    sc.function = shellHelp;
+    sc.func = shellHelp;
     this.commandList[this.commandList.length] = sc;
     
     // shutdown
     sc = new ShellCommand();
     sc.command = "shutdown";
     sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running.";
-    sc.function = shellShutdown;
+    sc.func = shellShutdown;
     this.commandList[this.commandList.length] = sc;
 
     // cls
     sc = new ShellCommand();
     sc.command = "cls";
     sc.description = "- Clears the screen and resets the cursor position.";
-    sc.function = shellCls;
+    sc.func = shellCls;
     this.commandList[this.commandList.length] = sc;
 
     // man <topic>
     sc = new ShellCommand();
     sc.command = "man";
     sc.description = "<topic> - Displays the MANual page for <topic>.";
-    sc.function = shellMan;
+    sc.func = shellMan;
     this.commandList[this.commandList.length] = sc;
     
     // trace <on | off>
     sc = new ShellCommand();
     sc.command = "trace";
     sc.description = "<on | off> - Turns the OS trace on or off.";
-    sc.function = shellTrace;
+    sc.func = shellTrace;
     this.commandList[this.commandList.length] = sc;
 
     // rot13 <string>
     sc = new ShellCommand();
     sc.command = "rot13";
     sc.description = "<string> - Does rot13 obfuscation on <string>.";
-    sc.function = shellRot13;
+    sc.func = shellRot13;
     this.commandList[this.commandList.length] = sc;
 
     // prompt <string>
     sc = new ShellCommand();
     sc.command = "prompt";
     sc.description = "<string> - Sets the prompt.";
-    sc.function = shellPrompt;
+    sc.func = shellPrompt;
     this.commandList[this.commandList.length] = sc;
     
     // date
     sc = new ShellCommand();
     sc.command = "date";
     sc.description = " - Displays the current date and time.";
-    sc.function = function() {
+    sc.func = function() {
     	date = new Date();
     	_StdIn.putText(date.toLocaleDateString() + " " + date.toLocaleTimeString());
     	
@@ -95,7 +95,7 @@ function shellInit() {
     sc = new ShellCommand();
     sc.command = "whereami";
     sc.description = " - Displays the user's current location.";
-    sc.function = function() {
+    sc.func = function() {
     	_StdIn.putText("In a poorly lit room in front of a laptop.");
     };
     this.commandList[this.commandList.length] = sc;
@@ -104,7 +104,7 @@ function shellInit() {
     sc = new ShellCommand();
     sc.command = "bacon";
     sc.description = " - For the best filler text possible.";
-    sc.function = function() {
+    sc.func = function() {
     	// maybe make this an ajax call for dynamic meats
     	_StdIn.putText("Bacon ipsum dolor sit amet pastrami sirloin brisket swine ham pork belly. Strip steak bacon pork loin jerky ground round tri-tip meatloaf shank.");
     };
@@ -114,7 +114,7 @@ function shellInit() {
     sc = new ShellCommand();
     sc.command = "load";
     sc.description = " - Validate text area.";
-    sc.function = function() {
+    sc.func = function() {
     	var input = document.getElementById("taProgramInput").value;
     	var valid = true;
     	if(input) {
@@ -146,7 +146,7 @@ function shellInit() {
     sc = new ShellCommand();
     sc.command = "status";
     sc.description = "<string> - Sets the status in the task bar.";
-    sc.function = function(args) {
+    sc.func = function(args) {
     	if(args.length === 0) {
     		_StdIn.putText("Usage: Status <string> set a custom status.");
     	} 
@@ -197,7 +197,7 @@ function shellHandleInput(buffer)
         if (this.commandList[index].command === cmd)
         {
             found = true;
-            var fn = this.commandList[index].function;
+            var fn = this.commandList[index].func;
         }
         else
         {
@@ -289,7 +289,7 @@ function ShellCommand()
     // Properties
     this.command = "";
     this.description = "";
-    this.function = "";
+    this.func = "";
 }
 
 //
