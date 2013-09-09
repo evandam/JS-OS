@@ -42,6 +42,8 @@ function hostInit()
       _GLaDOS.init();
    };
 
+   // auto-start the OS - remove this line later
+   document.getElementById('btnStartOS').click();
 }
 
 function hostLog(msg, source)
@@ -110,4 +112,9 @@ function hostBtnReset_click(btn)
     // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
     // be reloaded from the server. If it is false or not specified, the browser may reload the 
     // page from its cache, which is not what we want.
+}
+
+// Update status bar
+function hostStatus(status) {
+	document.getElementById("StausBar").value = status;
 }

@@ -97,41 +97,65 @@ function shellInit() {
     sc.description = " - Displays the user's current location.";
     sc.function = function() {
     	_StdIn.putText("In a poorly lit room in front of a laptop.");
-    }
+    };
     this.commandList[this.commandList.length] = sc;
     
-    // bacon ipsum
+    // bacon
     sc = new ShellCommand();
     sc.command = "bacon";
     sc.description = " - For the best filler text possible.";
     sc.function = function() {
+    	// maybe make this an ajax call for dynamic meats
     	_StdIn.putText("Bacon ipsum dolor sit amet pastrami sirloin brisket swine ham pork belly. Strip steak bacon pork loin jerky ground round tri-tip meatloaf shank.");
-    }
+    };
     this.commandList[this.commandList.length] = sc;
     
-    // load - input must be hex digits 00-FF separated by new lines or spaces.
+    // load
     sc = new ShellCommand();
     sc.command = "load";
     sc.description = " - Validate text area.";
     sc.function = function() {
     	var input = document.getElementById("taProgramInput").value;
+    	var valid = true;
     	if(input) {
-    		var re = /^[0-9A-Fa-f]{2}$/;
+    		var re = /^[0-9A-Fa-f]{2}$/;	// Matches 2 hex digits
     		var lines = input.split("\n");
+    		
+    		// break input down line-by-line and word-by-word (space-separated)
     		for(line in lines) {
     			var words = lines[line].split(' ');
-    			for(word in words) {
-    				if(!re.exec(words[word])) {
-    					alert("Error! " + words[word] + " is an invalid instruction.");
-    					return false;
+    			for(var i = 0; valid && i < words.length; i++) {
+    				
+    				if(!re.exec(words[i])) {
+    					_StdIn.putText("Error! " + words[i] + " is an invalid instruction.");
+    					valid = false;
     				}
     			}
     		}
-    		return true;
+    		if(valid) {
+    			_StdIn.putText("Valid input!");
+    		}
     	}
-    	else
+    	else {
     		_StdIn.putText("The textbox is empty!");
-    }
+    	}
+    };
+    this.commandList[this.commandList.length] = sc;
+    
+    // status <string>
+    sc = new ShellCommand();
+    sc.command = "status";
+    sc.description = "<string> - Sets the status in the task bar.";
+    sc.function = function(args) {
+    	if(args.length === 0) {
+    		_StdIn.putText("Usage: Status <string> set a custom status.");
+    	} 
+    	else {
+    		str = args.join(' ');	// multiple args converted into one string
+    		hostStatus(str);
+    		_StdIn.putText("Status set to '" + str + "'");
+    	}
+    };
     this.commandList[this.commandList.length] = sc;
 
     // processes - list the running processes and their IDs
@@ -386,7 +410,7 @@ function shellTrace(args)
                 _StdIn.putText("Trace OFF");                
                 break;                
             default:
-                _StdIn.putText("Invalid arguement.  Usage: trace <on | off>.");
+                _StdIn.putText("Invalid argument.  Usage: trace <on | off>.");
         }        
     }
     else
