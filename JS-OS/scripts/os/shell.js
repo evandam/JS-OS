@@ -83,7 +83,7 @@ function shellInit() {
     // date
     sc = new ShellCommand();
     sc.command = "date";
-    sc.description = " - Displays the current date and time (duh).";
+    sc.description = " - Displays the current date and time.";
     sc.function = function() {
     	date = new Date();
     	_StdIn.putText(date.toLocaleDateString() + " " + date.toLocaleTimeString());
