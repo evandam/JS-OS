@@ -53,7 +53,7 @@ var _Console = null;
 var _OsShell = null;
 
 // At least this OS is not trying to kill you. (Yet.)
-var _SarcasticMode = false;
+var _SarcasticMode = true;
 
 // Global Device Driver Objects - page 12
 var krnKeyboardDriver = null;

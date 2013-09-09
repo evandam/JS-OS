@@ -83,7 +83,7 @@ function shellInit() {
     // date
     sc = new ShellCommand();
     sc.command = "date";
-    sc.description = " - Displays the current date and time (duh)";
+    sc.description = " - Displays the current date and time (duh).";
     sc.function = function() {
     	date = new Date();
     	_StdIn.putText(date.toLocaleDateString() + " " + date.toLocaleTimeString());
@@ -94,7 +94,7 @@ function shellInit() {
     // whereami
     sc = new ShellCommand();
     sc.command = "whereami";
-    sc.description = " - Displays the user's current location";
+    sc.description = " - Displays the user's current location.";
     sc.function = function() {
     	_StdIn.putText("In a poorly lit room in front of a laptop.");
     }
@@ -106,6 +106,31 @@ function shellInit() {
     sc.description = " - For the best filler text possible.";
     sc.function = function() {
     	_StdIn.putText("Bacon ipsum dolor sit amet pastrami sirloin brisket swine ham pork belly. Strip steak bacon pork loin jerky ground round tri-tip meatloaf shank.");
+    }
+    this.commandList[this.commandList.length] = sc;
+    
+    // load - input must be hex digits 00-FF separated by new lines or spaces.
+    sc = new ShellCommand();
+    sc.command = "load";
+    sc.description = " - Validate text area.";
+    sc.function = function() {
+    	var input = document.getElementById("taProgramInput").value;
+    	if(input) {
+    		var re = /^[0-9A-Fa-f]{2}$/;
+    		var lines = input.split("\n");
+    		for(line in lines) {
+    			var words = lines[line].split(' ');
+    			for(word in words) {
+    				if(!re.exec(words[word])) {
+    					alert("Error! " + words[word] + " is an invalid instruction.");
+    					return false;
+    				}
+    			}
+    		}
+    		return true;
+    	}
+    	else
+    		_StdIn.putText("The textbox is empty!");
     }
     this.commandList[this.commandList.length] = sc;
 
