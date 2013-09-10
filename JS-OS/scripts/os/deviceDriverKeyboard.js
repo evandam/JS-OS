@@ -66,19 +66,23 @@ function krnKbdDispatchKeyPress(params)
     else if( keyCode >= 188 && keyCode <= 191) {
     	// 144 offset from JS -> ASCII, 32 bit offset for shifted characters
     	chr = !isShifted ? String.fromCharCode(keyCode - 144) : String.fromCharCode(keyCode - 128);
+    	// "-" doesn't give "_" as expected when shifted...
+    	if(keyCode === 189 && isShifted) {
+    		chr = String.fromCharCode(95); 
+    	}
     	_KernelInputQueue.enqueue(chr);
     }
     // Punctuation: [ ] \ are grouped together, too.
     else if( keyCode >= 219 && keyCode <= 221) {	
     	// 128 offset from JS -> ASCII, 32 bit offset for shifted characters
-    	chr = !isShifted ? String.fromCharCode(keyCode - 128) : String.fromCharCode(keyCode - 96);
+    	chr = !isShifted ? String.fromCharCode(keyCode - 96) : String.fromCharCode(keyCode - 128);
     	_KernelInputQueue.enqueue(chr);
     }
     
     // check if keycode is in the list of symbols and punctuations I care about
     else if (misc_punctuation[keyCode]) {
     	var code = misc_punctuation[keyCode];
-    	chr = !isShifted ? String.fromCharCode(code[0]) : String.fromCharCode(code[1]);
+    	chr = isShifted ? String.fromCharCode(code[1]) : String.fromCharCode(code[0]);
     	_KernelInputQueue.enqueue(chr);
     }
     
