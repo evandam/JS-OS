@@ -44,6 +44,12 @@ function CLIconsole() {
                // ... and reset our buffer.
                this.buffer = "";
            }
+           // Handle backspace
+           else if(chr == String.fromCharCode(8)) {
+        	   if(this.buffer.length > 0) {
+        		   this.backspace();
+        	   }
+           }
            // TODO: Write a case for Ctrl-C.
            else
            {
@@ -76,5 +82,18 @@ function CLIconsole() {
        this.CurrentXPosition = 0;
        this.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
        // TODO: Handle scrolling.
+    };
+    
+    this.backspace = function() {
+ 	   var last = this.buffer[this.buffer.length - 1];	
+ 	   var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, last);	// this would be so much easier with a monotype font...
+ 	   
+ 	   this.buffer = this.buffer.slice(0, -1);	// remove the last character from the buffer
+ 	   
+ 	   this.CurrentXPosition -= offset;	// move the position back
+ 	   
+ 	   // "erase" the char by drawing a rectangle over it...added 5 to the font size to deal with those pesky g's and j's
+ 	   _DrawingContext.clearRect(this.CurrentXPosition, this.CurrentYPosition - this.CurrentFontSize, 
+ 			   					offset, this.CurrentFontSize + 5);   
     };
 }

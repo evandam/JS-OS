@@ -61,15 +61,12 @@ function krnKbdDispatchKeyPress(params)
         _KernelInputQueue.enqueue(chr); 
     }
     
-    // punctuation actually grouped together in JS KeyCodes and ASCII
-    else if( keyCode >= 188 && keyCode <= 191) {
+    else if( keyCode >= 188 && keyCode <= 191) {	// , . / keys
     	// 144 offset from JS -> ASCII, 32 bit offset for shifted characters
     	chr = !isShifted ? String.fromCharCode(keyCode - 144) : String.fromCharCode(keyCode - 128);
     	_KernelInputQueue.enqueue(chr);
     }
-    
-    // punctuation actually grouped together in JS KeyCodes and ASCII (32 offset)
-    else if( keyCode >= 219 && keyCode <= 221) {
+    else if( keyCode >= 219 && keyCode <= 221) {	// [ ] \ keys
     	// 128 offset from JS -> ASCII, 32 bit offset for shifted characters
     	chr = !isShifted ? String.fromCharCode(keyCode - 128) : String.fromCharCode(keyCode - 96);
     	_KernelInputQueue.enqueue(chr);
@@ -82,10 +79,10 @@ function krnKbdDispatchKeyPress(params)
     	_KernelInputQueue.enqueue(chr);
     }
     
-    // backspace keycode = 8
-    // TODO: Handle backspacing
+    // backspace detected here, handled by console
     else if(keyCode === 8) {
-    	console.log('backspace');
+    	chr = String.fromCharCode(keyCode);
+    	_KernelInputQueue.enqueue(chr);
     }
     
     // error detection
@@ -99,8 +96,8 @@ var shifted_digit = [41, 33, 64, 35, 38, 37, 94, 38, 42, 40];
 
 // misc keycodes - key: js keycode, val: [ascii, ascii for key+shift]
 var misc_punctuation = {
-		186: [59, 58],
-		187: [61, 43],
-		222: [39, 34],
-		192: [96, 126]
+		186: [59, 58],	// ; :
+		187: [61, 43],	// = +
+		222: [39, 34],	// ' "
+		192: [96, 126]	// ` ~
 };
