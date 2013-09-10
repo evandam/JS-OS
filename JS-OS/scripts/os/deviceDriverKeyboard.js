@@ -53,7 +53,7 @@ function krnKbdDispatchKeyPress(params)
     {
         chr = String.fromCharCode(keyCode);
         
-        // shifted digit
+        // Symbols from a digit while shift is down
         if( (keyCode >= 48 && keyCode <= 57) && isShifted) {
         	 chr = String.fromCharCode( shifted_digit[keyCode - 48] );
         }
@@ -61,31 +61,34 @@ function krnKbdDispatchKeyPress(params)
         _KernelInputQueue.enqueue(chr); 
     }
     
-    else if( keyCode >= 188 && keyCode <= 191) {	// , . / keys
+    
+    // Punctuation: , . / are grouped together
+    else if( keyCode >= 188 && keyCode <= 191) {
     	// 144 offset from JS -> ASCII, 32 bit offset for shifted characters
     	chr = !isShifted ? String.fromCharCode(keyCode - 144) : String.fromCharCode(keyCode - 128);
     	_KernelInputQueue.enqueue(chr);
     }
-    else if( keyCode >= 219 && keyCode <= 221) {	// [ ] \ keys
+    // Punctuation: [ ] \ are grouped together, too.
+    else if( keyCode >= 219 && keyCode <= 221) {	
     	// 128 offset from JS -> ASCII, 32 bit offset for shifted characters
     	chr = !isShifted ? String.fromCharCode(keyCode - 128) : String.fromCharCode(keyCode - 96);
     	_KernelInputQueue.enqueue(chr);
     }
     
-    // misc symbols and punctuation with conversions that need to be hardcoded
+    // check if keycode is in the list of symbols and punctuations I care about
     else if (misc_punctuation[keyCode]) {
     	var code = misc_punctuation[keyCode];
     	chr = !isShifted ? String.fromCharCode(code[0]) : String.fromCharCode(code[1]);
     	_KernelInputQueue.enqueue(chr);
     }
     
-    // backspace detected here, handled by console
+    // backspace handled by console
     else if(keyCode === 8) {
     	chr = String.fromCharCode(keyCode);
     	_KernelInputQueue.enqueue(chr);
     }
     
-    // arrow keys
+    // arrow keys. Implementing left and right later?
     else if(keyCode >= 37 && keyCode <= 40) {
     	chr = String.fromCharCode(keyCode - 20);	// ascii device control 1-4 (?) should serve our purpose, though
     	_KernelInputQueue.enqueue(chr);
@@ -97,10 +100,12 @@ function krnKbdDispatchKeyPress(params)
     }
 }
 
-// Keycodes for shifting a digit 0-9. ex. 1 + shift = '!' (keycode 33)
+// Keycodes for symbols on digits represented by their index. ex. 0 shifted = ")" (ascii 41) and 1 shifted = "!" (ascii 33)
 var shifted_digit = [41, 33, 64, 35, 38, 37, 94, 38, 42, 40];
 
-// misc keycodes - key: js keycode, val: [ascii, ascii for key+shift]
+// misc keycodes that didn't seem to follow a pattern.
+// keys are javascript keycodes
+// vals are [ascii w/o shift, ascii w/ shift]
 var misc_punctuation = {
 		186: [59, 58],	// ; :
 		187: [61, 43],	// = +

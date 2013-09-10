@@ -151,7 +151,7 @@ function shellInit() {
     		_StdIn.putText("Usage: Status <string> set a custom status.");
     	} 
     	else {
-    		str = args.join(' ');	// multiple args converted into one string
+    		str = args.join(' ');	// multiple args converted into one string. Maybe detect quotes?
     		hostStatus(str);
     		_StdIn.putText("Status set to '" + str + "'");
     	}

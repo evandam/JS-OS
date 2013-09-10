@@ -45,7 +45,7 @@ function CLIconsole() {
                // ... tell the shell ...
                _OsShell.handleInput(this.buffer);
                
-               // Add the cmd to the history 
+               // Add the cmd to history 
                this.history.push(this.buffer);
                this.history_index = this.history.length;	// should always be the most recent
                
@@ -57,8 +57,8 @@ function CLIconsole() {
         	   if(this.buffer.length > 0) {
         		   var last = this.buffer[this.buffer.length - 1];	
         	 	   this.buffer = this.buffer.slice(0, -1);	// remove the last character from the buffer
+        	 	   // calculate the width of the character
         	 	   var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, last);	// this would be so much easier with a monotype font...
-        	 	   
         	 	   this.erase(offset); 
         	   }
            }
