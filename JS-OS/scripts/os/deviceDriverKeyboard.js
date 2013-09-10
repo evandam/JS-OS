@@ -53,17 +53,32 @@ function krnKbdDispatchKeyPress(params)
     {
         chr = String.fromCharCode(keyCode);
         
-        if( (keyCode >= 48 && keyCode <= 57) && isShifted)
-        	chr = String.fromCharCode(keyCode + 32);
+        // shifted digit
+        if( (keyCode >= 48 && keyCode <= 57) && isShifted) {
+        	 chr = String.fromCharCode( shifted_digit[keyCode - 48] );
+        }
         
         _KernelInputQueue.enqueue(chr); 
     }
     
-    // punctuation
-    // TODO: Convert punctuation keycodes to ascii characters
+    // punctuation actually grouped together in JS KeyCodes and ASCII
     else if( keyCode >= 188 && keyCode <= 191) {
+    	// 144 offset from JS -> ASCII, 32 bit offset for shifted characters
     	chr = !isShifted ? String.fromCharCode(keyCode - 144) : String.fromCharCode(keyCode - 128);
-    	console.log(chr);
+    	_KernelInputQueue.enqueue(chr);
+    }
+    
+    // punctuation actually grouped together in JS KeyCodes and ASCII (32 offset)
+    else if( keyCode >= 219 && keyCode <= 221) {
+    	// 128 offset from JS -> ASCII, 32 bit offset for shifted characters
+    	chr = !isShifted ? String.fromCharCode(keyCode - 128) : String.fromCharCode(keyCode - 96);
+    	_KernelInputQueue.enqueue(chr);
+    }
+    
+    // misc symbols and punctuation with conversions that need to be hardcoded
+    else if (misc_punctuation[keyCode]) {
+    	var code = misc_punctuation[keyCode];
+    	chr = !isShifted ? String.fromCharCode(code[0]) : String.fromCharCode(code[1]);
     	_KernelInputQueue.enqueue(chr);
     }
     
@@ -72,4 +87,20 @@ function krnKbdDispatchKeyPress(params)
     else if(keyCode === 8) {
     	console.log('backspace');
     }
+    
+    // error detection
+    else {
+    	// trap?
+    }
 }
+
+// Keycodes for shifting a digit 0-9. ex. 1 + shift = '!' (keycode 33)
+var shifted_digit = [41, 33, 64, 35, 38, 37, 94, 38, 42, 40];
+
+// misc keycodes - key: js keycode, val: [ascii, ascii for key+shift]
+var misc_punctuation = {
+		186: [59, 58],
+		187: [61, 43],
+		222: [39, 34],
+		192: [96, 126]
+};
