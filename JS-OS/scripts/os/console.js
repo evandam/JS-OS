@@ -15,6 +15,9 @@ function CLIconsole() {
     this.CurrentYPosition = _DefaultFontSize;
     this.buffer = "";
     
+    this.history = [];
+    this.history_index = 0;	// be able to navigate up and down
+    
     // Methods
     this.init = function() {
        this.clearScreen();
@@ -41,15 +44,49 @@ function CLIconsole() {
                // The enter key marks the end of a console command, so ...
                // ... tell the shell ...
                _OsShell.handleInput(this.buffer);
+               
+               // Add the cmd to the history 
+               this.history.push(this.buffer);
+               this.history_index = this.history.length;	// should always be the most recent
+               
                // ... and reset our buffer.
                this.buffer = "";
            }
            // Handle backspace
            else if(chr == String.fromCharCode(8)) {
         	   if(this.buffer.length > 0) {
-        		   this.backspace();
+        		   var last = this.buffer[this.buffer.length - 1];	
+        	 	   this.buffer = this.buffer.slice(0, -1);	// remove the last character from the buffer
+        	 	   var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, last);	// this would be so much easier with a monotype font...
+        	 	   
+        	 	   this.erase(offset); 
         	   }
            }
+           
+           // Arrow keys
+           else if(chr == String.fromCharCode(18)) {	// up arrow
+        	   if(this.history.length > 0) {
+        		   if(this.history_index > 0) {
+        			   this.history_index--;	// go back in history, but not negative...
+        		   }
+        		   
+        		   this.clearLine();
+        		   this.buffer = this.history[this.history_index];
+        		   this.putText(this.buffer);
+        	   }
+           }
+           else if(chr == String.fromCharCode(20)) { 	// down arrow
+        	   if(this.history.length > 0) {
+        		   if(this.history_index < this.history.length - 1) {
+        			   this.history_index++;	// go forward in history, but not into the future...
+        		   }
+        		   
+        		   this.clearLine();
+        		   this.buffer = this.history[this.history_index];
+        		   this.putText(this.buffer);
+        	   }
+           }
+           
            // TODO: Write a case for Ctrl-C.
            else
            {
@@ -84,16 +121,16 @@ function CLIconsole() {
        // TODO: Handle scrolling.
     };
     
-    this.backspace = function() {
- 	   var last = this.buffer[this.buffer.length - 1];	
- 	   var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, last);	// this would be so much easier with a monotype font...
- 	   
- 	   this.buffer = this.buffer.slice(0, -1);	// remove the last character from the buffer
- 	   
- 	   this.CurrentXPosition -= offset;	// move the position back
- 	   
- 	   // "erase" the char by drawing a rectangle over it...added 5 to the font size to deal with those pesky g's and j's
- 	   _DrawingContext.clearRect(this.CurrentXPosition, this.CurrentYPosition - this.CurrentFontSize, 
- 			   					offset, this.CurrentFontSize + 5);   
+    // erase the current command (helpful for history)
+    this.clearLine = function() {
+    	var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, this.buffer);
+    	this.erase(offset);
+    };
+    
+    // erase space from canvas and reset x position
+    this.erase = function(offset) {
+    	this.CurrentXPosition -= offset;
+    	_DrawingContext.clearRect(this.CurrentXPosition, this.CurrentYPosition - this.CurrentFontSize, 
+    							  offset, this.CurrentFontSize + _FontHeightMargin + 1);	//	A little extra padding for those pesky j, g, and p's...
     };
 }

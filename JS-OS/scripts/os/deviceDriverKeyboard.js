@@ -85,6 +85,12 @@ function krnKbdDispatchKeyPress(params)
     	_KernelInputQueue.enqueue(chr);
     }
     
+    // arrow keys
+    else if(keyCode >= 37 && keyCode <= 40) {
+    	chr = String.fromCharCode(keyCode - 20);	// ascii device control 1-4 (?) should serve our purpose, though
+    	_KernelInputQueue.enqueue(chr);
+    }
+    
     // error detection
     else {
     	// trap?
