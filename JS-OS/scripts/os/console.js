@@ -121,6 +121,11 @@ function CLIconsole() {
        // TODO: Handle scrolling.
     };
     
+    // TODO: IMPLEMENT SCROLLING
+    this.scrollDown = function() {
+       _DrawingContext.translate(0, this.CurrentFontSize + _FontHeightMargin);
+    }
+    
     // erase the current command (helpful for history)
     this.clearLine = function() {
     	var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, this.buffer);
