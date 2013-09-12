@@ -133,4 +133,6 @@ function CLIconsole() {
     	_DrawingContext.clearRect(this.CurrentXPosition, this.CurrentYPosition - this.CurrentFontSize, 
     							  offset, this.CurrentFontSize + _FontHeightMargin + 1);	//	A little extra padding for those pesky j, g, and p's...
     };
+    
+    // Shell command causes kernel to trap an error, CLI makes a blue screen!
 }

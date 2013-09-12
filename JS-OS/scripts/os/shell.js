@@ -157,6 +157,15 @@ function shellInit() {
     	}
     };
     this.commandList[this.commandList.length] = sc;
+    
+    // BSoD
+    sc = new ShellCommand();
+    sc.command = "bsod";
+    sc.description = " - Causes a blue screen of death!";
+    sc.func = function() {
+    	krnTrapError("Forced BSoD");
+    };
+    this.commandList[this.commandList.length] = sc;
 
     // processes - list the running processes and their IDs
     // kill <id> - kills the specified process id.
