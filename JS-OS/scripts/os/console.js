@@ -118,13 +118,21 @@ function CLIconsole() {
     this.advanceLine = function() {
        this.CurrentXPosition = 0;
        this.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
-       // TODO: Handle scrolling.
     };
     
     // TODO: IMPLEMENT SCROLLING
-    this.scrollDown = function() {
-       _DrawingContext.translate(0, this.CurrentFontSize + _FontHeightMargin);
-    }
+    this.scroll = function() {
+//    	
+//    	// Push position 0, 0 up by the height of a line...
+//    	_DrawingContext.translate(0, -_FontHeightMargin - this.CurrentFontSize);
+//    	
+//    	_DrawingContext.save();
+//    	_DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
+//    	_DrawingContext.restore();
+//    	
+    	return _DrawingContext.drawImage(_Canvas, 0, -_FontHeightMargin - this.CurrentFontSize);
+
+    };
     
     // erase the current command (helpful for history)
     this.clearLine = function() {
