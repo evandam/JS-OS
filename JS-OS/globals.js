@@ -8,13 +8,6 @@
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 
-/*	TODO:
- * 	Status bar should display date + time (set on an interval?)
- * 	Implement scrolling
- * 	BSoD 
- * 	  Plus a shell command to force this
- */
-
 //
 // Global CONSTANTS
 //

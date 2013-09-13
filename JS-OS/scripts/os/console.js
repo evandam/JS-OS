@@ -14,7 +14,8 @@ function CLIconsole() {
     this.CurrentXPosition = 0;
     this.CurrentYPosition = _DefaultFontSize;
     this.buffer = "";
-    
+        
+    // Track history of recent commands
     this.history = [];
     this.history_index = 0;	// be able to navigate up and down
     
@@ -47,7 +48,7 @@ function CLIconsole() {
                
                // Add the cmd to history 
                this.history.push(this.buffer);
-               this.history_index = this.history.length;	// should always be the most recent
+               this.history_index = this.history.length;	// should point to the most recent
                
                // ... and reset our buffer.
                this.buffer = "";
@@ -58,7 +59,7 @@ function CLIconsole() {
         		   var last = this.buffer[this.buffer.length - 1];	
         	 	   this.buffer = this.buffer.slice(0, -1);	// remove the last character from the buffer
         	 	   // calculate the width of the character
-        	 	   var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, last);	// this would be so much easier with a monotype font...
+        	 	   var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, last);
         	 	   this.erase(offset); 
         	   }
            }
@@ -117,21 +118,22 @@ function CLIconsole() {
 
     this.advanceLine = function() {
        this.CurrentXPosition = 0;
-       this.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
+       if(this.CurrentYPosition < _Canvas.height) {
+    	   this.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
+       }
+       else {
+    	   this.CurrentYPosition = _Canvas.height - _FontHeightMargin;
+    	   this.scroll();
+       }
     };
     
-    // TODO: IMPLEMENT SCROLLING
+    // Scrolling implementation
     this.scroll = function() {
-//    	
-//    	// Push position 0, 0 up by the height of a line...
-//    	_DrawingContext.translate(0, -_FontHeightMargin - this.CurrentFontSize);
-//    	
-//    	_DrawingContext.save();
-//    	_DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
-//    	_DrawingContext.restore();
-//    	
-    	return _DrawingContext.drawImage(_Canvas, 0, -_FontHeightMargin - this.CurrentFontSize);
-
+    	var lineHeight = this.CurrentFontSize + _FontHeightMargin;
+    	// Save state of current canvas, translate it up by one line, clear it and redraw.
+    	var img = _DrawingContext.getImageData(0, 0, _Canvas.width, _Canvas.height + lineHeight * 2);
+    	_DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
+    	_DrawingContext.putImageData(img, 0, -lineHeight);
     };
     
     // erase the current command (helpful for history)
@@ -154,7 +156,10 @@ function CLIconsole() {
     	_DrawingContext.fillRect(0, 0, _Canvas.width, _Canvas.height);
     	this.putText(msg);
     	this.advanceLine();
-    	this.putText('\nThe OS has shutdown. Restart it!');
-    }
+    	this.putText("The OS is shutting down.");
+    	this.advanceLine();
+    	this.putText("Please try restarting.");
+    	hostStatus("Something horrible happened!");
+    };
     
 }

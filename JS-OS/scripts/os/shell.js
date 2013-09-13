@@ -80,7 +80,7 @@ function shellInit() {
     sc.func = shellPrompt;
     this.commandList[this.commandList.length] = sc;
     
-    // date
+    // date - NEW
     sc = new ShellCommand();
     sc.command = "date";
     sc.description = " - Displays the current date and time.";
@@ -91,7 +91,7 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
     
-    // whereami
+    // whereami - NEW
     sc = new ShellCommand();
     sc.command = "whereami";
     sc.description = " - Displays the user's current location.";
@@ -100,17 +100,18 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
     
-    // bacon
+    // bacon - NEW
     sc = new ShellCommand();
     sc.command = "bacon";
     sc.description = " - For the best filler text possible.";
     sc.func = function() {
     	// maybe make this an ajax call for dynamic meats
-    	_StdIn.putText("Bacon ipsum dolor sit amet pastrami sirloin brisket swine ham pork belly. Strip steak bacon pork loin jerky ground round tri-tip meatloaf shank.");
+    	// I don't really like this...change it to something more interesting than printing text...s
+    	_StdIn.putText("Bacon ipsum dolor sit amet pastrami sirloin brisket swine ham pork belly.");
     };
     this.commandList[this.commandList.length] = sc;
     
-    // load
+    // load - NEW
     sc = new ShellCommand();
     sc.command = "load";
     sc.description = " - Validate text area.";
@@ -127,6 +128,7 @@ function shellInit() {
     			for(var i = 0; valid && i < words.length; i++) {
     				
     				if(!re.exec(words[i])) {
+    					// gives a little bit of debugging with which set was invalid...
     					_StdIn.putText("Error! " + words[i] + " is an invalid instruction.");
     					valid = false;
     				}
@@ -142,7 +144,7 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
     
-    // status <string>
+    // status <string> - NEW
     sc = new ShellCommand();
     sc.command = "status";
     sc.description = "<string> - Sets the status in the task bar.";
@@ -158,12 +160,12 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
     
-    // BSoD
+    // BSoD - NEW
     sc = new ShellCommand();
     sc.command = "bsod";
-    sc.description = " - Causes a blue screen of death!";
+    sc.description = " - Force the kernel to trap an error.";
     sc.func = function() {
-    	krnTrapError("Forced BSoD");
+    	krnTrapError("Forced BSoD (technically an RSoD).");
     };
     this.commandList[this.commandList.length] = sc;
 
