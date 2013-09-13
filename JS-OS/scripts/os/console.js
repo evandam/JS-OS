@@ -148,4 +148,13 @@ function CLIconsole() {
     };
     
     // Shell command causes kernel to trap an error, CLI makes a blue screen!
+    this.screenOfDeath = function(msg) {
+    	this.clearScreen();
+    	_DrawingContext.fillStyle = "red";
+    	_DrawingContext.fillRect(0, 0, _Canvas.width, _Canvas.height);
+    	this.putText(msg);
+    	this.advanceLine();
+    	this.putText('\nThe OS has shutdown. Restart it!');
+    }
+    
 }
