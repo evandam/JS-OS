@@ -44,6 +44,9 @@ function hostInit()
 
    // auto-start the OS - remove this line later
    document.getElementById('btnStartOS').click();
+   
+   // Start the clock
+   hostDateTime();
 }
 
 function hostLog(msg, source)
@@ -116,5 +119,15 @@ function hostBtnReset_click(btn)
 
 // Update status bar
 function hostStatus(status) {
-	document.getElementById("StausBar").value = status;
+	document.getElementById("StausBar").innerText = status;
+}
+
+// Sets an interval to update the div every second with the current time
+function hostDateTime() {
+	var date = new Date();
+	var div = document.getElementById("curTime");
+	setInterval(function() {
+		date = new Date();
+		div.innerText = date.toDateString() + " " + date.toTimeString();
+	}, 1000);
 }

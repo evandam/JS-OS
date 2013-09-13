@@ -37,11 +37,11 @@ h3 {
 }
 
 #StausBar {
-	width: 500px;
-	margin: 4px;
-	padding: 0 2px 0 2px;
-	border: 2px solid red;
-	background-color: white;
+	/* Add some styles later on... */
+}
+
+#curTime {
+	background: none;
 }
 
 .normal_button {
