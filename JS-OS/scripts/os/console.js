@@ -110,18 +110,17 @@ function CLIconsole() {
        {
     	   // Added wrapping to next line - char by char
     	   for(var i in text) {
-    		       		   
+    		   
+    		   var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, text[i]);
+    		   // move to next line if character is going to be off the canvas
+    		   if(this.CurrentXPosition + offset >= _Canvas.width) {
+	        	   this.advanceLine();
+	           }
+    		   
 	           // Draw the text at the current X and Y coordinates.
 	           _DrawingContext.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, text[i]);
 	         // Move the current X position.
-	           var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, text[i]);
-	           
-	           if(this.CurrentXPosition + offset >= _Canvas.width) {
-	        	   this.advanceLine();
-	           }
-	           else {
-	        	   this.CurrentXPosition = this.CurrentXPosition + offset;
-	           }
+	      	 	this.CurrentXPosition = this.CurrentXPosition + offset;
            }
        }
     };

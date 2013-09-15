@@ -100,14 +100,17 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
     
-    // bacon - NEW
+    // color - toggle background color
     sc = new ShellCommand();
-    sc.command = "bacon";
-    sc.description = " - For the best filler text possible.";
-    sc.func = function() {
-    	// maybe make this an ajax call for dynamic meats
-    	// I don't really like this...change it to something more interesting than printing text...s
-    	_StdIn.putText("Bacon ipsum dolor sit amet pastrami sirloin brisket swine ham pork belly.");
+    sc.command = "color";
+    sc.description = " [<String>] - Set the background color. Add a color, or exclude for default.";
+    sc.func = function(args) {
+    	if(args.length > 0) {
+    		$(_Canvas).css('background', args[0]);
+    	}
+    	else {
+    		$(_Canvas).css('background', '#DFDBC3');
+    	}
     };
     this.commandList[this.commandList.length] = sc;
     
