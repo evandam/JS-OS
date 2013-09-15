@@ -118,11 +118,16 @@ function CLIconsole() {
 
     this.advanceLine = function() {
        this.CurrentXPosition = 0;
-       if(this.CurrentYPosition < _Canvas.height) {
+       
+       // Convert heights into line numbers..easier to manage
+       var maxLines = Math.floor(_Canvas.height / (this.CurrentFontSize + _FontHeightMargin));
+       var currentLineNum = Math.floor(this.CurrentYPosition / (this.CurrentFontSize + _FontHeightMargin));     
+       if(currentLineNum < maxLines) {
     	   this.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
        }
        else {
-    	   this.CurrentYPosition = _Canvas.height - _FontHeightMargin;
+    	   // On the last line... keep the CurrentYPos on this line now but scroll everything up
+    	   this.CurrentYPosition = (_FontHeightMargin + this.CurrentFontSize) * maxLines;
     	   this.scroll();
        }
     };
@@ -130,8 +135,8 @@ function CLIconsole() {
     // Scrolling implementation
     this.scroll = function() {
     	var lineHeight = this.CurrentFontSize + _FontHeightMargin;
-    	// Save state of current canvas, translate it up by one line, clear it and redraw.
-    	var img = _DrawingContext.getImageData(0, 0, _Canvas.width, _Canvas.height + lineHeight * 2);
+    	// Save state of current canvas, clear it, redraw it one line higher.
+    	var img = _DrawingContext.getImageData(0, 0, _Canvas.width, _Canvas.height);
     	_DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
     	_DrawingContext.putImageData(img, 0, -lineHeight);
     };
