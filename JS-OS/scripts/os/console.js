@@ -108,11 +108,21 @@ function CLIconsole() {
        // decided to write one function and use the term "text" to connote string or char.
        if (text !== "")
        {
-           // Draw the text at the current X and Y coordinates.
-           _DrawingContext.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, text);
-         // Move the current X position.
-           var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, text);
-           this.CurrentXPosition = this.CurrentXPosition + offset;
+    	   // Added wrapping to next line - char by char
+    	   for(var i in text) {
+    		       		   
+	           // Draw the text at the current X and Y coordinates.
+	           _DrawingContext.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, text[i]);
+	         // Move the current X position.
+	           var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, text[i]);
+	           
+	           if(this.CurrentXPosition + offset >= _Canvas.width) {
+	        	   this.advanceLine();
+	           }
+	           else {
+	        	   this.CurrentXPosition = this.CurrentXPosition + offset;
+	           }
+           }
        }
     };
 
@@ -159,6 +169,7 @@ function CLIconsole() {
     	this.clearScreen();
     	_DrawingContext.fillStyle = "red";
     	_DrawingContext.fillRect(0, 0, _Canvas.width, _Canvas.height);
+    	this.resetXY();
     	this.putText(msg);
     	this.advanceLine();
     	this.putText("The OS is shutting down.");

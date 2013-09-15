@@ -75,7 +75,7 @@ function krnKbdDispatchKeyPress(params)
     // Punctuation: [ ] \ are grouped together, too.
     else if( keyCode >= 219 && keyCode <= 221) {	
     	// 128 offset from JS -> ASCII, 32 bit offset for shifted characters
-    	chr = !isShifted ? String.fromCharCode(keyCode - 96) : String.fromCharCode(keyCode - 128);
+    	chr = isShifted ? String.fromCharCode(keyCode - 96) : String.fromCharCode(keyCode - 128);
     	_KernelInputQueue.enqueue(chr);
     }
     

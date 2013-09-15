@@ -168,6 +168,15 @@ function shellInit() {
     	krnTrapError("Forced BSoD (technically an RSoD).");
     };
     this.commandList[this.commandList.length] = sc;
+    
+    // Restart - command to refresh page (convenience)
+    sc = new ShellCommand();
+    sc.command = "restart";
+    sc.description = " - Restart the OS (refresh page)";
+    sc.func = function() {
+    	location.reload(true);
+    };
+    this.commandList[this.commandList.length] = sc;
 
     // processes - list the running processes and their IDs
     // kill <id> - kills the specified process id.
