@@ -169,6 +169,8 @@ function shellInit() {
     sc.description = " - Force the kernel to trap an error.";
     sc.func = function() {
     	krnTrapError("Forced BSoD (technically an RSoD).");
+    	_Console.screenOfDeath("Screen of death!");
+        krnShutdown();
     };
     this.commandList[this.commandList.length] = sc;
     

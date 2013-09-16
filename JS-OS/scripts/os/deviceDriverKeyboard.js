@@ -100,7 +100,7 @@ function krnKbdDispatchKeyPress(params)
     
     // error detection
     else {
-    	// trap?
+    	krnTrapError("Unrecognized keycode: " + keyCode);
     }
 }
 
