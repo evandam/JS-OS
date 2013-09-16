@@ -107,9 +107,11 @@ function shellInit() {
     sc.func = function(args) {
     	if(args.length > 0) {
     		$(_Canvas).css('background', args[0]);
+    		_StdIn.putText("Background set to " + args[0]);
     	}
     	else {
     		$(_Canvas).css('background', '#DFDBC3');
+    		_StdIn.putText("Background restored to default.");
     	}
     };
     this.commandList[this.commandList.length] = sc;
