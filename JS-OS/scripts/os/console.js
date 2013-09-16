@@ -128,15 +128,12 @@ function CLIconsole() {
     this.advanceLine = function() {
        this.CurrentXPosition = 0;
        
-       // Convert heights into line numbers..easier to manage
-       var maxLines = Math.floor(_Canvas.height / (this.CurrentFontSize + _FontHeightMargin));
-       var currentLineNum = Math.floor(this.CurrentYPosition / (this.CurrentFontSize + _FontHeightMargin));     
-       if(currentLineNum < maxLines) {
+       if(this.CurrentYPosition < _Canvas.height - _DefaultFontSize - _FontHeightMargin) {
     	   this.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
        }
        else {
     	   // On the last line... keep the CurrentYPos on this line now but scroll everything up
-    	   this.CurrentYPosition = (_FontHeightMargin + this.CurrentFontSize) * maxLines;
+    	   this.CurrentYPosition = _Canvas.height - _FontHeightMargin;
     	   this.scroll();
        }
     };
