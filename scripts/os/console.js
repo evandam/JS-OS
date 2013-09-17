@@ -60,6 +60,13 @@ function CLIconsole() {
         	 	   this.buffer = this.buffer.slice(0, -1);	// remove the last character from the buffer
         	 	   // calculate the width of the character
         	 	   var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, last);
+        	 	   
+        	 	   // have to backspacing a wrapped line...this isn't perfect but gets the job done
+        	 	   if(this.CurrentXPosition <= 0) {
+        	 		   this.CurrentYPosition -= this.CurrentFontSize + _FontHeightMargin;
+        	 		   this.CurrentXPosition = _Canvas.width;
+        	 	   }
+        	 	   
         	 	   this.erase(offset); 
         	   }
            }
