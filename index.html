@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+﻿<!DOCTYPE HTML>
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
@@ -17,6 +17,8 @@
    <script type="text/javascript" src="scripts/host/control.js"></script>
    <script type="text/javascript" src="scripts/host/devices.js"></script>
    <script type="text/javascript" src="scripts/host/cpu.js"></script>
+   <script type="text/javascript" src="scripts/host/memory.js"></script>
+   <script type="text/javascript" src="scripts/host/displayMemory.js"></script>
 
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
    <script type="text/javascript" src="scripts/os/interrupt.js"></script>
@@ -89,6 +91,24 @@
       </label>
    </div>
 
+   <div id="divMemory">
+       Memory:
+       <table border="1">
+           <thead>
+               <th></th>
+               <th>0/8</th>
+               <th>1/9</th>
+               <th>2/A</th>
+               <th>3/B</th>
+               <th>4/C</th>
+               <th>5/D</th>
+               <th>6/E</th>
+               <th>7/F</th>
+           </thead>
+           <tbody></tbody>
+       </table>
+   </div>
+
    <div id="divUserProgramInput" style="margin-left:520px;">
       <label>
          User Program Input
@@ -100,8 +120,8 @@
          ></textarea>
       </label>
    </div>
-
 </div>
+
 
 <p class="footerText" style="clear:both;">
    <br>
