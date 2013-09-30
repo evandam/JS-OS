@@ -91,6 +91,10 @@ function hostBtnStartOS_click(btn)
     _CPU = new Cpu();
     _CPU.init();
 
+    // ... Initialize main memory
+    _Memory = new Memory();
+    _Memory.init();
+
     // ... then set the host clock pulse ...
     _hardwareClockID = setInterval(hostClockPulse, CPU_CLOCK_INTERVAL);
     // .. and call the OS Kernel Bootstrap routine.
