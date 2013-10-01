@@ -35,8 +35,60 @@ function Cpu() {
 
         // TODO: Accumulate CPU usage and profiling statistics here.
         // Do the real work here. Be sure to set this.isExecuting appropriately.
-
+        
+        // CPU can fetch, decode, and execute once per cycle
+        var instr = _Memory.mem[this.PC];   // intermediary through MMU?
+        this.decode(instr);
 
         updateCPUDisplay();
+    };
+
+    // interpret a 6502a instruction and call the corresponding function
+    this.decode = function (instr) {
+        switch (instr) {
+            case 'A9':
+                this.LDA_C();
+                break;
+            case 'AD':
+                this.LDA_M();
+                break;
+            case '8D':
+                this.STA();
+                break;
+            case '6D':
+                this.ADC();
+                break;
+            case 'A2':
+                this.LDX_C();
+                break;
+            case 'AE':
+                this.LDX_M();
+                break;
+            case 'A0':
+                this.LDY_C();
+                break;
+            case 'AC':
+                this.LDY_M();
+                break;
+            case 'EA':  //no op
+                break;
+            case '00':
+                this.BRK(); // sys-call?
+                break;
+            case 'EC':
+                this.CPX();
+                break;
+            case 'D0':
+                this.BNE();
+                break;
+            case 'EE':
+                this.INC();
+                break;
+            case 'FF':
+                this.SYS(); // 01 in X = print int in y, 02 in X = print 00-term string in address at Y
+                break;
+            default:
+                krnTrapError("Invalid 6502a instruction: " + instr);
+        }
     };
 }
