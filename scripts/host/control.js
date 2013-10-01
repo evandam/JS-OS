@@ -41,9 +41,6 @@ function hostInit()
       _GLaDOS = new Glados();
       _GLaDOS.init();
    };
-
-   // auto-start the OS - remove this line later
-   // document.getElementById('btnStartOS').click();
    
    // Start the clock
    hostDateTime();
@@ -51,6 +48,9 @@ function hostInit()
     // set up the HTML to display memory
    _Memory = new Memory();
    initMemDisplay();
+
+    // auto-start the OS - remove this line later
+    document.getElementById('btnStartOS').click();
 }
 
 function hostLog(msg, source)

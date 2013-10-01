@@ -12,4 +12,15 @@ var PCB = function () {
     this.Yreg   = 0;
     this.Zflag  = 0;
 
+    this.init = function (base, limit, pc, x, y, z) {
+        this.pid = _CPU.mmu.PCBs.length ? _CPU.mmu.PCBs[_CPU.mmu.PCBs.length - 1] + 1 : 0;
+        this.base = base;
+        this.limit = limit;
+        this.PC = pc;
+        this.Xreg = x;
+        this.Yreg = y;
+        this.Zflag = z;
+
+        _CPU.mmu.PCBs.push(this);   // add to list of PCBs in MMU
+    };
 };

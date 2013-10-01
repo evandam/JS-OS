@@ -27,7 +27,8 @@ function Cpu() {
         this.Xreg  = 0;
         this.Yreg  = 0;
         this.Zflag = 0;      
-        this.isExecuting = false;  
+        this.isExecuting = false;
+        this.mmu = new MemoryManagementUnit();
     };
     
     this.cycle = function() {

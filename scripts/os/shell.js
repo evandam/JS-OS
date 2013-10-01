@@ -80,18 +80,17 @@ function shellInit() {
     sc.func = shellPrompt;
     this.commandList[this.commandList.length] = sc;
     
-    // date - NEW
+    // date
     sc = new ShellCommand();
     sc.command = "date";
     sc.description = " - Displays the current date and time.";
     sc.func = function() {
     	date = new Date();
     	_StdIn.putText(date.toLocaleDateString() + " " + date.toLocaleTimeString());
-    	
     };
     this.commandList[this.commandList.length] = sc;
     
-    // whereami - NEW
+    // whereami
     sc = new ShellCommand();
     sc.command = "whereami";
     sc.description = " - Displays the user's current location.";
@@ -100,7 +99,7 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
     
-    // color - toggle background color
+    // color
     sc = new ShellCommand();
     sc.command = "color";
     sc.description = " [<String>] - Set the background color. Add a color, or exclude for default.";
@@ -116,17 +115,18 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
     
-    // load - NEW
+    // load
+    // TODO: Expand to store code in memory starting at mem[0]. Assign a PCB and PID, return PID to console
     sc = new ShellCommand();
     sc.command = "load";
-    sc.description = " - Validate text area.";
+    sc.description = " - Validate text area and load instructions into memory.";
     sc.func = function() {
-    	var input = document.getElementById("taProgramInput").value;
+    	var input = document.getElementById("taProgramInput").value.trim();
     	var valid = true;
     	if(input) {
     		var re = /^[0-9A-Fa-f]{2}$/;	// Matches 2 hex digits
     		var lines = input.split("\n");
-    		
+    		var instructions = [];
     		// break input down line-by-line and word-by-word (space-separated)
     		for(line in lines) {
     			var words = lines[line].split(' ');
@@ -137,10 +137,13 @@ function shellInit() {
     					_StdIn.putText("Error! " + words[i] + " is an invalid instruction.");
     					valid = false;
     				}
+    				else {
+    				    instructions.push(words[i]);
+    				}
     			}
     		}
     		if(valid) {
-    			_StdIn.putText("Valid input!");
+    		    krnLoadProcess(instructions);
     		}
     	}
     	else {
@@ -148,8 +151,8 @@ function shellInit() {
     	}
     };
     this.commandList[this.commandList.length] = sc;
-    
-    // status <string> - NEW
+
+    // status <string>
     sc = new ShellCommand();
     sc.command = "status";
     sc.description = "<string> - Sets the status in the task bar.";
@@ -165,7 +168,7 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
     
-    // BSoD - NEW
+    // BSoD
     sc = new ShellCommand();
     sc.command = "bsod";
     sc.description = " - Force the kernel to trap an error.";

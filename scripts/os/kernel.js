@@ -188,3 +188,11 @@ function krnTrapError(msg)
     // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
     
 }
+
+// Load validated 6502a instructions to memory, assign a PID and PCB.
+// Return the PID to be printed by the console
+function krnLoadProcess(instructions) {
+    var pcb = new PCB();            
+    pcb.init(0, 255, 0, 0, 0, 0);   // PID determined here, too.
+    
+}

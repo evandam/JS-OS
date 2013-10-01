@@ -6,5 +6,5 @@ and also perform context switching.
 */
 
 var MemoryManagementUnit = function () {
-
+    this.PCBs = [];
 };
