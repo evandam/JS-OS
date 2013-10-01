@@ -7,4 +7,5 @@ and also perform context switching.
 
 var MemoryManagementUnit = function () {
     this.PCBs = [];
+    // TODO: memory access function for PCB with permission checks
 };
