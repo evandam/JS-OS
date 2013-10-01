@@ -13,7 +13,7 @@ var PCB = function () {
     this.Zflag  = 0;
 
     this.init = function (base, limit, pc, x, y, z) {
-        this.pid = _CPU.mmu.PCBs.length ? _CPU.mmu.PCBs[_CPU.mmu.PCBs.length - 1] + 1 : 0;
+        this.pid = _CPU.mmu.PCBs.length ? _CPU.mmu.PCBs[_CPU.mmu.PCBs.length - 1].pid + 1 : 0;
         this.base = base;
         this.limit = limit;
         this.PC = pc;
