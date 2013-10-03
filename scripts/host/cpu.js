@@ -38,7 +38,7 @@ function Cpu() {
         // Do the real work here. Be sure to set this.isExecuting appropriately.
         
         // CPU can fetch, decode, and execute once per cycle
-        var instr = _Memory.mem[this.PC];   // intermediary through MMU?
+        var instr = this.mmu.read(0, this.PC++).toString();
         this.decode(instr);
 
         updateCPUDisplay();
@@ -87,10 +87,22 @@ function Cpu() {
                 this.INC();
                 break;
             case 'FF':
-                this.SYS(); // 01 in X = print int in y, 02 in X = print 00-term string in address at Y
+                this.SYS(); 
                 break;
             default:
+                this.isExecuting = false;
                 krnTrapError("Invalid 6502a instruction: " + instr);
         }
     };
+
+    // A9
+    this.LDA_C = function(){
+        var c = this.mmu.read(0, this.PC++).toString();   // post-increment the Program Counter for the next instruction
+        this.Acc = c;
+    };
+
+    this.BRK = function () {
+        this.isExecuting = false;
+    }
+
 }

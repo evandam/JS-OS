@@ -4,6 +4,15 @@ function Memory () {
     this.mem = [];
 
     for (var i = 0; i < this.size; i++) {
-        this.mem[i] = 0;    // initialize all bytes to zero - change this to a memory cell prototype
+        this.mem[i] = new MemoryCell();    // initialize all bytes to zero - change this to a memory cell prototype
     }
+};
+
+function MemoryCell() {
+    this.lo = 0;
+    this.hi = 0;
+};
+
+MemoryCell.prototype.toString = function () {
+    return this.lo + "" + this.hi;
 };
