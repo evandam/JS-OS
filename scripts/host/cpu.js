@@ -95,14 +95,71 @@ function Cpu() {
         }
     };
 
-    // A9
-    this.LDA_C = function(){
+    // A9 - load accumulator with a constant
+    this.LDA_C = function () {
+        // the constant is in the next memory address
         var c = this.mmu.read(0, this.PC++).toString();   // post-increment the Program Counter for the next instruction
         this.Acc = c;
     };
 
+    // AD - load accumulator from memory
+    this.LDA_M = function () {
+
+    };
+
+    // 8D - store accumulator in memory
+    this.STA = function () {
+
+    };
+
+    // 6D - Add with carry (add conents of an address to contents of accumulator. results kept in Acc
+    this.ADC = function () {
+
+    };
+
+    // A2 - Load XReg with constant
+    this.LDX_C = function () {
+
+    };
+
+    // AE - Load XReg from memory
+    this.LDX_M = function () {
+
+    };
+
+    // A0 - Load YReg with constant
+    this.LDY_C = function () {
+
+    };
+
+    // AC - Load YReg from memory
+    this.LDY_M = function () {
+
+    };
+
+    // 00 - break (system call)
     this.BRK = function () {
         this.isExecuting = false;
     }
+
+    // EC - Compare byte in mem to XReg - sets ZFlag if equal
+    this.CPX = function () {
+
+    };
+
+    //D0 - Branch X bytes if Zflag == 0
+    this.BNE = function () {
+
+    };
+
+    // EE - Increment value of a byte
+    this.INC = function () {
+
+    };
+
+    // FF - Syscall
+    this.SYS = function () {
+
+    };
 
 }
