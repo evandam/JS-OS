@@ -151,6 +151,16 @@ function shellInit() {
     	}
     };
     this.commandList[this.commandList.length] = sc;
+    
+
+    // Run <pid>
+    sc = new ShellCommand();
+    sc.command = "run";
+    sc.description = "<pid> - Run a process.";
+    sc.func = function (args) {
+        _CPU.isExecuting = true;
+    };
+    this.commandList[this.commandList.length] = sc;
 
     // status <string>
     sc = new ShellCommand();

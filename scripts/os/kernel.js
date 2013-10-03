@@ -194,5 +194,9 @@ function krnTrapError(msg)
 function krnLoadProcess(instructions) {
     var pcb = new PCB();            
     pcb.init(0, 255, 0, 0, 0, 0);   // PID determined here, too.
-    
+    for (var i = 0; i < instructions.length; i++) {
+        _CPU.mmu.write(pcb.pid, pcb.base + i, instructions[i]);
+    }
+    _Console.putText("Process created with PID=" + pcb.pid);
+    updateMemoryDisplay();
 }

@@ -3,7 +3,7 @@ Prototype for Process Control Blocks
 The PCB tracks the current state of registers, PC and flags, 
 as well as the base and limit of the process's memory space.
 */
-var PCB = function () {
+function PCB() {
     this.pid    = 0;    // Process Identifier
     this.base   = 0;    // will actually be 0 for iProject2
     this.limit  = 0;    // 255 for iProject2...but MMU will eventually determine
@@ -13,7 +13,7 @@ var PCB = function () {
     this.Zflag  = 0;
 
     this.init = function (base, limit, pc, x, y, z) {
-        this.pid = _CPU.mmu.PCBs.length ? _CPU.mmu.PCBs[_CPU.mmu.PCBs.length - 1] + 1 : 0;
+        this.pid = 0;       // increment this later based on other pids
         this.base = base;
         this.limit = limit;
         this.PC = pc;
@@ -21,6 +21,5 @@ var PCB = function () {
         this.Yreg = y;
         this.Zflag = z;
 
-        _CPU.mmu.PCBs.push(this);   // add to list of PCBs in MMU
     };
 };

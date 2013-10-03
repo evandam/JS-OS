@@ -26,6 +26,8 @@ var KEYBOARD_IRQ = 1;
 //
 var _CPU = null;
 
+var _Memory = null;
+
 var _OSclock = 0;       // Page 23.
 
 var _Mode = 0;   // 0 = Kernel Mode, 1 = User Mode.  See page 21.

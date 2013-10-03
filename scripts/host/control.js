@@ -96,7 +96,6 @@ function hostBtnStartOS_click(btn)
     _CPU.init();
 
     // ... Initialize main memory
-    _Memory.init();
     updateMemoryDisplay();
 
     // ... then set the host clock pulse ...

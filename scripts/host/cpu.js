@@ -28,7 +28,7 @@ function Cpu() {
         this.Yreg  = 0;
         this.Zflag = 0;      
         this.isExecuting = false;
-        this.mmu = new MemoryManagementUnit();
+        this.mmu = new MMU();
     };
     
     this.cycle = function() {
@@ -42,6 +42,7 @@ function Cpu() {
         this.decode(instr);
 
         updateCPUDisplay();
+        updateMemoryDisplay();
     };
 
     // interpret a 6502a instruction and call the corresponding function
