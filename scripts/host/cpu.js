@@ -40,7 +40,7 @@ function Cpu() {
         // Do the real work here. Be sure to set this.isExecuting appropriately.
         
         // Fetch the next instruction, increment PC
-        var instr = this.mmu.read(pid, this.PC++).toString();
+        var instr = this.mmu.read(pid, this.PC++).toHex();
         // Decode the instruction and execute it.
         // Stop execution and trap an error if unrecognized instruction
         this.decode(instr);
@@ -101,8 +101,8 @@ function Cpu() {
     // Get the memory address pointed to by the PC and parse it from hex to dec
     // Advance the PC, too
     this.getAddress = function (pid) {
-        var addr = this.mmu.read(pid, this.PC++).toString();
-        addr = this.mmu.read(pid, this.PC++).toString() + addr;
+        var addr = this.mmu.read(pid, this.PC++).toHex();
+        addr = this.mmu.read(pid, this.PC++).toHex() + addr; // it seems like order shoud be other way around
         addr = parseInt(addr, 16);  // need to convert from hex to decimal
         return addr;
     };
@@ -110,14 +110,14 @@ function Cpu() {
     // A9 - load accumulator with a constant
     this.LDA_C = function () {
         // the constant is in the next memory address
-        var c = this.mmu.read(pid, this.PC++).toString();   // post-increment the Program Counter for the next instruction
-        this.Acc = c;
+        var c = this.mmu.read(pid, this.PC++).toDecimal();   // post-increment the Program Counter for the next instruction
+        this.Acc = c;       // Acc stores a DECIMAL INTEGER
     };
 
     // AD - load accumulator from memory
     this.LDA_M = function () {
         var addr = this.getAddress(pid);
-        this.Acc = this.mmu.read(pid, addr);
+        this.Acc = this.mmu.read(pid, addr).toDecimal();
     };
 
     // 8D - store accumulator in memory
@@ -125,17 +125,20 @@ function Cpu() {
         var addr = this.getAddress(pid);
         this.mmu.write(pid, addr, this.Acc);
         updateMemoryDisplay();  // writing to memory, so the display should be updated
-        alert(addr);
     };
 
     // 6D - Add with carry (add conents of an address to contents of accumulator. results kept in Acc
     this.ADC = function () {
-
+        var addr = this.getAddress(pid);
+        var num = this.mmu.read(pid, addr).toDecimal();
+        alert(this.Acc + " + " + num);
+        this.Acc += num;    // Acc is in decimal
     };
 
     // A2 - Load XReg with constant
     this.LDX_C = function () {
-
+        var c = this.mmu.read(pid, this.PC++).toDecimal();
+        this.Xreg = c;
     };
 
     // AE - Load XReg from memory

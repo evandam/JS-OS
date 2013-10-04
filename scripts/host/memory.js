@@ -13,6 +13,11 @@ function MemoryCell() {
     this.hi = 0;
 };
 
-MemoryCell.prototype.toString = function () {
+MemoryCell.prototype.toHex = function () {
     return this.lo + "" + this.hi;
+};
+
+MemoryCell.prototype.toDecimal = function () {
+    var hex = MemoryCell.prototype.toHex();
+    return parseInt(hex, 16);
 };
