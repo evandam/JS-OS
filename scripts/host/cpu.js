@@ -107,6 +107,12 @@ function Cpu() {
         return addr;
     };
 
+    // Gets the integer (base 10) pointed to by current PC
+    this.getNum = function (pid) {
+        var addr = this.getAddress(pid);
+        return this.mmu.read(pid, addr).toDecimal();
+    };
+
     // A9 - load accumulator with a constant
     this.LDA_C = function () {
         // the constant is in the next memory address
@@ -129,10 +135,7 @@ function Cpu() {
 
     // 6D - Add with carry (add conents of an address to contents of accumulator. results kept in Acc
     this.ADC = function () {
-        var addr = this.getAddress(pid);
-        var num = this.mmu.read(pid, addr).toDecimal();
-        alert(this.Acc + " + " + num);
-        this.Acc += num;    // Acc is in decimal
+        this.Acc += this.getNum();  
     };
 
     // A2 - Load XReg with constant
@@ -143,21 +146,24 @@ function Cpu() {
 
     // AE - Load XReg from memory
     this.LDX_M = function () {
-
+        this.Xreg = this.getNum();
     };
 
     // A0 - Load YReg with constant
     this.LDY_C = function () {
-
+        var c = this.mmu.read(pid, this.PC++).toDecimal();
+        this.Yreg = c;
     };
 
     // AC - Load YReg from memory
     this.LDY_M = function () {
-
+        var num = this.getNum();
     };
 
     // 00 - break (system call)
     this.BRK = function () {
+        // stop execution, but still advance the PC for the next instruction
+        this.PC++; 
         this.isExecuting = false;
     }
 
