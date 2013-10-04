@@ -13,6 +13,8 @@
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 
+var pid = 0;    // CHANGE THIS TO GET PID OF RUNNING PROCESS!!!!!
+
 function Cpu() {
     this.PC    = 0;     // Program Counter
     this.Acc   = 0;     // Accumulator
@@ -37,12 +39,13 @@ function Cpu() {
         // TODO: Accumulate CPU usage and profiling statistics here.
         // Do the real work here. Be sure to set this.isExecuting appropriately.
         
-        // CPU can fetch, decode, and execute once per cycle
-        var instr = this.mmu.read(0, this.PC++).toString();
+        // Fetch the next instruction, increment PC
+        var instr = this.mmu.read(pid, this.PC++).toString();
+        // Decode the instruction and execute it.
+        // Stop execution and trap an error if unrecognized instruction
         this.decode(instr);
 
         updateCPUDisplay();
-        updateMemoryDisplay();
     };
 
     // interpret a 6502a instruction and call the corresponding function
@@ -95,21 +98,34 @@ function Cpu() {
         }
     };
 
+    // Get the memory address pointed to by the PC and parse it from hex to dec
+    // Advance the PC, too
+    this.getAddress = function (pid) {
+        var addr = this.mmu.read(pid, this.PC++).toString();
+        addr = this.mmu.read(pid, this.PC++).toString() + addr;
+        addr = parseInt(addr, 16);  // need to convert from hex to decimal
+        return addr;
+    };
+
     // A9 - load accumulator with a constant
     this.LDA_C = function () {
         // the constant is in the next memory address
-        var c = this.mmu.read(0, this.PC++).toString();   // post-increment the Program Counter for the next instruction
+        var c = this.mmu.read(pid, this.PC++).toString();   // post-increment the Program Counter for the next instruction
         this.Acc = c;
     };
 
     // AD - load accumulator from memory
     this.LDA_M = function () {
-
+        var addr = this.getAddress(pid);
+        this.Acc = this.mmu.read(pid, addr);
     };
 
     // 8D - store accumulator in memory
     this.STA = function () {
-
+        var addr = this.getAddress(pid);
+        this.mmu.write(pid, addr, this.Acc);
+        updateMemoryDisplay();  // writing to memory, so the display should be updated
+        alert(addr);
     };
 
     // 6D - Add with carry (add conents of an address to contents of accumulator. results kept in Acc
@@ -161,5 +177,4 @@ function Cpu() {
     this.SYS = function () {
 
     };
-
 }
