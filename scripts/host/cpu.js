@@ -215,6 +215,7 @@ function Cpu() {
             var startAddr = this.Yreg;
             var str = '';
             arg = this.mmu.read(pid, startAddr).toDecimal();
+            // Go to next byte and read ASCII char until null-terminated (0 base 10)
             while (arg != 0) {
                 arg = this.mmu.read(pid, startAddr++).toDecimal();
                 str += String.fromCharCode(arg);
