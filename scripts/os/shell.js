@@ -143,7 +143,7 @@ function shellInit() {
     			}
     		}
     		if(valid) {
-    		    krnLoadProcess(instructions);
+    		    _KernelInterruptQueue.enqueue( new Interrupt(LOAD_IRQ, instructions) );
     		}
     	}
     	else {
@@ -158,7 +158,7 @@ function shellInit() {
     sc.command = "run";
     sc.description = "<pid> - Run a process.";
     sc.func = function (args) {
-        _CPU.isExecuting = true;
+        _KernelInterruptQueue.enqueue(new Interrupt(RUN_IRQ, pid));
     };
     this.commandList[this.commandList.length] = sc;
 

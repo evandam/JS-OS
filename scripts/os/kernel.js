@@ -131,6 +131,15 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             krnKeyboardDriver.isr(params);   // Kernel mode device driver
             _StdIn.handleInput();
             break;
+        case LOAD_IRQ:
+            krnLoadProcess(params);
+            break;
+        case RUN_IRQ:
+            krnRunProcess(params);
+            break;
+        case SYSCALL_IRQ:
+            krnSyscall(params);
+            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
     }
@@ -197,6 +206,15 @@ function krnLoadProcess(instructions) {
     for (var i = 0; i < instructions.length; i++) {
         _CPU.mmu.write(pcb.pid, pcb.base + i, instructions[i]);
     }
-    _Console.putText("Process created with PID=" + pcb.pid);
     updateMemoryDisplay();
+    _Console.putText("Process created with PID=" + pcb.pid);
+}
+
+function krnRunProcess(pid) {
+    _CPU.PC = 0;    // this will eventually be based on the PCB
+    _CPU.isExecuting = true;
+}
+
+function krnSyscall(arg) {
+    _Console.putText(arg);
 }

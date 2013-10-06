@@ -163,8 +163,7 @@ function Cpu() {
 
     // 00 - break (system call)
     this.BRK = function () {
-        // stop execution, but still advance the PC for the next instruction
-        this.PC++; 
+        // stop execution
         this.isExecuting = false;
     }
 
@@ -181,7 +180,6 @@ function Cpu() {
             var distance = this.mmu.read(pid, this.PC++).toDecimal();
             // 128 = 0, branch negative if less than, or ahead if greater
             distance = distance < 128 ? 128 - distance : 256 - distance;
-            
             this.PC += distance;    // may have an off-by-one error...
         }
     };
@@ -197,14 +195,16 @@ function Cpu() {
     // FF - Syscall
     this.SYS = function () {
         // print integer stored in YReg
+        var arg = '';
         if (this.Xreg === 1) {
-            // I/O interrupt
-            alert(this.Yreg);
+            arg = this.Yreg.toString();
         }
         // print 00-terminated string stored at address in YReg
         else if (this.Xreg === 2) {
-            // I/O interrupt
-            alert(this.Yreg);
+            // need to parse out ascii and go until 00 reached
+            var startAddr = this.Yreg;
+            arg = this.mmu.read(pid, startAddr).toDecimal();
         }
+        _KernelInterruptQueue.enqueue( new Interrupt(SYSCALL_IRQ,arg) );
     };
 }
