@@ -26,7 +26,7 @@ var updateMemoryDisplay = function () {
             el.append("<th> 0x" + i.toString(16).toUpperCase() + " </th>");
         }
 
-        el.append("<td>" + _Memory.mem[i] + "</td>");
+        el.append("<td>" + _Memory.mem[i].toHex() + "</td>");
 
         // last column
         if (i % 8 == 7) {

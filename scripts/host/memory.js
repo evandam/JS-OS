@@ -9,15 +9,14 @@ function Memory () {
 };
 
 function MemoryCell() {
-    this.lo = 0;
-    this.hi = 0;
+    this.lo = '0';
+    this.hi = '0';
 };
 
 MemoryCell.prototype.toHex = function () {
-    return this.lo + "" + this.hi;
+    return this.hi + "" + this.lo;
 };
 
 MemoryCell.prototype.toDecimal = function () {
-    var hex = MemoryCell.prototype.toHex();
-    return parseInt(hex, 16);
+    return parseInt(this.hi + this.lo, 16);
 };

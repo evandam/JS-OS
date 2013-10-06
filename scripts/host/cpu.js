@@ -9,7 +9,7 @@
    that hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using
    JavaScript in both the host and client environments.
 
-   This code references page numbers in the text book: 
+   This code references page bytebers in the text book: 
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 
@@ -75,7 +75,8 @@ function Cpu() {
             case 'AC':
                 this.LDY_M();
                 break;
-            case 'EA':  //no op
+            case 'EA':  //no op, just add PC and move to next instr
+                //this.PC++;
                 break;
             case '00':
                 this.BRK(); // sys-call?
@@ -108,7 +109,7 @@ function Cpu() {
     };
 
     // Gets the integer (base 10) pointed to by current PC
-    this.getNum = function (pid) {
+    this.getByte = function (pid) {
         var addr = this.getAddress(pid);
         return this.mmu.read(pid, addr).toDecimal();
     };
@@ -135,7 +136,7 @@ function Cpu() {
 
     // 6D - Add with carry (add conents of an address to contents of accumulator. results kept in Acc
     this.ADC = function () {
-        this.Acc += this.getNum();  
+        this.Acc += this.getByte();  
     };
 
     // A2 - Load XReg with constant
@@ -146,7 +147,7 @@ function Cpu() {
 
     // AE - Load XReg from memory
     this.LDX_M = function () {
-        this.Xreg = this.getNum();
+        this.Xreg = this.getByte();
     };
 
     // A0 - Load YReg with constant
@@ -157,7 +158,7 @@ function Cpu() {
 
     // AC - Load YReg from memory
     this.LDY_M = function () {
-        var num = this.getNum();
+        this.Yreg = this.getByte();
     };
 
     // 00 - break (system call)
@@ -169,21 +170,38 @@ function Cpu() {
 
     // EC - Compare byte in mem to XReg - sets ZFlag if equal
     this.CPX = function () {
-
+        var byte = this.getByte();
+        if (byte === this.Xreg)
+            this.Zflag = 1;
     };
 
     //D0 - Branch X bytes if Zflag == 0
     this.BNE = function () {
-
+        if (this.Zflag === 0) {
+            var distance = this.mmu.read(pid, this.PC++).toDecimal();
+            if (distance > 127)
+                distance = (256 - distance) * -1; // going to have to test this...should wrap around
+            this.PC += distance;    // may have an off-by-one error...
+        }
     };
 
     // EE - Increment value of a byte
     this.INC = function () {
-
+        var byte = this.getByte();
+        byte++; // what to do with this? store back in memory? in the Acc?
     };
 
     // FF - Syscall
     this.SYS = function () {
-
+        // print integer stored in YReg
+        if (this.Xreg === 1) {
+            // I/O interrupt
+            alert(this.Yreg);
+        }
+        // print 00-terminated string stored at address in YReg
+        else if (this.Xreg === 2) {
+            // I/O interrupt
+            alert(this.Yreg);
+        }
     };
 }
