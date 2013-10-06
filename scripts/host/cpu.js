@@ -164,6 +164,7 @@ function Cpu() {
     // 00 - break (system call)
     this.BRK = function () {
         // stop execution
+        this.PC++;
         this.isExecuting = false;
     }
 
@@ -186,7 +187,7 @@ function Cpu() {
                 this.PC -= 256;
         }
         else
-            this.PC += 2;    // skip branch params
+            this.PC++;    // skip branch params
     };
 
     // EE - Increment value of a byte
@@ -206,13 +207,22 @@ function Cpu() {
         var arg = '';
         if (this.Xreg === 1) {
             arg = this.Yreg.toString();
+            _KernelInterruptQueue.enqueue(new Interrupt(SYSCALL_IRQ, arg));
         }
         // print 00-terminated string stored at address in YReg
         else if (this.Xreg === 2) {
             // need to parse out ascii and go until 00 reached
             var startAddr = this.Yreg;
+            var str = '';
             arg = this.mmu.read(pid, startAddr).toDecimal();
+            while (arg != 0) {
+                arg = this.mmu.read(pid, startAddr++).toDecimal();
+                str += String.fromCharCode(arg);
+            }
+            
+            _KernelInterruptQueue.enqueue(new Interrupt(SYSCALL_IRQ, str));
         }
-        _KernelInterruptQueue.enqueue( new Interrupt(SYSCALL_IRQ,arg) );
+        else
+            krnTrapError("Invalid SYSCALL");
     };
 }
