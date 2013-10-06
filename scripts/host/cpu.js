@@ -179,16 +179,19 @@ function Cpu() {
     this.BNE = function () {
         if (this.Zflag === 0) {
             var distance = this.mmu.read(pid, this.PC++).toDecimal();
-            if (distance > 127)
-                distance = (256 - distance) * -1; // going to have to test this...should wrap around
+            // 128 = 0, branch negative if less than, or ahead if greater
+            distance = distance < 128 ? 128 - distance : 256 - distance;
+            
             this.PC += distance;    // may have an off-by-one error...
         }
     };
 
     // EE - Increment value of a byte
     this.INC = function () {
+        var targetAddr = this.PC + 1;
         var byte = this.getByte();
-        byte++; // what to do with this? store back in memory? in the Acc?
+        byte++;
+        this.mmu.write(pid, targetAddr, byte);  // write back to memory
     };
 
     // FF - Syscall
