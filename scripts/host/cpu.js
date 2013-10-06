@@ -76,10 +76,10 @@ function Cpu() {
                 this.LDY_M();
                 break;
             case 'EA':  //no op, just add PC and move to next instr
-                //this.PC++;
+                this.PC++;
                 break;
             case '00':
-                this.BRK(); // sys-call?
+                this.BRK(); 
                 break;
             case 'EC':
                 this.CPX();
@@ -172,24 +172,32 @@ function Cpu() {
         var byte = this.getByte();
         if (byte === this.Xreg)
             this.Zflag = 1;
+        else
+            this.Zflag = 0;
     };
 
     //D0 - Branch X bytes if Zflag == 0
     this.BNE = function () {
         if (this.Zflag === 0) {
             var distance = this.mmu.read(pid, this.PC++).toDecimal();
-            // 128 = 0, branch negative if less than, or ahead if greater
-            distance = distance < 128 ? 128 - distance : 256 - distance;
-            this.PC += distance;    // may have an off-by-one error...
+            this.PC += distance;
+            // wrap-around to branch backwards
+            if (this.PC >= 256)
+                this.PC -= 256;
         }
+        else
+            this.PC += 2;    // skip branch params
     };
 
     // EE - Increment value of a byte
     this.INC = function () {
-        var targetAddr = this.PC + 1;
+        // save target addr since writing back to it
+        var targetAddr = this.mmu.read(pid, this.PC).toHex();
+        targetAddr = this.mmu.read(pid, this.PC + 1).toHex() + targetAddr;
         var byte = this.getByte();
         byte++;
-        this.mmu.write(pid, targetAddr, byte);  // write back to memory
+        // write incremented byte back to address
+        this.mmu.write(pid, parseInt(targetAddr, 16), byte);  // write back to memory
     };
 
     // FF - Syscall
