@@ -32,6 +32,7 @@ var RUN_IRQ = 3;
 
 var SYSCALL_IRQ = 4;
 
+var SINGLESTEP_IRQ = 5;
 
 //
 // Global Variables
@@ -43,6 +44,8 @@ var _Memory = null;
 var _OSclock = 0;       // Page 23.
 
 var _Mode = 0;   // 0 = Kernel Mode, 1 = User Mode.  See page 21.
+
+var _SingleStep = false;    // 
 
 var _Canvas = null;               // Initialized in hostInit().
 var _DrawingContext = null;       // Initialized in hostInit().

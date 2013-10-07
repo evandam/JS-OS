@@ -138,3 +138,17 @@ function hostDateTime() {
 		div.innerText = date.toDateString() + " " + date.toTimeString();
 	}, 1000);
 }
+
+// turn single-step debugging on and off
+function toggleSingleStep() {
+    $("#btnStep").toggle();
+    _SingleStep = !_SingleStep;
+}
+
+/*
+ * When the button is clicked it sends an interrupt to the kernel.
+ * This will call one CPU cycle...but it seems like theres some bugs.
+ */
+function singleStep() {
+    _KernelInterruptQueue.enqueue(new Interrupt(SINGLESTEP_IRQ, null));
+}

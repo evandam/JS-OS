@@ -87,7 +87,9 @@ function krnOnCPUClockPulse()
     }
     else if (_CPU.isExecuting) // If there are no interrupts then run one CPU cycle if there is anything being processed.
     {
-        _CPU.cycle();
+        // cycles will be handled with interrupts if single step is enabled
+        if(!_SingleStep)
+            _CPU.cycle();
     }    
     else                       // If there are no interrupts and there is nothing being executed then just be idle.
     {
@@ -218,6 +220,12 @@ function krnRunProcess(pid) {
     _CPU.isExecuting = true;
 }
 
+// Handle a syscall (FF) from a process by printing to console
 function krnSyscall(arg) {
     _StdIn.putText(arg);
+}
+
+// If single step is enabled, this interrupt is enqueued to advance the CPU
+function singleStep() {
+    _CPU.cycle();
 }

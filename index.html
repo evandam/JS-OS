@@ -67,6 +67,16 @@
              value="Reset"
              tabindex="2"
              onclick="hostBtnReset_click(this);">
+    
+    <input type="button" 
+           value="Toggle Single-Step"
+           onclick="toggleSingleStep();"> 
+    
+    <input type="button"
+           value="Step"
+           id="btnStep"
+           hidden="hidden"
+           onclick="singleStep();">       
              
 	 <div id="StausBar"> Make your own status! </div>
 	 <div id="curTime"> What's the time? </div>
