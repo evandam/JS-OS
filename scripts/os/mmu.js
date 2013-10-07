@@ -9,12 +9,15 @@ function MMU() {
     this.PCBs = [];
     this.currentPid = 0;
 }
-
+// TODO: will eventually need to translate logical/physical addresses
+// easy enough...just addr + pcb.base, but thats for project 3...
 MMU.prototype.read = function (pid, addr) {
-    if(this.inRange(pid, addr))
+    if (this.inRange(pid, addr))
         return _Memory.mem[addr];   // check base/limit here
-    else
+    else {
+        // do something more exciting here...BSOD? kill process?
         krnTrapError("ACCESSED ADDRESS OUT OF RANGE");
+    }
 };
 
 MMU.prototype.write = function (pid, addr, byte) {
@@ -26,8 +29,10 @@ MMU.prototype.write = function (pid, addr, byte) {
         _Memory.mem[addr].hi = hex.charAt(0);
         _Memory.mem[addr].lo = hex.charAt(1);
     }
-    else
+    else {
         krnTrapError("ACCESSED ADDRESS OUT OF RANGE");
+        // do something more exciting here...BSOD? kill process?
+    }
 };
 
 // target address must be within the process' base and limit
