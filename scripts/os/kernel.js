@@ -206,8 +206,11 @@ function krnLoadProcess(instructions) {
     for (var i = 0; i < instructions.length; i++) {
         _CPU.mmu.write(pcb.pid, pcb.base + i, instructions[i]);
     }
+    _CPU.mmu.curPid = pcb.pid;
     updateMemoryDisplay();
-    _Console.putText("Process created with PID=" + pcb.pid);
+    _StdIn.putText("Process created with PID=" + pcb.pid);
+    _StdIn.advanceLine();
+    _OsShell.putPrompt();
 }
 
 function krnRunProcess(pid) {
@@ -216,5 +219,5 @@ function krnRunProcess(pid) {
 }
 
 function krnSyscall(arg) {
-    _Console.putText(arg);
+    _StdIn.putText(arg);
 }

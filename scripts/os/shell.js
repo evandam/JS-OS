@@ -158,7 +158,7 @@ function shellInit() {
     sc.command = "run";
     sc.description = "<pid> - Run a process.";
     sc.func = function (args) {
-        _KernelInterruptQueue.enqueue(new Interrupt(RUN_IRQ, pid));
+        _KernelInterruptQueue.enqueue(new Interrupt(RUN_IRQ, args));
     };
     this.commandList[this.commandList.length] = sc;
 
