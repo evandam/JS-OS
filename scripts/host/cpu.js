@@ -76,7 +76,6 @@ function Cpu() {
                 this.LDY_M();
                 break;
             case 'EA':  //no op, just add PC and move to next instr
-                this.PC++;
                 break;
             case '00':
                 this.BRK(); 
@@ -164,7 +163,6 @@ function Cpu() {
     // 00 - break (system call)
     this.BRK = function () {
         // stop execution
-        this.PC++;
         this.isExecuting = false;
     }
 
