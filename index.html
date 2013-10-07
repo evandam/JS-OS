@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+﻿<!DOCTYPE HTML>
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
@@ -17,6 +17,8 @@
    <script type="text/javascript" src="scripts/host/control.js"></script>
    <script type="text/javascript" src="scripts/host/devices.js"></script>
    <script type="text/javascript" src="scripts/host/cpu.js"></script>
+   <script type="text/javascript" src="scripts/host/memory.js"></script>
+   <script type="text/javascript" src="scripts/host/displays.js"></script>
 
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
    <script type="text/javascript" src="scripts/os/interrupt.js"></script>
@@ -27,6 +29,8 @@
    <script type="text/javascript" src="scripts/os/queue.js"></script>
    <script type="text/javascript" src="scripts/os/shell.js"></script>
    <script type="text/javascript" src="scripts/os/kernel.js"></script>
+   <script type="text/javascript" src="scripts/os/mmu.js"></script>
+    <script type="text/javascript" src="scripts/os/pcb.js"></script>
 
    <!-- Other Routines -->
    <script type="text/javascript" src="scripts/utils.js"></script>
@@ -89,19 +93,60 @@
       </label>
    </div>
 
+   <div id="divMemory">
+       Memory
+       <div id="divMemory-wrap">
+           <table border="1">
+               <thead>
+                   <th></th>
+                   <th>0/8</th>
+                   <th>1/9</th>
+                   <th>2/A</th>
+                   <th>3/B</th>
+                   <th>4/C</th>
+                   <th>5/D</th>
+                   <th>6/E</th>
+                   <th>7/F</th>
+               </thead>
+               <tbody></tbody>
+           </table>
+       </div>
+   </div>
+   
+   <div id="divCPU">
+        CPU Status
+        <table border="1">
+            <thead>
+                <th>PC</th>
+                <th>Acc</th>
+                <th>Xreg</th>
+                <th>Yreg</th>
+                <th>Zflag</th>
+            </thead>
+            <tbody>
+                <td id="CPU_PC"> &nbsp; </td>
+                <td id="CPU_ACC"> </td>
+                <td id="CPU_XReg"> </td>
+                <td id="CPU_YReg"> </td>
+                <td id="CPU_ZFlag"> </td>
+            </tbody>
+        </table>
+   </div>
+
    <div id="divUserProgramInput" style="margin-left:520px;">
       <label>
          User Program Input
          <br>
-         <textarea name="taProgramInput"
-                   id  ="taProgramInput"
-                   rows="8"
-                   cols="48"
-         ></textarea>
+          <textarea name="taProgramInput"
+                    id="taProgramInput"
+                    rows="8"
+                    cols="48">
+A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF A9 44 8D 42 00 A9 4F 8D 43 00 A9 4E 8D 44 00 A9 45 8D 45 00 A9 00 8D 46 00 A2 02 A0 42 FF 00
+          </textarea>
       </label>
    </div>
-
 </div>
+
 
 <p class="footerText" style="clear:both;">
    <br>

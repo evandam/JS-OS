@@ -48,6 +48,29 @@ h3 {
 	width: 100px;
 }
 
+#divCPU {
+    position: absolute;
+    top: 75px;
+    left: 950px;
+    text-align: center;
+}
+
+#divMemory {
+    position: absolute;
+    top: 175px;
+    left: 950px;
+    text-align: center;
+}
+
+#divMemory-wrap {
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+#divMemory table {
+    background-color: #DFDBC3;
+}
+
 .footerText {
    color: black;
    font-family: Arial, Helvetica, sans-serif;

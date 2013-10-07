@@ -131,6 +131,15 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             krnKeyboardDriver.isr(params);   // Kernel mode device driver
             _StdIn.handleInput();
             break;
+        case LOAD_IRQ:
+            krnLoadProcess(params);
+            break;
+        case RUN_IRQ:
+            krnRunProcess(params);
+            break;
+        case SYSCALL_IRQ:
+            krnSyscall(params);
+            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
     }
@@ -187,4 +196,28 @@ function krnTrapError(msg)
     hostLog("OS ERROR - TRAP: " + msg);
     // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
     
+}
+
+// Load validated 6502a instructions to memory, assign a PID and PCB.
+// Return the PID to be printed by the console
+function krnLoadProcess(instructions) {
+    var pcb = new PCB();            
+    pcb.init(0, 255, 0, 0, 0, 0);   // PID determined here, too.
+    for (var i = 0; i < instructions.length; i++) {
+        _CPU.mmu.write(pcb.pid, pcb.base + i, instructions[i]);
+    }
+    updateMemoryDisplay();
+    _StdIn.putText("Process created with PID=" + pcb.pid);
+    _StdIn.advanceLine();
+    _OsShell.putPrompt();
+}
+
+function krnRunProcess(pid) {
+    // set the PC, registers, etc for execution
+    _CPU.mmu.contextSwitch(pid); 
+    _CPU.isExecuting = true;
+}
+
+function krnSyscall(arg) {
+    _StdIn.putText(arg);
 }

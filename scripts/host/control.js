@@ -47,6 +47,13 @@ function hostInit()
    
    // Start the clock
    hostDateTime();
+
+    // set up the HTML to display memory
+   _Memory = new Memory();
+   initMemDisplay();
+
+    // auto-start the OS - remove this line later
+    document.getElementById('btnStartOS').click();
 }
 
 function hostLog(msg, source)
@@ -90,6 +97,9 @@ function hostBtnStartOS_click(btn)
     // ... Create and initialize the CPU ...
     _CPU = new Cpu();
     _CPU.init();
+
+    // ... Initialize main memory
+    updateMemoryDisplay();
 
     // ... then set the host clock pulse ...
     _hardwareClockID = setInterval(hostClockPulse, CPU_CLOCK_INTERVAL);
