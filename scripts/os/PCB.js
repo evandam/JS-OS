@@ -14,7 +14,7 @@ function PCB() {
     this.Zflag = 0;
 
     this.init = function (base, limit, pc, x, y, z) {
-        this.pid = 0;       // increment this later based on other pids
+        this.pid = _CPU.mmu.PCBs.length;
         this.base = base;
         this.limit = limit;
         this.PC = pc;

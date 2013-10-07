@@ -10,9 +10,7 @@
 
 /*
 TODO:
-USE PCBs - not just a static pid of 0!!!!
-update PCB at end of execution
-add bounds checks for memory accesses!
+Implement the ready queue?
 */
 
 

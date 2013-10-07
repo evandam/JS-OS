@@ -161,11 +161,7 @@ function Cpu() {
     // 00 - break (system call)
     this.BRK = function () {
         // update the current process' PCB
-        this.mmu.PCBs[this.mmu.currentPid].PC = this.PC;
-        this.mmu.PCBs[this.mmu.currentPid].Acc = this.Acc;
-        this.mmu.PCBs[this.mmu.currentPid].Xreg = this.Xreg;
-        this.mmu.PCBs[this.mmu.currentPid].Yreg = this.Yreg;
-        this.mmu.PCBs[this.mmu.currentPid].Zflag = this.Zflag;
+        this.mmu.updatePCB();
         // stop execution
         this.isExecuting = false;
     }

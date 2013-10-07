@@ -206,7 +206,6 @@ function krnLoadProcess(instructions) {
     for (var i = 0; i < instructions.length; i++) {
         _CPU.mmu.write(pcb.pid, pcb.base + i, instructions[i]);
     }
-    _CPU.mmu.curPid = pcb.pid;
     updateMemoryDisplay();
     _StdIn.putText("Process created with PID=" + pcb.pid);
     _StdIn.advanceLine();
@@ -214,7 +213,8 @@ function krnLoadProcess(instructions) {
 }
 
 function krnRunProcess(pid) {
-    _CPU.PC = 0;    // this will eventually be based on the PCB
+    // set the PC, registers, etc for execution
+    _CPU.mmu.contextSwitch(pid); 
     _CPU.isExecuting = true;
 }
 
