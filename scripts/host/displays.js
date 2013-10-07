@@ -37,9 +37,9 @@ var updateMemoryDisplay = function () {
 
 // Update the CPU display with current info
 var updateCPUDisplay = function () {
-    $('#CPU_PC').html(_CPU.PC);
-    $('#CPU_ACC').html(_CPU.Acc);
-    $('#CPU_XReg').html(_CPU.Xreg);
-    $('#CPU_YReg').html(_CPU.Yreg);
-    $('#CPU_ZFlag').html(_CPU.Zflag);
+    $('#CPU_PC').html(_CPU.PC.toString(16).toUpperCase());
+    $('#CPU_ACC').html(_CPU.Acc.toString(16).toUpperCase());
+    $('#CPU_XReg').html(_CPU.Xreg.toString(16).toUpperCase());
+    $('#CPU_YReg').html(_CPU.Yreg.toString(16).toUpperCase());
+    $('#CPU_ZFlag').html(_CPU.Zflag.toString(16).toUpperCase());
 };
