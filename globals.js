@@ -41,7 +41,7 @@ var DISPLAY_PCB_IRQ = 6;
 //
 var _CPU = null;
 
-var _Memory = null;
+var _Memory = null;0
 
 var _OSclock = 0;       // Page 23.
 
@@ -72,7 +72,7 @@ var _Console = null;
 var _OsShell = null;
 
 // At least this OS is not trying to kill you. (Yet.)
-var _SarcasticMode = true;
+var _SarcasticMode = false;
 
 // Global Device Driver Objects - page 12
 var krnKeyboardDriver = null;

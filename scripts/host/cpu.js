@@ -38,7 +38,7 @@ function Cpu() {
         // Do the real work here. Be sure to set this.isExecuting appropriately.
         
         // Fetch the next instruction, increment PC
-        var instr = this.mmu.read(this.mmu.currentPid, this.PC++).toHex();
+        var instr = this.mmu.read(this.PC++).toHex();
         // Decode the instruction and execute it.
         // Stop execution and trap an error if unrecognized instruction
         this.decode(instr);
@@ -99,8 +99,8 @@ function Cpu() {
     // Get the memory address pointed to by the PC and parse it from hex to dec
     // Advance the PC, too
     this.getAddress = function () {
-        var addr = this.mmu.read(this.mmu.currentPid, this.PC++).toHex();
-        addr = this.mmu.read(this.mmu.currentPid, this.PC++).toHex() + addr; // it seems like order shoud be other way around
+        var addr = this.mmu.read(this.PC++).toHex();
+        addr = this.mmu.read(this.PC++).toHex() + addr; // it seems like order shoud be other way around
         addr = parseInt(addr, 16);  // need to convert from hex to decimal
         return addr;
     };
@@ -108,26 +108,26 @@ function Cpu() {
     // Gets the integer (base 10) pointed to by current PC
     this.getByte = function () {
         var addr = this.getAddress();
-        return this.mmu.read(this.mmu.currentPid, addr).toDecimal();
+        return this.mmu.read(addr).toDecimal();
     };
 
     // A9 - load accumulator with a constant
     this.LDA_C = function () {
         // the constant is in the next memory address
-        var c = this.mmu.read(this.mmu.currentPid, this.PC++).toDecimal();   // post-increment the Program Counter for the next instruction
+        var c = this.mmu.read(this.PC++).toDecimal();   // post-increment the Program Counter for the next instruction
         this.Acc = c;       // Acc stores a DECIMAL INTEGER
     };
 
     // AD - load accumulator from memory
     this.LDA_M = function () {
         var addr = this.getAddress();
-        this.Acc = this.mmu.read(this.mmu.currentPid, addr).toDecimal();
+        this.Acc = this.mmu.read(addr).toDecimal();
     };
 
     // 8D - store accumulator in memory
     this.STA = function () {
         var addr = this.getAddress();
-        this.mmu.write(this.mmu.currentPid, addr, this.Acc);
+        this.mmu.write(addr, this.Acc);
         updateMemoryDisplay();  // writing to memory, so the display should be updated
     };
 
@@ -138,7 +138,7 @@ function Cpu() {
 
     // A2 - Load XReg with constant
     this.LDX_C = function () {
-        var c = this.mmu.read(this.mmu.currentPid, this.PC++).toDecimal();
+        var c = this.mmu.read(this.PC++).toDecimal();
         this.Xreg = c;
     };
 
@@ -149,7 +149,7 @@ function Cpu() {
 
     // A0 - Load YReg with constant
     this.LDY_C = function () {
-        var c = this.mmu.read(this.mmu.currentPid, this.PC++).toDecimal();
+        var c = this.mmu.read(this.PC++).toDecimal();
         this.Yreg = c;
     };
 
@@ -163,7 +163,7 @@ function Cpu() {
         // update the current process' PCB
         this.mmu.updatePCB();
         // display the current PCB
-        _KernelInterruptQueue.enqueue(new Interrupt(DISPLAY_PCB_IRQ, this.mmu.PCBs[this.mmu.currentPid]));
+        _KernelInterruptQueue.enqueue(new Interrupt(DISPLAY_PCB_IRQ, this.mmu.process));
         // stop execution
         this.isExecuting = false;
     }
@@ -180,7 +180,7 @@ function Cpu() {
     //D0 - Branch X bytes if Zflag == 0
     this.BNE = function () {
         if (this.Zflag === 0) {
-            var distance = this.mmu.read(this.mmu.currentPid, this.PC++).toDecimal();
+            var distance = this.mmu.read(this.PC++).toDecimal();
             this.PC += distance;
             // wrap-around to branch backwards
             if (this.PC >= 256)
@@ -193,12 +193,12 @@ function Cpu() {
     // EE - Increment value of a byte
     this.INC = function () {
         // save target addr since writing back to it
-        var targetAddr = this.mmu.read(this.mmu.currentPid, this.PC).toHex();
-        targetAddr = this.mmu.read(this.mmu.currentPid, this.PC + 1).toHex() + targetAddr;
+        var targetAddr = this.mmu.read(this.PC).toHex();
+        targetAddr = this.mmu.read(this.PC + 1).toHex() + targetAddr;
         var byte = this.getByte();
         byte++;
         // write incremented byte back to address
-        this.mmu.write(this.mmu.currentPid, parseInt(targetAddr, 16), byte);  // write back to memory
+        this.mmu.write(parseInt(targetAddr, 16), byte);  // write back to memory
     };
 
     // FF - Syscall
@@ -214,10 +214,10 @@ function Cpu() {
             // need to parse out ascii and go until 00 reached
             var startAddr = this.Yreg;
             var str = '';
-            arg = this.mmu.read(this.mmu.currentPid, startAddr).toDecimal();
+            arg = this.mmu.read(startAddr).toDecimal();
             // Go to next byte and read ASCII char until null-terminated (0 base 10)
             while (arg != 0) {
-                arg = this.mmu.read(this.mmu.currentPid, startAddr++).toDecimal();
+                arg = this.mmu.read(startAddr++).toDecimal();
                 str += String.fromCharCode(arg);
             }
             
