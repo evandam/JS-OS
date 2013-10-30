@@ -142,6 +142,9 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case SYSCALL_IRQ:
             krnSyscall(params);
             break;
+        case DISPLAY_PCB_IRQ:
+            krnDisplayPCB(params);
+            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
     }
@@ -228,4 +231,19 @@ function krnSyscall(arg) {
 // If single step is enabled, this interrupt is enqueued to advance the CPU
 function singleStep() {
     _CPU.cycle();
+}
+
+// print the current state of the pcb of the active process
+function krnDisplayPCB(arg) {
+    var str = '{PID: ' + arg.pid +
+        ', Acc: ' + arg.Acc +
+        ', PC: ' + arg.PC +
+        ', Xreg: ' + arg.Xreg +
+        ', Yreg: ' + arg.Yreg + 
+        ', Zflag: ' + arg.Zflag + 
+        ', Base: ' + arg.base +
+        ', Limit: ' + arg.limit + '}';
+    _StdIn.advanceLine();
+    _StdIn.putText(str);
+
 }

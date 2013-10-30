@@ -6,7 +6,7 @@ and also perform context switching.
 */
 
 function MMU() {
-    this.PCBs = [];
+    this.PCBs = []; // pcbs should jsut be taken off the ready queue
     this.currentPid = 0;
 }
 // TODO: will eventually need to translate logical/physical addresses

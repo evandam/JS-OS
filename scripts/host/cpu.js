@@ -162,6 +162,8 @@ function Cpu() {
     this.BRK = function () {
         // update the current process' PCB
         this.mmu.updatePCB();
+        // display the current PCB
+        _KernelInterruptQueue.enqueue(new Interrupt(DISPLAY_PCB_IRQ, this.mmu.PCBs[this.mmu.currentPid]));
         // stop execution
         this.isExecuting = false;
     }
