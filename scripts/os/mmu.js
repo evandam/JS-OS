@@ -6,12 +6,17 @@ and also perform context switching.
 */
 
 function MMU() {
-    this.PCBs = []; // pcbs should jsut be taken off the ready queue
     this.process = {};  // the PCB of the current process
+}
+
+// add the base limit of the current process to the target address
+MMU.prototype.translate = function (addr) {
+    return this.process.base + addr;
 }
 // TODO: will eventually need to translate logical/physical addresses
 // easy enough...just addr + pcb.base, but thats for project 3...
 MMU.prototype.read = function (addr) {
+    addr = this.translate(addr);
     if (this.inRange(addr))
         return _Memory.mem[addr];   // check base/limit here
     else {
@@ -21,6 +26,7 @@ MMU.prototype.read = function (addr) {
 };
 
 MMU.prototype.write = function (addr, byte) {
+    addr = this.translate(addr);
     if (this.inRange(addr)) {
         // need to convert the byte (base 10) to hex.
         var hex = byte.toString(16);
@@ -40,15 +46,15 @@ MMU.prototype.inRange = function (addr) {
     return this.process.base <= addr && this.process.limit >= addr;
 };
 
-// update the CPU state to match the process' PCB
-MMU.prototype.contextSwitch = function (new_pcb) {
+// update the CPU state to match the next process' PCB from the ready queue
+MMU.prototype.contextSwitch = function () {
     // push old pcb back to ready queue
-    this.process = new_pcb;
-    _CPU.PC = new_pcb.PC;
-    _CPU.Acc = new_pcb.Acc;
-    _CPU.Xreg = new_pcb.Xreg;
-    _CPU.Yreg = new_pcb.Yreg;
-    _CPU.Zflag = new_pcb.Zflag;
+    this.process = _ResidentList.shift();
+    _CPU.PC = this.process.PC;
+    _CPU.Acc = this.process.Acc;
+    _CPU.Xreg = this.process.Xreg;
+    _CPU.Yreg = this.process.Yreg;
+    _CPU.Zflag = this.process.Zflag;
 };
 
 // update the current PCB to reflect the current state of the CPU

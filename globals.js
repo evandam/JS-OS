@@ -58,6 +58,10 @@ var _FontHeightMargin = 4;        // Additional space added to font size when ad
 // Default the OS trace to be on.
 var _Trace = true;
 
+// Queues and lists for CPU scheduling
+var _ResidentList = [];
+var _ReadyQueue = [];
+
 // OS queues
 var _KernelInterruptQueue = null;
 var _KernelBuffers = null;

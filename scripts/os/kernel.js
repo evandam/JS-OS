@@ -206,11 +206,21 @@ function krnTrapError(msg)
 // Load validated 6502a instructions to memory, assign a PID and PCB.
 // Return the PID to be printed by the console
 function krnLoadProcess(instructions) {
-    var pcb = new PCB();            
+    // Check which partitions are available for limits
+    var pcb = new PCB();
     pcb.init(0, 255, 0, 0, 0, 0);   // PID determined here, too.
+
+    // add the process to the resident queue now that it is loaded
+    _ResidentList.push(pcb);
+
+    // bounds checks while loading in the new process
+    var oldpcb = _CPU.mmu.process;
+    _CPU.mmu.process = pcb;
     for (var i = 0; i < instructions.length; i++) {
         _CPU.mmu.write(pcb.base + i, instructions[i]);
     }
+    _CPU.mmu.process = oldpcb;
+
     updateMemoryDisplay();
     _StdIn.putText("Process created with PID=" + pcb.pid);
     _StdIn.advanceLine();

@@ -14,14 +14,12 @@ function PCB() {
     this.Zflag = 0;
 
     this.init = function (base, limit, pc, x, y, z) {
-        this.pid = _CPU.mmu.PCBs.length;
+        this.pid = _ResidentList.length;
         this.base = base;
         this.limit = limit;
         this.PC = pc;
         this.Xreg = x;
         this.Yreg = y;
         this.Zflag = z;
-
-        _CPU.mmu.PCBs[this.pid] = this;  // add PCB to the MMU
     };
 };
