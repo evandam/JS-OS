@@ -34,7 +34,7 @@ var SYSCALL_IRQ = 4;
 
 var SINGLESTEP_IRQ = 5;
 
-var DISPLAY_PCB_IRQ = 6;
+var BREAK_IRQ = 6;
 
 //
 // Global Variables

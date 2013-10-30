@@ -142,8 +142,8 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case SYSCALL_IRQ:
             krnSyscall(params);
             break;
-        case DISPLAY_PCB_IRQ:
-            krnDisplayPCB(params);
+        case BREAK_IRQ:
+            krnBreak(params);
             break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -212,6 +212,7 @@ function krnLoadProcess(instructions) {
 
     // add the process to the resident queue now that it is loaded
     _ResidentList.push(pcb);
+    _ReadyQueue.push(pcb);
 
     // bounds checks while loading in the new process
     var oldpcb = _CPU.mmu.process;
@@ -243,16 +244,22 @@ function singleStep() {
     _CPU.cycle();
 }
 
-// print the current state of the pcb of the active process
-function krnDisplayPCB(arg) {
-    var str = '{PID: ' + arg.pid +
-        ', Acc: ' + arg.Acc +
-        ', PC: ' + arg.PC +
-        ', Xreg: ' + arg.Xreg +
-        ', Yreg: ' + arg.Yreg + 
-        ', Zflag: ' + arg.Zflag + 
-        ', Base: ' + arg.base +
-        ', Limit: ' + arg.limit + '}';
+// process terminated self
+// print the ending state of the PCB
+// and pop it off the resident list since it no longer needs to be in memory.
+function krnBreak(pcb) {
+    var pcbIndex = _ResidentList.indexOf(pcb);
+    if (pcbIndex > -1)
+        _ResidentList.splice(pcbIndex, 1);
+
+    var str = '{PID: ' + pcb.pid +
+        ', Acc: ' + pcb.Acc +
+        ', PC: ' + pcb.PC +
+        ', Xreg: ' + pcb.Xreg +
+        ', Yreg: ' + pcb.Yreg + 
+        ', Zflag: ' + pcb.Zflag + 
+        ', Base: ' + pcb.base +
+        ', Limit: ' + pcb.limit + '}';
     _StdIn.advanceLine();
     _StdIn.putText(str);
 

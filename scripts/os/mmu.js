@@ -49,7 +49,7 @@ MMU.prototype.inRange = function (addr) {
 // update the CPU state to match the next process' PCB from the ready queue
 MMU.prototype.contextSwitch = function () {
     // push old pcb back to ready queue
-    this.process = _ResidentList.shift();
+    this.process = _ReadyQueue.shift();
     _CPU.PC = this.process.PC;
     _CPU.Acc = this.process.Acc;
     _CPU.Xreg = this.process.Xreg;

@@ -163,7 +163,7 @@ function Cpu() {
         // update the current process' PCB
         this.mmu.updatePCB();
         // display the current PCB
-        _KernelInterruptQueue.enqueue(new Interrupt(DISPLAY_PCB_IRQ, this.mmu.process));
+        _KernelInterruptQueue.enqueue(new Interrupt(BREAK_IRQ, this.mmu.process));
         // stop execution
         this.isExecuting = false;
     }
