@@ -37,7 +37,8 @@ MMU.prototype.write = function (addr, byte) {
     }
     else {
         krnTrapError("ACCESSED ADDRESS OUT OF RANGE");
-        // do something more exciting here...BSOD? kill process?
+        // kill the process
+        _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, _CPU.mmu.process));
     }
 };
 
@@ -49,6 +50,9 @@ MMU.prototype.inRange = function (addr) {
 // update the CPU state to match the next process' PCB from the ready queue
 MMU.prototype.contextSwitch = function () {
     // push old pcb back to ready queue
+    if (this.process)
+        _ReadyQueue.push(this.process);
+    // pop the new one off the ready queue
     this.process = _ReadyQueue.shift();
     _CPU.PC = this.process.PC;
     _CPU.Acc = this.process.Acc;
