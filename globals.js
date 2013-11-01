@@ -34,7 +34,9 @@ var SYSCALL_IRQ = 4;
 
 var SINGLESTEP_IRQ = 5;
 
-var KILL_IRQ = 6;
+var END_IRQ = 6;    // end process normally
+
+var KILL_IRQ = 7;   // end process abnormally
 
 //
 // Global Variables

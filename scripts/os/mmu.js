@@ -38,7 +38,7 @@ MMU.prototype.write = function (addr, byte) {
     else {
         krnTrapError("ACCESSED ADDRESS OUT OF RANGE");
         // kill the process
-        _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, _CPU.mmu.process));
+        _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, this.mmu.process));
     }
 };
 

@@ -142,8 +142,11 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case SYSCALL_IRQ:
             krnSyscall(params);
             break;
+        case END_IRQ:
+            krnEndProcess(params);
+            break;
         case KILL_IRQ:
-            krnKillProcess(params);
+            krnEndProcessAbnormally(params);
             break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -247,7 +250,7 @@ function singleStep() {
 // process terminated self
 // print the ending state of the PCB
 // and pop it off the resident list since it no longer needs to be in memory.
-function krnKillProcess(pcb) {
+function krnEndProcess(pcb) {
     var pcbIndex = _ResidentList.indexOf(pcb);
     if (pcbIndex > -1)
         _ResidentList.splice(pcbIndex, 1);
@@ -262,5 +265,10 @@ function krnKillProcess(pcb) {
         ', Limit: ' + pcb.limit + '}';
     _StdIn.advanceLine();
     _StdIn.putText(str);
+}
 
+function krnEndProcessAbnormally(pcb) {
+    _StdIn.advanceLine();
+    _StdIn.putText("Ended Process Abnormally!");
+    krnEndProcess(pcb);
 }

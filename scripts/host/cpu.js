@@ -91,8 +91,11 @@ function Cpu() {
                 this.SYS(); 
                 break;
             default:
-                this.isExecuting = false;
+                this.isExecuting = false;   // may not want to do this once we have multiple processes
                 krnTrapError("Invalid 6502a instruction: " + instr);
+                // kill the process on an invalid instruction
+                _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, this.mmu.process));
+
         }
     };
 
@@ -163,7 +166,7 @@ function Cpu() {
         // update the current process' PCB
         this.mmu.updatePCB();
         // end the process
-        _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, this.mmu.process));
+        _KernelInterruptQueue.enqueue(new Interrupt(END_IRQ, this.mmu.process));
         // stop execution
         this.isExecuting = false;
     }
