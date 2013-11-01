@@ -41,6 +41,8 @@ var END_IRQ = 6;    // end process normally
 
 var KILL_IRQ = 7;   // end process abnormally
 
+var RUNALL_IRQ = 8;
+
 //
 // Global Variables
 //

@@ -139,6 +139,9 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case RUN_IRQ:
             krnRunProcess(params);
             break;
+        case RUNALL_IRQ:
+            krnRunAll(params);
+            break;
         case SYSCALL_IRQ:
             krnSyscall(params);
             break;
@@ -279,7 +282,7 @@ function krnRunProcess(pid) {
 // run all processes and let the schedule determine which processes to
 // allocate CPU time
 function krnRunAll() {
-
+    // do stuff here
 }
 
 // Handle a syscall (FF) from a process by printing to console

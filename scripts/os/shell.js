@@ -162,6 +162,15 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
 
+    // Run <pid>
+    sc = new ShellCommand();
+    sc.command = "runall";
+    sc.description = "Run all loaded processes.";
+    sc.func = function (args) {
+        _KernelInterruptQueue.enqueue(new Interrupt(RUNALL_IRQ, args));
+    };
+    this.commandList[this.commandList.length] = sc;
+
     // status <string>
     sc = new ShellCommand();
     sc.command = "status";
@@ -195,6 +204,19 @@ function shellInit() {
     sc.description = " - Restart the OS (refresh page)";
     sc.func = function() {
     	location.reload(true);
+    };
+    this.commandList[this.commandList.length] = sc;
+
+
+    // list all active processes
+    sc = new ShellCommand();
+    sc.command = "processes";
+    sc.description = " - View the PIDs of all active processes.";
+    sc.func = function (args) {
+        for (var i = 0; i < _ResidentList.length; i++) {
+            _StdIn.putText(_ResidentList[i].pid + '');
+            _StdIn.advanceLine();
+        }
     };
     this.commandList[this.commandList.length] = sc;
 
