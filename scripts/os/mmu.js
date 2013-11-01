@@ -40,8 +40,6 @@ MMU.prototype.write = function (addr, byte) {
         hex = '0' + hex;
     _Memory.mem[addr].hi = hex.charAt(0);
     _Memory.mem[addr].lo = hex.charAt(1);
-
-    updateMemoryDisplay();  // memory contents have changed, so update the display
 };
 
 // update the CPU state to match the next process' PCB from the ready queue

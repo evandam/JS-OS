@@ -143,7 +143,7 @@ function shellInit() {
     			}
     		}
     		if(valid) {
-    		    _KernelInterruptQueue.enqueue( new Interrupt(LOAD_IRQ, instructions) );
+    		    _KernelInterruptQueue.enqueue(new Interrupt(LOAD_IRQ, instructions));
     		}
     	}
     	else {
@@ -165,7 +165,7 @@ function shellInit() {
     // Run <pid>
     sc = new ShellCommand();
     sc.command = "runall";
-    sc.description = "Run all loaded processes.";
+    sc.description = " - Run all loaded processes.";
     sc.func = function (args) {
         _KernelInterruptQueue.enqueue(new Interrupt(RUNALL_IRQ, args));
     };
@@ -217,6 +217,24 @@ function shellInit() {
             _StdIn.putText(_ResidentList[i].pid + '');
             _StdIn.advanceLine();
         }
+    };
+    this.commandList[this.commandList.length] = sc;
+
+    sc = new ShellCommand();
+    sc.command = "kill";
+    sc.description = "<PID> - Kill a process.";
+    sc.func = function (args) {
+
+        // Search the ready queue for the process
+        for (var i = 0; i < _ReadyQueue.length; i++) {
+            // 
+            if (_ReadyQueue[i].pid == pid) {
+                var process = _ReadyQueue[i];
+                krnEndProcess(process);
+                break;
+            }
+        }
+        
     };
     this.commandList[this.commandList.length] = sc;
 

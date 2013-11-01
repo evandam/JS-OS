@@ -299,6 +299,7 @@ function singleStep() {
 // print the ending state of the PCB
 // and pop it off the resident list since it no longer needs to be in memory.
 function krnEndProcess(pcb) {
+    // THIS COULD BE THE RUNNING PROCESS!
     var pcbIndex = _ResidentList.indexOf(pcb);
     if (pcbIndex > -1)
         _ResidentList.splice(pcbIndex, 1);

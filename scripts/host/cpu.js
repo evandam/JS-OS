@@ -134,6 +134,7 @@ function Cpu() {
     this.STA = function () {
         var addr = this.getAddress();
         this.mmu.write(addr, this.Acc);
+        updateMemoryDisplay();  // memory contents have changed, so update the display
     };
 
     // 6D - Add with carry (add conents of an address to contents of accumulator. results kept in Acc
@@ -204,6 +205,7 @@ function Cpu() {
         byte++;
         // write incremented byte back to address
         this.mmu.write(parseInt(targetAddr, 16), byte);  // write back to memory
+        updateMemoryDisplay();  // memory contents have changed, so update the display
     };
 
     // FF - Syscall
