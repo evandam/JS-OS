@@ -209,9 +209,32 @@ function krnTrapError(msg)
 // Load validated 6502a instructions to memory, assign a PID and PCB.
 // Return the PID to be printed by the console
 function krnLoadProcess(instructions) {
-    // Check which partitions are available for limits
+
     var pcb = new PCB();
-    pcb.init(0, 255, 0, 0, 0, 0);   // PID determined here, too.
+
+    // Check which partitions are available for limits
+    if (PARTITION_1.avail) {
+        pcb.init(PARTITION_1.base, PARTITION_1.limit);
+        PARTITION_1.avail = false;
+    }
+    else if (PARTITION_2.avail) {
+        pcb.init(PARTITION_2.base, PARTITION_2.limit);
+        PARTITION_2.avail = false;
+    }
+    else if (PARTITION_3.avail) {
+        pcb.init(PARTITION_3.base, PARTITION_3.limit);
+        PARTITION_3.avail = false;
+    }
+    else {
+        krnTrapError("Unable to allocate a partition for the process");
+        _StdIn.putText("Memory full!");
+        _StdIn.advanceLine();
+        _OsShell.putPrompt();
+        return;
+    }
+
+
+    console.log(pcb);
 
     // add the process to the resident queue now that it is loaded
     _ResidentList.push(pcb);
@@ -221,7 +244,7 @@ function krnLoadProcess(instructions) {
     var oldpcb = _CPU.mmu.process;
     _CPU.mmu.process = pcb;
     for (var i = 0; i < instructions.length; i++) {
-        _CPU.mmu.write(pcb.base + i, instructions[i]);
+        _CPU.mmu.write(i, instructions[i]);
     }
     _CPU.mmu.process = oldpcb;
 
