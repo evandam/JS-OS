@@ -43,7 +43,7 @@ var KILL_IRQ = 7;   // end process abnormally
 //
 var _CPU = null;
 
-var _Memory = null;0
+var _Memory = null;
 
 var _OSclock = 0;       // Page 23.
 
@@ -63,6 +63,8 @@ var _Trace = true;
 // Queues and lists for CPU scheduling
 var _ResidentList = [];
 var _ReadyQueue = [];
+
+var MEMORY_SIZE = 768;
 
 // Fixed Size Memory Allocation
 var PARTITION_SIZE = 256;

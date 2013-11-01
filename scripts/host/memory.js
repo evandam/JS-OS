@@ -1,6 +1,6 @@
 ﻿// Simulation of physical main memory
 function Memory () {
-    this.size = 768;    // 768 bytes (enough for 3 processes)
+    this.size = MEMORY_SIZE;    // 768 bytes (enough for 3 processes)
     this.mem = [];
 
     for (var i = 0; i < this.size; i++) {

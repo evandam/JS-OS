@@ -8,7 +8,7 @@ function PCB() {
         this.pid = _ResidentList.length;
         this.base = base;
         this.limit = limit;
-        this.PC = base; // start PC at first location in process
+        this.PC = 0; 
         this.Acc = 0;
         this.Xreg = 0;
         this.Yreg = 0;

@@ -233,9 +233,6 @@ function krnLoadProcess(instructions) {
         return;
     }
 
-
-    console.log(pcb);
-
     // add the process to the resident queue now that it is loaded
     _ResidentList.push(pcb);
     _ReadyQueue.push(pcb);
@@ -255,9 +252,27 @@ function krnLoadProcess(instructions) {
 }
 
 function krnRunProcess(pid) {
-    // set the PC, registers, etc for execution
-    _CPU.mmu.contextSwitch(pid); 
-    _CPU.isExecuting = true;
+    // get the process with the matching PID from the ready queue
+    var proc = null;
+    for (var i = 0; i < _ReadyQueue.length; i++) {
+        // 
+        if (_ReadyQueue[i].pid == pid) {
+            proc = _ReadyQueue[i];
+            _ReadyQueue.splice(i, 1);
+            break;
+        }
+    }
+    if (proc != null) {
+        // set the PC, registers, etc for execution
+        console.log(proc);
+        _CPU.mmu.contextSwitch(proc);
+        _CPU.isExecuting = true;
+    }
+    else {
+        _StdIn.putText("Could not find process with PID=" + pid);
+        _StdIn.advanceLine();
+        _OsShell.putPrompt();
+    }
 }
 
 // Handle a syscall (FF) from a process by printing to console
@@ -277,6 +292,14 @@ function krnEndProcess(pcb) {
     var pcbIndex = _ResidentList.indexOf(pcb);
     if (pcbIndex > -1)
         _ResidentList.splice(pcbIndex, 1);
+
+    // free up the partition of memory it occupied
+    if (pcb.limit < PARTITION_SIZE)
+        PARTITION_1.avail = true;
+    else if (pcb.limit < PARTITION_SIZE * 2)
+        PARTITION_2.avail = true;
+    else
+        PARTITION_3.avail = true;
 
     var str = '{PID: ' + pcb.pid +
         ', Acc: ' + pcb.Acc +
