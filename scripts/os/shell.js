@@ -212,7 +212,7 @@ function shellInit() {
     sc = new ShellCommand();
     sc.command = "processes";
     sc.description = " - View the PIDs of all active processes.";
-    sc.func = function (args) {
+    sc.func = function () {
         for (var i = 0; i < _ResidentList.length; i++) {
             _StdIn.putText(_ResidentList[i].pid + '');
             _StdIn.advanceLine();
@@ -220,6 +220,7 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
 
+    // KILL
     sc = new ShellCommand();
     sc.command = "kill";
     sc.description = "<PID> - Kill a process.";
@@ -238,8 +239,15 @@ function shellInit() {
     };
     this.commandList[this.commandList.length] = sc;
 
-    // processes - list the running processes and their IDs
-    // kill <id> - kills the specified process id.
+    // Quantum
+    sc = new ShellCommand();
+    sc.command = "quantum";
+    sc.description = "<int> - Set the Round Robin quantum.";
+    sc.func = function (args) {
+        QUANTUM = args[0];
+        _StdIn.putText('Quantum set to ' + QUANTUM + ' cyles.');
+    };
+    this.commandList[this.commandList.length] = sc;
 
     //
     // Display the initial prompt.
