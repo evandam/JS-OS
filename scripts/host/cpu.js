@@ -44,6 +44,9 @@ function Cpu() {
         this.decode(instr);
 
         updateCPUDisplay();
+
+        if (CURRENT_CYCLE++ === QUANTUM - 1)
+            CURRENT_CYCLE = 0;
     };
 
     // interpret a 6502a instruction and call the corresponding function
@@ -131,7 +134,6 @@ function Cpu() {
     this.STA = function () {
         var addr = this.getAddress();
         this.mmu.write(addr, this.Acc);
-        updateMemoryDisplay();  // writing to memory, so the display should be updated
     };
 
     // 6D - Add with carry (add conents of an address to contents of accumulator. results kept in Acc

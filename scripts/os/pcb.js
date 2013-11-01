@@ -14,4 +14,15 @@ function PCB() {
         this.Yreg = 0;
         this.Zflag = 0;
     };
+
+    this.toString = function () {
+        return '{PID: ' + this.pid +
+       ', Acc: ' + this.Acc +
+       ', PC: ' + this.PC +
+       ', Xreg: ' + this.Xreg +
+       ', Yreg: ' + this.Yreg +
+       ', Zflag: ' + this.Zflag +
+       ', Base: ' + this.base +
+       ', Limit: ' + this.limit + '}';
+    }
 };

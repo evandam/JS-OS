@@ -233,19 +233,20 @@ function krnLoadProcess(instructions) {
         return;
     }
 
-    // add the process to the resident queue now that it is loaded
-    _ResidentList.push(pcb);
-    _ReadyQueue.push(pcb);
-
     // bounds checks while loading in the new process
     var oldpcb = _CPU.mmu.process;
     _CPU.mmu.process = pcb;
     for (var i = 0; i < instructions.length; i++) {
         _CPU.mmu.write(i, instructions[i]);
     }
-    _CPU.mmu.process = oldpcb;
-
     updateMemoryDisplay();
+    _CPU.mmu.process = oldpcb;
+    
+    // add the process to the resident queue now that it is loaded
+    _ResidentList.push(pcb);
+    _ReadyQueue.push(pcb);
+    updateReadyQueueDisplay();
+
     _StdIn.putText("Process created with PID=" + pcb.pid);
     _StdIn.advanceLine();
     _OsShell.putPrompt();
@@ -259,12 +260,12 @@ function krnRunProcess(pid) {
         if (_ReadyQueue[i].pid == pid) {
             proc = _ReadyQueue[i];
             _ReadyQueue.splice(i, 1);
+            updateReadyQueueDisplay();
             break;
         }
     }
     if (proc != null) {
         // set the PC, registers, etc for execution
-        console.log(proc);
         _CPU.mmu.contextSwitch(proc);
         _CPU.isExecuting = true;
     }
@@ -273,6 +274,12 @@ function krnRunProcess(pid) {
         _StdIn.advanceLine();
         _OsShell.putPrompt();
     }
+}
+
+// run all processes and let the schedule determine which processes to
+// allocate CPU time
+function krnRunAll() {
+
 }
 
 // Handle a syscall (FF) from a process by printing to console
@@ -301,16 +308,11 @@ function krnEndProcess(pcb) {
     else
         PARTITION_3.avail = true;
 
-    var str = '{PID: ' + pcb.pid +
-        ', Acc: ' + pcb.Acc +
-        ', PC: ' + pcb.PC +
-        ', Xreg: ' + pcb.Xreg +
-        ', Yreg: ' + pcb.Yreg + 
-        ', Zflag: ' + pcb.Zflag + 
-        ', Base: ' + pcb.base +
-        ', Limit: ' + pcb.limit + '}';
+   
     _StdIn.advanceLine();
-    _StdIn.putText(str);
+    _StdIn.putText(pcb.toString());
+    _StdIn.advanceLine();
+    _OsShell.putPrompt();
 }
 
 function krnEndProcessAbnormally(pcb) {

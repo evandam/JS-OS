@@ -97,10 +97,31 @@
          <br>
          <textarea name="taLog"
                    id  ="taLog"
-                   rows="26"
+                   rows="13"
                    cols="48"
          ></textarea>
       </label>
+   </div>
+
+
+   <div id="divCPU">
+    CPU Status
+    <table border="1">
+        <thead>
+            <th>PC</th>
+            <th>Acc</th>
+            <th>Xreg</th>
+            <th>Yreg</th>
+            <th>Zflag</th>
+        </thead>
+        <tbody>
+            <td id="CPU_PC"> &nbsp; </td>
+            <td id="CPU_ACC"> </td>
+            <td id="CPU_XReg"> </td>
+            <td id="CPU_YReg"> </td>
+            <td id="CPU_ZFlag"> </td>
+        </tbody>
+    </table>
    </div>
 
    <div id="divMemory">
@@ -122,28 +143,15 @@
            </table>
        </div>
    </div>
-   
-   <div id="divCPU">
-        CPU Status
-        <table border="1">
-            <thead>
-                <th>PC</th>
-                <th>Acc</th>
-                <th>Xreg</th>
-                <th>Yreg</th>
-                <th>Zflag</th>
-            </thead>
-            <tbody>
-                <td id="CPU_PC"> &nbsp; </td>
-                <td id="CPU_ACC"> </td>
-                <td id="CPU_XReg"> </td>
-                <td id="CPU_YReg"> </td>
-                <td id="CPU_ZFlag"> </td>
-            </tbody>
-        </table>
-   </div>
 
-   <div id="divUserProgramInput" style="margin-left:520px;">
+    <div id="readyQueue">
+        <label> Ready Queue : </label>
+        <ul>
+
+        </ul>
+    </div>
+
+   <div id="divUserProgramInput">
       <label>
          User Program Input
          <br>

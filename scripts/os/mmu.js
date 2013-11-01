@@ -40,14 +40,17 @@ MMU.prototype.write = function (addr, byte) {
         hex = '0' + hex;
     _Memory.mem[addr].hi = hex.charAt(0);
     _Memory.mem[addr].lo = hex.charAt(1);
+
+    updateMemoryDisplay();  // memory contents have changed, so update the display
 };
 
 // update the CPU state to match the next process' PCB from the ready queue
 MMU.prototype.contextSwitch = function (nextProcess) {
     // push old pcb back to ready queue if there is one
-    if (this.process)
+    if (this.process) {
         _ReadyQueue.push(this.process);
-
+        updateReadyQueueDisplay();
+    }
     // new process from the ready queue
     this.process = nextProcess;
     _CPU.PC = this.process.PC;

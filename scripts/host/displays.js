@@ -43,3 +43,13 @@ var updateCPUDisplay = function () {
     $('#CPU_YReg').html(_CPU.Yreg.toString(16).toUpperCase());
     $('#CPU_ZFlag').html(_CPU.Zflag.toString(16).toUpperCase());
 };
+
+// Update the display for the ready queue
+var updateReadyQueueDisplay = function () {
+    var el = $('#readyQueue ul');
+    el.html("");
+    for (var i = 0; i < _ReadyQueue.length; i++) {
+        el.append('<li>' + _ReadyQueue[i].toString() + '</li>');
+    }
+
+}

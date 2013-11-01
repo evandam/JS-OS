@@ -22,6 +22,9 @@ var APP_VERSION = "0.05";   // What did you expect?
 
 var CPU_CLOCK_INTERVAL = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
+var QUANTUM = 6;    // Round Robin Scheduler quantum. Each process gets 6 cycles by default.
+var CURRENT_CYCLE = 0;  // use this to track when context switches need to occur 
+
 var TIMER_IRQ = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                     // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;

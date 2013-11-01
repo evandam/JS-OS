@@ -48,6 +48,12 @@ h3 {
 	width: 100px;
 }
 
+#divUserProgramInput {
+    margin-left: 520px;
+    position: absolute;
+    top: 320px;
+}
+
 #divCPU {
     position: absolute;
     top: 75px;
@@ -69,6 +75,19 @@ h3 {
 
 #divMemory table {
     background-color: #DFDBC3;
+}
+
+#readyQueue {
+    margin-left: 520px;
+    position: absolute;
+    top: 500px;
+}
+#readyQueue ul {
+    width: 365px;
+    min-height: 20px;
+    background-color: white;
+    border: 1px solid gray;
+    font-size: 10pt;
 }
 
 .footerText {
