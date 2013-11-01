@@ -62,6 +62,24 @@ var _Trace = true;
 var _ResidentList = [];
 var _ReadyQueue = [];
 
+// Fixed Size Memory Allocation
+var PARTITION_SIZE = 256;
+
+var PARTITION_1 = {
+    base: 0,
+    limit: PARTITION_SIZE - 1
+};
+
+var PARTITION_2 = {
+    base: PARTITION_1.base + PARTITION_SIZE,
+    limit: PARTITION_1.limit + PARTITION_SIZE
+};
+
+var PARTITION_3 = {
+    base : PARTITION_2.base + PARTITION_SIZE,
+    limit: PARTITION_2.limit + PARTITION_SIZE
+};
+
 // OS queues
 var _KernelInterruptQueue = null;
 var _KernelBuffers = null;
