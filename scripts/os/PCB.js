@@ -5,7 +5,7 @@ as well as the base and limit of the process's memory space.
 */
 function PCB() {
     this.init = function (base, limit) {
-        this.pid = _ResidentList.length;
+        this.pid = ResidentList.length;
         this.base = base;
         this.limit = limit;
         this.PC = 0; 

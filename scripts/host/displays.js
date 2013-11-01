@@ -48,8 +48,8 @@ var updateCPUDisplay = function () {
 var updateReadyQueueDisplay = function () {
     var el = $('#readyQueue ul');
     el.html("");
-    for (var i = 0; i < _ReadyQueue.length; i++) {
-        el.append('<li>' + _ReadyQueue[i].toString() + '</li>');
+    for (var i = 0; i < ReadyQueue.length; i++) {
+        el.append('<li>' + ReadyQueue[i].toString() + '</li>');
     }
 
 }

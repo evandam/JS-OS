@@ -213,8 +213,8 @@ function shellInit() {
     sc.command = "processes";
     sc.description = " - View the PIDs of all active processes.";
     sc.func = function () {
-        for (var i = 0; i < _ResidentList.length; i++) {
-            _StdIn.putText(_ResidentList[i].pid + '');
+        for (var i = 0; i < ResidentList.length; i++) {
+            _StdIn.putText(ResidentList[i].pid + '');
             _StdIn.advanceLine();
         }
     };
@@ -227,10 +227,10 @@ function shellInit() {
     sc.func = function (args) {
 
         // Search the ready queue for the process
-        for (var i = 0; i < _ReadyQueue.length; i++) {
+        for (var i = 0; i < ResidentList.length; i++) {
             // 
-            if (_ReadyQueue[i].pid == pid) {
-                var process = _ReadyQueue[i];
+            if (ResidentList[i].pid == pid) {
+                var process = ResidentList[i];
                 krnEndProcess(process);
                 break;
             }

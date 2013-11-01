@@ -66,8 +66,8 @@ var _FontHeightMargin = 4;        // Additional space added to font size when ad
 var _Trace = true;
 
 // Queues and lists for CPU scheduling
-var _ResidentList = [];
-var _ReadyQueue = [];
+var ResidentList = [];
+var ReadyQueue = [];
 
 var MEMORY_SIZE = 768;
 

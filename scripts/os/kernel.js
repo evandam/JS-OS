@@ -246,8 +246,8 @@ function krnLoadProcess(instructions) {
     _CPU.mmu.process = oldpcb;
     
     // add the process to the resident queue now that it is loaded
-    _ResidentList.push(pcb);
-    _ReadyQueue.push(pcb);
+    ResidentList.push(pcb);
+    ReadyQueue.push(pcb);
     updateReadyQueueDisplay();
 
     _StdIn.putText("Process created with PID=" + pcb.pid);
@@ -258,11 +258,11 @@ function krnLoadProcess(instructions) {
 function krnRunProcess(pid) {
     // get the process with the matching PID from the ready queue
     var proc = null;
-    for (var i = 0; i < _ReadyQueue.length; i++) {
+    for (var i = 0; i < ReadyQueue.length; i++) {
         // 
-        if (_ReadyQueue[i].pid == pid) {
-            proc = _ReadyQueue[i];
-            _ReadyQueue.splice(i, 1);
+        if (ReadyQueue[i].pid == pid) {
+            proc = ReadyQueue[i];
+            ReadyQueue.splice(i, 1);
             updateReadyQueueDisplay();
             break;
         }
@@ -300,9 +300,9 @@ function singleStep() {
 // and pop it off the resident list since it no longer needs to be in memory.
 function krnEndProcess(pcb) {
     // THIS COULD BE THE RUNNING PROCESS!
-    var pcbIndex = _ResidentList.indexOf(pcb);
+    var pcbIndex = ResidentList.indexOf(pcb);
     if (pcbIndex > -1)
-        _ResidentList.splice(pcbIndex, 1);
+        ResidentList.splice(pcbIndex, 1);
 
     // free up the partition of memory it occupied
     if (pcb.limit < PARTITION_SIZE)

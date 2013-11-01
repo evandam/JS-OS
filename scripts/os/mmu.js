@@ -46,7 +46,7 @@ MMU.prototype.write = function (addr, byte) {
 MMU.prototype.contextSwitch = function (nextProcess) {
     // push old pcb back to ready queue if there is one
     if (this.process) {
-        _ReadyQueue.push(this.process);
+        ReadyQueue.push(this.process);
         updateReadyQueueDisplay();
     }
     // new process from the ready queue
