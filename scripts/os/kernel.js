@@ -237,18 +237,16 @@ function krnLoadProcess(instructions) {
     }
 
     // bounds checks while loading in the new process
-    var oldpcb = _CPU.mmu.process;
-    _CPU.mmu.process = pcb;
+    var oldpcb = _CPU.process;
+    _CPU.process = pcb;
     for (var i = 0; i < instructions.length; i++) {
         _CPU.mmu.write(i, instructions[i]);
     }
     updateMemoryDisplay();
-    _CPU.mmu.process = oldpcb;
+    _CPU.process = oldpcb;
     
     // add the process to the resident queue now that it is loaded
     ResidentList.push(pcb);
-    ReadyQueue.push(pcb);
-    updateReadyQueueDisplay();
 
     _StdIn.putText("Process created with PID=" + pcb.pid);
     _StdIn.advanceLine();
@@ -256,23 +254,23 @@ function krnLoadProcess(instructions) {
 }
 
 function krnRunProcess(pid) {
-    // get the process with the matching PID from the ready queue
+    // get the process with the matching PID from the resident list
     var proc = null;
-    for (var i = 0; i < ReadyQueue.length; i++) {
-        // 
-        if (ReadyQueue[i].pid == pid) {
-            proc = ReadyQueue[i];
-            ReadyQueue.splice(i, 1);
+    for (var i = 0; i < ResidentList.length; i++) {
+        if (ResidentList[i].pid == pid) {
+            proc = ResidentList[i];
+            ReadyQueue.push(proc);
+            // start the cpu if it isn't executing
+            // if it is running, the process is just pushed to the back of the queue
+            if (!_CPU.isExecuting) {
+                contextSwitch();
+                _CPU.isExecuting = true;
+            }
             updateReadyQueueDisplay();
             break;
         }
     }
-    if (proc != null) {
-        // set the PC, registers, etc for execution
-        _CPU.mmu.contextSwitch(proc);
-        _CPU.isExecuting = true;
-    }
-    else {
+    if (proc == null) {
         _StdIn.putText("Could not find process with PID=" + pid);
         _StdIn.advanceLine();
         _OsShell.putPrompt();
@@ -282,7 +280,15 @@ function krnRunProcess(pid) {
 // run all processes and let the schedule determine which processes to
 // allocate CPU time
 function krnRunAll() {
-    // do stuff here
+    // add all processes to the ready queue
+    for (var i = 0; i < ResidentList.length; i++) {
+        ReadyQueue.push(ResidentList[i]);
+    }
+    updateReadyQueueDisplay();
+
+    // start the first process in the queue
+    contextSwitch();
+    _CPU.isExecuting = true;
 }
 
 // Handle a syscall (FF) from a process by printing to console
@@ -300,6 +306,8 @@ function singleStep() {
 // and pop it off the resident list since it no longer needs to be in memory.
 function krnEndProcess(pcb) {
     // THIS COULD BE THE RUNNING PROCESS!
+
+    // remove the process from the resident list
     var pcbIndex = ResidentList.indexOf(pcb);
     if (pcbIndex > -1)
         ResidentList.splice(pcbIndex, 1);
@@ -312,15 +320,43 @@ function krnEndProcess(pcb) {
     else
         PARTITION_3.avail = true;
 
-   
+    // set the process to null, otherwise it will keep adding it back on the ready queue
+    _CPU.process = null;
+
+    // start the next process if there is one, otherwise stop execution
+    if (ReadyQueue.length > 0) {
+        contextSwitch();
+    }
+    else {
+        _CPU.isExecuting = false;
+    }
+
     _StdIn.advanceLine();
     _StdIn.putText(pcb.toString());
     _StdIn.advanceLine();
-    _OsShell.putPrompt();
 }
 
 function krnEndProcessAbnormally(pcb) {
     _StdIn.advanceLine();
     _StdIn.putText("Ended Process Abnormally!");
     krnEndProcess(pcb);
+}
+
+// update the CPU state to match the next process' PCB from the ready queue
+function contextSwitch() {
+    // push old pcb back to ready queue if there is one
+    if (_CPU.process) {
+        ReadyQueue.push(_CPU.process);
+        updateReadyQueueDisplay();
+    }
+    // new process from the ready queue
+    _CPU.process = ReadyQueue.shift();
+
+    _CPU.PC = _CPU.process.PC;
+    _CPU.Acc = _CPU.process.Acc;
+    _CPU.Xreg = _CPU.process.Xreg;
+    _CPU.Yreg = _CPU.process.Yreg;
+    _CPU.Zflag = _CPU.process.Zflag;
+
+    updateReadyQueueDisplay();
 }

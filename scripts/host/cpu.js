@@ -20,6 +20,8 @@ function Cpu() {
     this.Yreg  = 0;     // Y register
     this.Zflag = 0;     // Z-ero flag (Think of it as "isZero".)
     this.isExecuting = false;
+
+    this.process = null;  // the PCB of the current process
     
     this.init = function() {
         this.PC    = 0;
@@ -94,10 +96,9 @@ function Cpu() {
                 this.SYS(); 
                 break;
             default:
-                this.isExecuting = false;   // may not want to do this once we have multiple processes
                 krnTrapError("Invalid 6502a instruction: " + instr);
                 // kill the process on an invalid instruction
-                _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, this.mmu.process));
+                _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, this.process));
 
         }
     };
@@ -169,9 +170,7 @@ function Cpu() {
         // update the current process' PCB
         this.mmu.updatePCB();
         // end the process
-        _KernelInterruptQueue.enqueue(new Interrupt(END_IRQ, this.mmu.process));
-        // stop execution
-        this.isExecuting = false;
+        _KernelInterruptQueue.enqueue(new Interrupt(END_IRQ, this.process));
     }
 
     // EC - Compare byte in mem to XReg - sets ZFlag if equal

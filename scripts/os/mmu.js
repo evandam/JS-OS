@@ -6,23 +6,23 @@ and also perform context switching.
 */
 
 function MMU() {
-    this.process = null;  // the PCB of the current process
+   
 }
 
 // add the base limit of the current process to the target address
 MMU.prototype.translate = function (addr) {
-    var trans = this.process.base + addr;
+    var trans = _CPU.process.base + addr;
     if (this.inRange(trans))
         return trans;
     else {
         krnTrapError("ADDRESS OUT OF RANGE");
-        _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, this.process));
+        _KernelInterruptQueue.enqueue(new Interrupt(KILL_IRQ, _CPU.process));
     }
 }
 
 // target address must be within the process' base and limit
 MMU.prototype.inRange = function (addr) {
-    return this.process.base <= addr && this.process.limit >= addr;
+    return _CPU.process.base <= addr && _CPU.process.limit >= addr;
 };
 
 // TODO: will eventually need to translate logical/physical addresses
@@ -42,27 +42,12 @@ MMU.prototype.write = function (addr, byte) {
     _Memory.mem[addr].lo = hex.charAt(1);
 };
 
-// update the CPU state to match the next process' PCB from the ready queue
-MMU.prototype.contextSwitch = function (nextProcess) {
-    // push old pcb back to ready queue if there is one
-    if (this.process) {
-        ReadyQueue.push(this.process);
-        updateReadyQueueDisplay();
-    }
-    // new process from the ready queue
-    this.process = nextProcess;
-    _CPU.PC = this.process.PC;
-    _CPU.Acc = this.process.Acc;
-    _CPU.Xreg = this.process.Xreg;
-    _CPU.Yreg = this.process.Yreg;
-    _CPU.Zflag = this.process.Zflag;
-};
-
 // update the current PCB to reflect the current state of the CPU
+// should move this to kernel? not sure
 MMU.prototype.updatePCB = function () {
-    this.process.PC = _CPU.PC;
-    this.process.Acc = _CPU.Acc;
-    this.process.Xreg = _CPU.Xreg;
-    this.process.Yreg = _CPU.Yreg;
-    this.process.Zflag = _CPU.Zflag;
+    _CPU.process.PC = _CPU.PC;
+    _CPU.process.Acc = _CPU.Acc;
+    _CPU.process.Xreg = _CPU.Xreg;
+    _CPU.process.Yreg = _CPU.Yreg;
+    _CPU.process.Zflag = _CPU.Zflag;
 };
