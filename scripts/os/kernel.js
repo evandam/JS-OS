@@ -87,6 +87,9 @@ function krnOnCPUClockPulse()
     }
     else if (_CPU.isExecuting) // If there are no interrupts then run one CPU cycle if there is anything being processed.
     {
+        CURRENT_CYCLE++;
+        scheduleCPU();
+   
         // cycles will be handled with interrupts if single step is enabled
         if(!_SingleStep)
             _CPU.cycle();
@@ -326,6 +329,9 @@ function krnEndProcess(pcb) {
     // start the next process if there is one, otherwise stop execution
     if (ReadyQueue.length > 0) {
         contextSwitch();
+
+        // let round robin start the next process without waiting for quantum to expire
+        CURRENT_CYCLE = 0;
     }
     else {
         _CPU.isExecuting = false;
@@ -344,9 +350,15 @@ function krnEndProcessAbnormally(pcb) {
 
 // update the CPU state to match the next process' PCB from the ready queue
 function contextSwitch() {
-    // push old pcb back to ready queue if there is one
+    // flip the mode bit - these are kernel mode operations
+    _Mode = 0;
+   
     if (_CPU.process) {
+        // save the current state of the CPU in the PCB
+        updatePCB();
+        // push the process back on the ready queue for the next round
         ReadyQueue.push(_CPU.process);
+
         updateReadyQueueDisplay();
     }
     // new process from the ready queue
@@ -358,5 +370,27 @@ function contextSwitch() {
     _CPU.Yreg = _CPU.process.Yreg;
     _CPU.Zflag = _CPU.process.Zflag;
 
+    // done with kernel operations, flip back to user mode for processes
+    _Mode = 1;
     updateReadyQueueDisplay();
+}
+
+function updatePCB () {
+    _CPU.process.PC = _CPU.PC;
+    _CPU.process.Acc = _CPU.Acc;
+    _CPU.process.Xreg = _CPU.Xreg;
+    _CPU.process.Yreg = _CPU.Yreg;
+    _CPU.process.Zflag = _CPU.Zflag;
+};
+
+// Round Robin Scheduling
+function scheduleCPU() {
+    console.log(CURRENT_CYCLE + '');
+    if (CURRENT_CYCLE % QUANTUM === 0) {
+        contextSwitch();
+
+        hostLog("Context switching");
+
+        CURRENT_CYCLE = 0;
+    }
 }

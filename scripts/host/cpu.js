@@ -46,9 +46,6 @@ function Cpu() {
         this.decode(instr);
 
         updateCPUDisplay();
-
-        if (CURRENT_CYCLE++ === QUANTUM - 1)
-            CURRENT_CYCLE = 0;
     };
 
     // interpret a 6502a instruction and call the corresponding function
@@ -167,8 +164,6 @@ function Cpu() {
 
     // 00 - break (system call)
     this.BRK = function () {
-        // update the current process' PCB
-        this.mmu.updatePCB();
         // end the process
         _KernelInterruptQueue.enqueue(new Interrupt(END_IRQ, this.process));
     }

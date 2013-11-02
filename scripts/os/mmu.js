@@ -41,13 +41,3 @@ MMU.prototype.write = function (addr, byte) {
     _Memory.mem[addr].hi = hex.charAt(0);
     _Memory.mem[addr].lo = hex.charAt(1);
 };
-
-// update the current PCB to reflect the current state of the CPU
-// should move this to kernel? not sure
-MMU.prototype.updatePCB = function () {
-    _CPU.process.PC = _CPU.PC;
-    _CPU.process.Acc = _CPU.Acc;
-    _CPU.process.Xreg = _CPU.Xreg;
-    _CPU.process.Yreg = _CPU.Yreg;
-    _CPU.process.Zflag = _CPU.Zflag;
-};
