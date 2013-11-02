@@ -385,7 +385,6 @@ function updatePCB () {
 
 // Round Robin Scheduling
 function scheduleCPU() {
-    console.log(CURRENT_CYCLE + '');
     if (CURRENT_CYCLE % QUANTUM === 0) {
         contextSwitch();
 
