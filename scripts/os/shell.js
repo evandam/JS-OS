@@ -226,12 +226,13 @@ function shellInit() {
     sc.description = "<PID> - Kill a process.";
     sc.func = function (args) {
 
-        // Search the ready queue for the process
+        // Get the PCB from the PID (in resident list)
         for (var i = 0; i < ResidentList.length; i++) {
             // 
-            if (ResidentList[i].pid == pid) {
+            if (ResidentList[i].pid == args) {
                 var process = ResidentList[i];
                 krnEndProcess(process);
+                _StdIn.putText('Killing process ' + process.pid);
                 break;
             }
         }

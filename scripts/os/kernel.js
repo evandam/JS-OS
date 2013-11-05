@@ -308,13 +308,34 @@ function singleStep() {
 // print the ending state of the PCB
 // and pop it off the resident list since it no longer needs to be in memory.
 function krnEndProcess(pcb) {
-    // THIS COULD BE THE RUNNING PROCESS!
+
+    // the process is currently running
+    if (pcb.pid === _CPU.process.pid) {
+        // set the process to null, so it won't go back on the ready queue
+        _CPU.process = null;
+        // let round robin start the next process without waiting for quantum to expire
+        CURRENT_CYCLE = 0;
+
+        // start the next process if there is one, otherwise stop execution
+        if (ReadyQueue.length > 0) {
+            contextSwitch();
+        }
+        else {
+            _CPU.isExecuting = false;
+        }
+    }
+    // if its not the active process it must be in the ready queue
+    else {
+        var index = ReadyQueue.indexOf(pcb);
+        if (index > -1)
+            ReadyQueue.splice(index, 1);
+    }
 
     // remove the process from the resident list
-    var pcbIndex = ResidentList.indexOf(pcb);
-    if (pcbIndex > -1)
-        ResidentList.splice(pcbIndex, 1);
-
+    var index = ResidentList.indexOf(pcb);
+    if (index > -1)
+        ResidentList.splice(index, 1);
+    
     // free up the partition of memory it occupied
     if (pcb.limit < PARTITION_SIZE)
         PARTITION_1.avail = true;
@@ -323,23 +344,11 @@ function krnEndProcess(pcb) {
     else
         PARTITION_3.avail = true;
 
-    // set the process to null, otherwise it will keep adding it back on the ready queue
-    _CPU.process = null;
-
-    // start the next process if there is one, otherwise stop execution
-    if (ReadyQueue.length > 0) {
-        contextSwitch();
-
-        // let round robin start the next process without waiting for quantum to expire
-        CURRENT_CYCLE = 0;
-    }
-    else {
-        _CPU.isExecuting = false;
-    }
-
+    /*
     _StdIn.advanceLine();
     _StdIn.putText(pcb.toString());
     _StdIn.advanceLine();
+    */
 }
 
 function krnEndProcessAbnormally(pcb) {
