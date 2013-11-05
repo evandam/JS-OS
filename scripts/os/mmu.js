@@ -40,4 +40,7 @@ MMU.prototype.write = function (addr, byte) {
         hex = '0' + hex;
     _Memory.mem[addr].hi = hex.charAt(0);
     _Memory.mem[addr].lo = hex.charAt(1);
+
+    // update the display of this block
+    updateMemoryDisplay(addr, hex);
 };

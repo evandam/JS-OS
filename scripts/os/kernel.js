@@ -245,7 +245,6 @@ function krnLoadProcess(instructions) {
     for (var i = 0; i < instructions.length; i++) {
         _CPU.mmu.write(i, instructions[i]);
     }
-    updateMemoryDisplay();
     _CPU.process = oldpcb;
     
     // add the process to the resident queue now that it is loaded
@@ -343,6 +342,8 @@ function krnEndProcess(pcb) {
         PARTITION_2.avail = true;
     else
         PARTITION_3.avail = true;
+
+    updateReadyQueueDisplay();
 
     /*
     _StdIn.advanceLine();
