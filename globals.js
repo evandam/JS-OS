@@ -29,21 +29,15 @@ var TIMER_IRQ = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt prio
                     // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
 
-var LOAD_IRQ = 2;
+var SYSCALL_IRQ = 2;
 
-var RUN_IRQ = 3;
+var SINGLESTEP_IRQ = 3;
 
-var SYSCALL_IRQ = 4;
+var END_IRQ = 4;    // end process normally
 
-var SINGLESTEP_IRQ = 5;
+var KILL_IRQ = 5;   // end process abnormally
 
-var END_IRQ = 6;    // end process normally
-
-var KILL_IRQ = 7;   // end process abnormally
-
-var RUNALL_IRQ = 8;
-
-var CONTEXTSWITCH_IRQ = 9;
+var CONTEXTSWITCH_IRQ = 6;
 
 //
 // Global Variables

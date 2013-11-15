@@ -136,15 +136,6 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             krnKeyboardDriver.isr(params);   // Kernel mode device driver
             _StdIn.handleInput();
             break;
-        case LOAD_IRQ:
-            krnLoadProcess(params);
-            break;
-        case RUN_IRQ:
-            krnRunProcess(params);
-            break;
-        case RUNALL_IRQ:
-            krnRunAll(params);
-            break;
         case SYSCALL_IRQ:
             krnSyscall(params);
             break;
