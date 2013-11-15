@@ -78,104 +78,106 @@
            hidden="hidden"
            onclick="singleStep();">       
              
-	 <div id="StausBar"> Make your own status! </div>
-	 <div id="curTime"> What's the time? </div>
-	 
+	 <label>Status: </label> <span id="StausBar"> Make your own status! </span>
+	 <span id="curTime"> What's the time? </span>
    </div>
 
-   <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
-      <canvas id="display"
-              width="500px"
-              height="500px"
-              tabindex="3">
-      </canvas>
-   </div>
-
-   <div id="divLog" style="margin-left:520px;">
-      <label>
-         Log
-         <br>
-         <textarea name="taLog"
-                   id  ="taLog"
-                   rows="13"
-                   cols="48"
-         ></textarea>
-      </label>
-   </div>
-
-
-   <div id="divCPU">
-    CPU Status
-    <table border="1">
-        <thead>
-            <th>PC</th>
-            <th>Acc</th>
-            <th>Xreg</th>
-            <th>Yreg</th>
-            <th>Zflag</th>
-        </thead>
-        <tbody>
-            <td id="CPU_PC"> &nbsp; </td>
-            <td id="CPU_ACC"> </td>
-            <td id="CPU_XReg"> </td>
-            <td id="CPU_YReg"> </td>
-            <td id="CPU_ZFlag"> </td>
-        </tbody>
-    </table>
-   </div>
-
-   <div id="divMemory">
-       Memory
-       <div id="divMemory-wrap">
-           <table border="1">
-               <thead>
-                   <th></th>
-                   <th>0/8</th>
-                   <th>1/9</th>
-                   <th>2/A</th>
-                   <th>3/B</th>
-                   <th>4/C</th>
-                   <th>5/D</th>
-                   <th>6/E</th>
-                   <th>7/F</th>
-               </thead>
-               <tbody></tbody>
-           </table>
+    <div id="left">
+       <div id="divConsole" style="margin:4px; width:500px; height:500px;">
+          <canvas id="display"
+                  width="500px"
+                  height="500px"
+                  tabindex="3">
+          </canvas>
        </div>
-   </div>
+     </div>
 
-    <div id="processes">
-        <label> Processes: </label>
-        <table>
-            <thead>
-                <th> PID </th>
-                <th> Status </th>
-                <th> Base </th>
-                <th> Limit </th>
-                <th> PC </th>
-                <th> Acc </th>
-                <th> XReg </th>
-                <th> YReg </th>
-                <th> ZFlag </th>
-            </thead>
-            <tbody>
+    <div id="middle">
+        <div id="divLog">
+            <label>
+                Log
+                <br>
+                <textarea name="taLog"
+                          id="taLog"
+                          rows="8"
+                          cols="48"></textarea>
+            </label>
+        </div>
 
-            </tbody>
-        </table>
+        <div id="divUserProgramInput">
+            <label>
+                User Program Input
+                <br>
+                <textarea name="taProgramInput"
+                          id="taProgramInput"
+                          rows="5"
+                          cols="48">
+A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF A9 44 8D 42 00 A9 4F 8D 43 00 A9 4E 8D 44 00 A9 45 8D 45 00 A9 00 8D 46 00 A2 02 A0 42 FF 00
+                </textarea>
+            </label>
+        </div>
+
+        <div id="divCPU">
+            <label> CPU Status </label>
+            <table border="1">
+                <thead>
+                    <th>PC</th>
+                    <th>Acc</th>
+                    <th>Xreg</th>
+                    <th>Yreg</th>
+                    <th>Zflag</th>
+                </thead>
+                <tbody>
+                    <td id="CPU_PC"> &nbsp; </td>
+                    <td id="CPU_ACC"> </td>
+                    <td id="CPU_XReg"> </td>
+                    <td id="CPU_YReg"> </td>
+                    <td id="CPU_ZFlag"> </td>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="processes">
+            <label> Processes </label>
+            <table border="">
+                <thead>
+                    <th> PID </th>
+                    <th> Status </th>
+                    <th> Base </th>
+                    <th> Limit </th>
+                    <th> PC </th>
+                    <th> Acc </th>
+                    <th> XReg </th>
+                    <th> YReg </th>
+                    <th> ZFlag </th>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+    <div id="right">
+       <div id="divMemory">
+           <label> Memory </label>
+           <div id="divMemory-wrap">
+               <table border="1">
+                   <thead>
+                       <th></th>
+                       <th>0/8</th>
+                       <th>1/9</th>
+                       <th>2/A</th>
+                       <th>3/B</th>
+                       <th>4/C</th>
+                       <th>5/D</th>
+                       <th>6/E</th>
+                       <th>7/F</th>
+                   </thead>
+                   <tbody></tbody>
+               </table>
+           </div>
+       </div>
     </div>
 
-   <div id="divUserProgramInput">
-      <label>
-         User Program Input
-         <br>
-          <textarea name="taProgramInput"
-                    id="taProgramInput"
-                    rows="8"
-                    cols="48">
-A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF A9 44 8D 42 00 A9 4F 8D 43 00 A9 4E 8D 44 00 A9 45 8D 45 00 A9 00 8D 46 00 A2 02 A0 42 FF 00
-          </textarea>
-      </label>
-   </div>
 </div>
 
 

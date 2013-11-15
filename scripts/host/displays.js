@@ -41,9 +41,10 @@ var updateReadyQueueDisplay = function () {
         el.append('<td>' + ResidentList[i].base + '</td>');
         el.append('<td>' + ResidentList[i].limit + '</td>');
         el.append('<td>' + ResidentList[i].PC + '</td>');
-        el.append('<td>' + ResidentList[i].XReg + '</td>');
-        el.append('<td>' + ResidentList[i].YReg + '</td>');
-        el.append('<td>' + ResidentList[i].ZFlag + '</td>');
+        el.append('<td>' + ResidentList[i].Acc + '</td>');
+        el.append('<td>' + ResidentList[i].Xreg + '</td>');
+        el.append('<td>' + ResidentList[i].Yreg + '</td>');
+        el.append('<td>' + ResidentList[i].Zflag + '</td>');
         el.append('</tr>')
     }
 

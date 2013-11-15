@@ -1,7 +1,7 @@
 /* alanbbos.css */
 
 body {
-   background: #909193 url(images/linen.png) repeat;
+   /* background: #909193 url(images/linen.png) repeat; */
    font-family: Helvetica, Verdana, Arial, sans-serif;
 	font-size: 12pt;
 	font-weight: normal;
@@ -30,42 +30,46 @@ h3 {
 	font-style: normal;	
 }
 
+.normal_button {
+	width: 100px;
+}
+
+#curTime {
+	float: right;
+}
+
 #display {
 	background-color:#DFDBC3;
 	border: 2px solid red; 
 	cursor: default;
 }
 
-#StausBar {
-	/* Add some styles later on... */
+#left {
+    display: inline-block;
+    vertical-align: top;
 }
 
-#curTime {
-	background: none;
-}
-
-.normal_button {
-	width: 100px;
-}
-
-#divUserProgramInput {
-    margin-left: 520px;
-    position: absolute;
-    top: 320px;
-}
-
-#divCPU {
-    position: absolute;
-    top: 75px;
-    left: 950px;
+#middle {
+    display: inline-block;
+    margin-left: 10px;
     text-align: center;
+    vertical-align: top;
 }
 
-#divMemory {
-    position: absolute;
-    top: 175px;
-    left: 950px;
+#divCPU table {
+    margin:0 auto 0 auto;
+}
+
+#processes table {
+    border: 1px solid gray;
+    margin: 0 auto 0 auto;
+}
+
+#right {
+    display: inline-block;
     text-align: center;
+    vertical-align: top;
+    margin-left: 10px;
 }
 
 #divMemory-wrap {
@@ -75,19 +79,6 @@ h3 {
 
 #divMemory table {
     background-color: #DFDBC3;
-}
-
-#readyQueue {
-    margin-left: 520px;
-    position: absolute;
-    top: 500px;
-}
-#readyQueue ul {
-    width: 365px;
-    min-height: 20px;
-    background-color: white;
-    border: 1px solid gray;
-    font-size: 10pt;
 }
 
 .footerText {
