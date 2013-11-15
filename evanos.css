@@ -30,6 +30,10 @@ h3 {
 	font-style: normal;	
 }
 
+table, textarea{
+    background-color:#DFDBC3;
+}
+
 .normal_button {
 	width: 100px;
 }
@@ -75,10 +79,6 @@ h3 {
 #divMemory-wrap {
     max-height: 400px;
     overflow-y: scroll;
-}
-
-#divMemory table {
-    background-color: #DFDBC3;
 }
 
 .footerText {
