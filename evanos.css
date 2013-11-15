@@ -2,6 +2,7 @@
 
 body {
    /* background: #909193 url(images/linen.png) repeat; */
+   background-color: #FFFAF0;
    font-family: Helvetica, Verdana, Arial, sans-serif;
 	font-size: 12pt;
 	font-weight: normal;
@@ -36,10 +37,6 @@ table, textarea{
 
 .normal_button {
 	width: 100px;
-}
-
-#curTime {
-	float: right;
 }
 
 #display {
