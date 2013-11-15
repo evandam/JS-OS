@@ -1,198 +1,199 @@
-﻿<!DOCTYPE HTML>
+﻿<!DOCTYPE html>
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-   <meta name="author"             content="Evan Van Dam" />
-   <link rel="stylesheet" href="evanos.css" type="text/css" media="screen" />
-   <title>
-   	EV-OS - a Browser-based virtual Operating System - Evan Van Dam
-   </title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="author" content="Evan Van Dam" />
+    <link rel="stylesheet" href="evanos.css" type="text/css" media="screen" />
+    <title>
+        EV-OS - a Browser-based virtual Operating System - Evan Van Dam
+    </title>
 
-   <script type="text/javascript" src="jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="jquery-1.10.2.min.js"></script>
 
-   <!-- Globals CONSTANTS and _Variables. Must included be first. -->
-   <script type="text/javascript" src="globals.js"></script>	
+    <!-- Globals CONSTANTS and _Variables. Must included be first. -->
+    <script type="text/javascript" src="globals.js"></script>
 
-   <!-- Host (Hardware Simulation) Routines -->
-   <script type="text/javascript" src="scripts/host/control.js"></script>
-   <script type="text/javascript" src="scripts/host/devices.js"></script>
-   <script type="text/javascript" src="scripts/host/cpu.js"></script>
-   <script type="text/javascript" src="scripts/host/memory.js"></script>
-   <script type="text/javascript" src="scripts/host/displays.js"></script>
+    <!-- Host (Hardware Simulation) Routines -->
+    <script type="text/javascript" src="scripts/host/control.js"></script>
+    <script type="text/javascript" src="scripts/host/devices.js"></script>
+    <script type="text/javascript" src="scripts/host/cpu.js"></script>
+    <script type="text/javascript" src="scripts/host/memory.js"></script>
+    <script type="text/javascript" src="scripts/host/displays.js"></script>
 
-   <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
-   <script type="text/javascript" src="scripts/os/interrupt.js"></script>
-   <script type="text/javascript" src="scripts/os/canvastext.js"></script>	
-   <script type="text/javascript" src="scripts/os/console.js"></script>	
-   <script type="text/javascript" src="scripts/os/deviceDriver.js"></script>
-   <script type="text/javascript" src="scripts/os/deviceDriverKeyboard.js"></script>
-   <script type="text/javascript" src="scripts/os/queue.js"></script>
-   <script type="text/javascript" src="scripts/os/shell.js"></script>
-   <script type="text/javascript" src="scripts/os/kernel.js"></script>
-   <script type="text/javascript" src="scripts/os/mmu.js"></script>
-   <script type="text/javascript" src="scripts/os/pcb.js"></script>
-   <script type="text/javascript" src="scripts/os/scheduler.js"></script>
+    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
+    <script type="text/javascript" src="scripts/os/interrupt.js"></script>
+    <script type="text/javascript" src="scripts/os/canvastext.js"></script>
+    <script type="text/javascript" src="scripts/os/console.js"></script>
+    <script type="text/javascript" src="scripts/os/deviceDriver.js"></script>
+    <script type="text/javascript" src="scripts/os/deviceDriverKeyboard.js"></script>
+    <script type="text/javascript" src="scripts/os/queue.js"></script>
+    <script type="text/javascript" src="scripts/os/shell.js"></script>
+    <script type="text/javascript" src="scripts/os/kernel.js"></script>
+    <script type="text/javascript" src="scripts/os/mmu.js"></script>
+    <script type="text/javascript" src="scripts/os/pcb.js"></script>
+    <script type="text/javascript" src="scripts/os/scheduler.js"></script>
 
-   <!-- Other Routines -->
-   <script type="text/javascript" src="scripts/utils.js"></script>
-   <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script>
+    <!-- Other Routines -->
+    <script type="text/javascript" src="scripts/utils.js"></script>
+    <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script>
 </head>
 
 <body onload="hostInit();">
 
-<div id="divMain" style="width:100%;">
+    <div id="divMain" style="width:100%;">
 
-   <div id="divButtonBar" style="margin:4px;">
-      <input type="button"
-             id = "btnStartOS"
-             name="brnStartOS"
-             class="normal_button"
-             value="Start"
-             tabindex="0"
-             onclick="hostBtnStartOS_click(this);">
+        <div id="divButtonBar" style="margin:4px;">
+            <input type="button"
+                   id="btnStartOS"
+                   name="brnStartOS"
+                   class="normal_button"
+                   value="Start"
+                   tabindex="0"
+                   onclick="hostBtnStartOS_click(this);">
 
-      <input type="button"
-             id = "btnHaltOS"
-             name="brnHaltOS"
-             class="normal_button"
-             disabled="disabled"
-             value="Halt"
-             tabindex="1"
-             onclick="hostBtnHaltOS_click(this);">
+            <input type="button"
+                   id="btnHaltOS"
+                   name="brnHaltOS"
+                   class="normal_button"
+                   disabled="disabled"
+                   value="Halt"
+                   tabindex="1"
+                   onclick="hostBtnHaltOS_click(this);">
 
-      <input type="button"
-             id = "btnReset"
-             name="brnReset"
-             class="normal_button"
-             disabled="disabled"
-             value="Reset"
-             tabindex="2"
-             onclick="hostBtnReset_click(this);">
-    
-    <input type="button" 
-           value="Toggle Single-Step"
-           onclick="toggleSingleStep();"> 
-    
-    <input type="button"
-           value="Step"
-           id="btnStep"
-           hidden="hidden"
-           onclick="singleStep();">       
-             
-     <div style="text-align:right; position: absolute; right: 10px; top: 2px;">
-         <label>Time: </label><span id="curTime"> What's the time? </span> <br />         
-	     <label>Status: </label> <span id="StausBar"> Make your own status! </span>
-     </div>
-       <hr />
-   </div>
+            <input type="button"
+                   id="btnReset"
+                   name="brnReset"
+                   class="normal_button"
+                   disabled="disabled"
+                   value="Reset"
+                   tabindex="2"
+                   onclick="hostBtnReset_click(this);">
 
-    <div id="left">
-       <div id="divConsole" style="margin:4px; width:500px; height:500px;">
-          <canvas id="display"
-                  width="500px"
-                  height="500px"
-                  tabindex="3">
-          </canvas>
-       </div>
-     </div>
+            <input type="button"
+                   value="Single-Step"
+                   onclick="toggleSingleStep();"
+                   class="normal_button">
 
-    <div id="middle">
-        <div id="divLog">
-            <label>
-                Log
-                <br>
-                <textarea name="taLog"
-                          id="taLog"
-                          rows="8"
-                          cols="48"></textarea>
-            </label>
+            <input type="button"
+                   value="Step"
+                   id="btnStep"
+                   hidden="hidden"
+                   onclick="singleStep();"
+                   class="normal_button">
+
+            <div style="text-align:right; position: absolute; right: 10px; top: 2px;">
+                <label>Time: </label><span id="curTime"> What's the time? </span> <br />
+                <label>Status: </label> <span id="StausBar"> Make your own status! </span>
+            </div>
+            <hr />
         </div>
 
-        <div id="divUserProgramInput">
-            <label>
-                User Program Input
-                <br>
-                <textarea name="taProgramInput"
-                          id="taProgramInput"
-                          rows="5"
-                          cols="48">
-A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF A9 44 8D 42 00 A9 4F 8D 43 00 A9 4E 8D 44 00 A9 45 8D 45 00 A9 00 8D 46 00 A2 02 A0 42 FF 00
-                </textarea>
-            </label>
+        <div id="left">
+            <div id="divConsole" style="margin:4px; width:500px; height:500px;">
+                <canvas id="display"
+                        width="500px"
+                        height="500px"
+                        tabindex="3"></canvas>
+            </div>
         </div>
 
-        <div id="divCPU">
-            <label> CPU Status </label>
-            <table border="1">
-                <thead>
-                    <th>PC</th>
-                    <th>Acc</th>
-                    <th>Xreg</th>
-                    <th>Yreg</th>
-                    <th>Zflag</th>
-                </thead>
-                <tbody>
-                    <td id="CPU_PC"> &nbsp; </td>
-                    <td id="CPU_ACC"> </td>
-                    <td id="CPU_XReg"> </td>
-                    <td id="CPU_YReg"> </td>
-                    <td id="CPU_ZFlag"> </td>
-                </tbody>
-            </table>
-        </div>
+        <div id="middle">
+            <div id="divLog">
+                <label>
+                    Log
+                    <br>
+                    <textarea name="taLog"
+                              id="taLog"
+                              rows="8"
+                              cols="48"></textarea>
+                </label>
+            </div>
 
-        <div id="processes">
-            <label> Processes </label>
-            <table border="">
-                <thead>
-                    <th> PID </th>
-                    <th> Status </th>
-                    <th> Base </th>
-                    <th> Limit </th>
-                    <th> PC </th>
-                    <th> Acc </th>
-                    <th> XReg </th>
-                    <th> YReg </th>
-                    <th> ZFlag </th>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div id="divUserProgramInput">
+                <label>
+                    User Program Input
+                    <br>
+                    <textarea name="taProgramInput"
+                              id="taProgramInput"
+                              rows="5"
+                              cols="48">
+                        A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF A9 44 8D 42 00 A9 4F 8D 43 00 A9 4E 8D 44 00 A9 45 8D 45 00 A9 00 8D 46 00 A2 02 A0 42 FF 00
+                    </textarea>
+                </label>
+            </div>
+
+            <div id="divCPU">
+                <label> CPU Status </label>
+                <table border="1">
+                    <thead>
+                        <th>PC</th>
+                        <th>Acc</th>
+                        <th>Xreg</th>
+                        <th>Yreg</th>
+                        <th>Zflag</th>
+                    </thead>
+                    <tbody>
+                        <td id="CPU_PC"> &nbsp; </td>
+                        <td id="CPU_ACC"> </td>
+                        <td id="CPU_XReg"> </td>
+                        <td id="CPU_YReg"> </td>
+                        <td id="CPU_ZFlag"> </td>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="processes">
+                <label> Processes </label>
+                <table border="">
+                    <thead>
+                        <th> PID </th>
+                        <th> Status </th>
+                        <th> Base </th>
+                        <th> Limit </th>
+                        <th> PC </th>
+                        <th> Acc </th>
+                        <th> XReg </th>
+                        <th> YReg </th>
+                        <th> ZFlag </th>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </div>
+        <div id="right">
+            <div id="divMemory">
+                <label> Memory </label>
+                <div id="divMemory-wrap">
+                    <table border="1">
+                        <thead>
+                            <th></th>
+                            <th>0/8</th>
+                            <th>1/9</th>
+                            <th>2/A</th>
+                            <th>3/B</th>
+                            <th>4/C</th>
+                            <th>5/D</th>
+                            <th>6/E</th>
+                            <th>7/F</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
-    <div id="right">
-       <div id="divMemory">
-           <label> Memory </label>
-           <div id="divMemory-wrap">
-               <table border="1">
-                   <thead>
-                       <th></th>
-                       <th>0/8</th>
-                       <th>1/9</th>
-                       <th>2/A</th>
-                       <th>3/B</th>
-                       <th>4/C</th>
-                       <th>5/D</th>
-                       <th>6/E</th>
-                       <th>7/F</th>
-                   </thead>
-                   <tbody></tbody>
-               </table>
-           </div>
-       </div>
-    </div>
 
-</div>
+    <hr />
 
-<hr />    
-
-<p class="footerText" style="clear:both;">
-   <br>
-   Copyright &copy; 2008 - 2013 No Rights Reserved.
-   <br>
-   Reproduction is prohibited without the express written consent of
-   Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
-</p>
+    <p class="footerText" style="clear:both;">
+        <br>
+        Copyright &copy; 2008 - 2013 No Rights Reserved.
+        <br>
+        Reproduction is prohibited without the express written consent of
+        Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+    </p>
 
 </body>
 </html>

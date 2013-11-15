@@ -1,48 +1,49 @@
 /* alanbbos.css */
 
 body {
-   /* background: #909193 url(images/linen.png) repeat; */
-   background-color: #FFFAF0;
-   font-family: Helvetica, Verdana, Arial, sans-serif;
-	font-size: 12pt;
-	font-weight: normal;
-	font-style: normal;
+    /* background: #909193 url(images/linen.png) repeat; */
+    background-color: white;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: normal;
+    font-style: normal;
 }
 
 h1 {
-   color: black;
-	font-size: 24pt;
-	font-weight: normal;
-	font-style: normal;	
-   border-bottom: 1px solid black;
+    color: black;
+    font-size: 24pt;
+    font-weight: normal;
+    font-style: normal;
+    border-bottom: 1px solid black;
 }
 
 h2 {
-   color: black;
-	font-size: 20pt;
-	font-weight: normal;
-	font-style: normal;
+    color: black;
+    font-size: 20pt;
+    font-weight: normal;
+    font-style: normal;
 }
 
 h3 {
-	font-family: Helvetica, Verdana, Arial, sans-serif;
-	font-size: 16pt;
-	font-weight: normal;
-	font-style: normal;	
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    font-size: 16pt;
+    font-weight: normal;
+    font-style: normal;
 }
 
-table, textarea{
-    background-color:#DFDBC3;
+table, textarea {
+    background-color: #F0F0F0;
 }
 
 .normal_button {
-	width: 100px;
+    width: 100px;
+    border-radius: 3px;
 }
 
 #display {
-	background-color:#DFDBC3;
-	border: 2px solid red; 
-	cursor: default;
+    background-color: #F0F0F0;
+    border: 2px solid red;
+    cursor: default;
 }
 
 #left {
@@ -58,7 +59,7 @@ table, textarea{
 }
 
 #divCPU table {
-    margin:0 auto 0 auto;
+    margin: 0 auto 0 auto;
 }
 
 #processes table {
@@ -79,8 +80,8 @@ table, textarea{
 }
 
 .footerText {
-   color: black;
-   font-family: Arial, Helvetica, sans-serif;
-	font-size: 8pt;
-   text-align: center;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8pt;
+    text-align: center;
 }
