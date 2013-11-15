@@ -253,6 +253,8 @@ function krnLoadProcess(instructions) {
     // add the process to the resident queue now that it is loaded
     ResidentList.push(pcb);
 
+    pcb.status = 'Loaded';
+
     _StdIn.putText("Process created with PID=" + pcb.pid);
     _StdIn.advanceLine();
     _OsShell.putPrompt();
@@ -260,11 +262,12 @@ function krnLoadProcess(instructions) {
 
 function krnRunProcess(pid) {
     // get the process with the matching PID from the resident list
-    var proc = null;
+    var pcb = null;
     for (var i = 0; i < ResidentList.length; i++) {
         if (ResidentList[i].pid == pid) {
-            proc = ResidentList[i];
-            ReadyQueue.push(proc);
+            pcb = ResidentList[i];
+            ReadyQueue.push(pcb);
+            pcb.status = 'Ready';
             // start the cpu if it isn't executing
             // if it is running, the process is just pushed to the back of the queue
             if (!_CPU.isExecuting) {
@@ -275,7 +278,7 @@ function krnRunProcess(pid) {
             break;
         }
     }
-    if (proc == null) {
+    if (pcb == null) {
         _StdIn.putText("Could not find process with PID=" + pid);
         _StdIn.advanceLine();
         _OsShell.putPrompt();
@@ -371,6 +374,7 @@ function contextSwitch() {
     if (_CPU.process) {
         // save the current state of the CPU in the PCB
         updatePCB();
+        _CPU.process.status = 'Ready';
         // push the process back on the ready queue for the next round
         ReadyQueue.push(_CPU.process);
 
@@ -378,6 +382,7 @@ function contextSwitch() {
     }
     // new process from the ready queue
     _CPU.process = ReadyQueue.shift();
+    _CPU.process.status = 'Running';
 
     _CPU.PC = _CPU.process.PC;
     _CPU.Acc = _CPU.process.Acc;

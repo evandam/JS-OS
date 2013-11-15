@@ -32,10 +32,19 @@ var updateCPUDisplay = function () {
 
 // Update the display for the ready queue
 var updateReadyQueueDisplay = function () {
-    var el = $('#readyQueue ul');
+    var el = $('#processes tbody');
     el.html("");
-    for (var i = 0; i < ReadyQueue.length; i++) {
-        el.append('<li>' + ReadyQueue[i].toString() + '</li>');
+    for (var i = 0; i < ResidentList.length; i++) {
+        el.append('<tr>');
+        el.append('<td>' + ResidentList[i].pid + '</td>');
+        el.append('<td>' + ResidentList[i].status + '</td>');
+        el.append('<td>' + ResidentList[i].base + '</td>');
+        el.append('<td>' + ResidentList[i].limit + '</td>');
+        el.append('<td>' + ResidentList[i].PC + '</td>');
+        el.append('<td>' + ResidentList[i].XReg + '</td>');
+        el.append('<td>' + ResidentList[i].YReg + '</td>');
+        el.append('<td>' + ResidentList[i].ZFlag + '</td>');
+        el.append('</tr>')
     }
 
 }

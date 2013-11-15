@@ -13,10 +13,12 @@ function PCB() {
         this.Xreg = 0;
         this.Yreg = 0;
         this.Zflag = 0;
+        this.status = '';
     };
 
     this.toString = function () {
         return '{PID: ' + this.pid +
+       ', Status: ' + this.status +
        ', Acc: ' + this.Acc +
        ', PC: ' + this.PC +
        ', Xreg: ' + this.Xreg +
