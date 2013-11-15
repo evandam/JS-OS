@@ -154,6 +154,9 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case KILL_IRQ:
             krnEndProcessAbnormally(params);
             break;
+        case CONTEXTSWITCH_IRQ:
+            contextSwitch();
+            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
     }
@@ -360,6 +363,8 @@ function krnEndProcessAbnormally(pcb) {
 
 // update the CPU state to match the next process' PCB from the ready queue
 function contextSwitch() {
+    hostLog("Context switching");
+
     // flip the mode bit - these are kernel mode operations
     _Mode = 0;
    
@@ -395,11 +400,8 @@ function updatePCB () {
 
 // Round Robin Scheduling
 function scheduleCPU() {
-    if (CURRENT_CYCLE % QUANTUM === 0) {
-        contextSwitch();
-
-        hostLog("Context switching");
-
+    if (CURRENT_CYCLE >= QUANTUM ) {
+        _KernelInterruptQueue.enqueue(new Interrupt(CONTEXTSWITCH_IRQ));
         CURRENT_CYCLE = 0;
     }
 }

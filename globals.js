@@ -43,6 +43,8 @@ var KILL_IRQ = 7;   // end process abnormally
 
 var RUNALL_IRQ = 8;
 
+var CONTEXTSWITCH_IRQ = 9;
+
 //
 // Global Variables
 //
