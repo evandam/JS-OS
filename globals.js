@@ -22,9 +22,6 @@ var APP_VERSION = "0.05";   // What did you expect?
 
 var CPU_CLOCK_INTERVAL = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
-var QUANTUM = 6;    // Round Robin Scheduler quantum. Each process gets 6 cycles by default.
-var CURRENT_CYCLE = 0;  // use this to track when context switches need to occur 
-
 var TIMER_IRQ = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                     // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
@@ -39,27 +36,10 @@ var KILL_IRQ = 5;   // end process abnormally
 
 var CONTEXTSWITCH_IRQ = 6;
 
-//
-// Global Variables
-//
-var _CPU = null;
-
-var _Memory = null;
-
-var _OSclock = 0;       // Page 23.
-
-var _Mode = 0;   // 0 = Kernel Mode, 1 = User Mode.  See page 21.
-
-var _SingleStep = false;    // 
-
-var _Canvas = null;               // Initialized in hostInit().
-var _DrawingContext = null;       // Initialized in hostInit().
-var _DefaultFontFamily = "sans";  // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
-var _DefaultFontSize = 13;
-var _FontHeightMargin = 4;        // Additional space added to font size when advancing a line.
-
-// Default the OS trace to be on.
-var _Trace = true;
+// Scheduling Algorithm Constants
+var ROUND_ROBIN = 'rr';
+var FIRST_COME_FIRST_SERVE = 'fcfs';
+var PRIORITY = 'priority';
 
 // Queues and lists for CPU scheduling
 var ResidentList = [];
@@ -83,10 +63,36 @@ var PARTITION_2 = {
 };
 
 var PARTITION_3 = {
-    base : PARTITION_2.base + PARTITION_SIZE,
+    base: PARTITION_2.base + PARTITION_SIZE,
     limit: PARTITION_2.limit + PARTITION_SIZE,
     avail: true
 };
+
+//
+// Global Variables
+//
+var _CPU = null;
+
+var scheduler = null;
+
+var _Memory = null;
+
+var _OSclock = 0;       // Page 23.
+
+var _Mode = 0;   // 0 = Kernel Mode, 1 = User Mode.  See page 21.
+
+var _SingleStep = false;    // 
+
+var _Canvas = null;               // Initialized in hostInit().
+var _DrawingContext = null;       // Initialized in hostInit().
+var _DefaultFontFamily = "sans";  // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
+var _DefaultFontSize = 13;
+var _FontHeightMargin = 4;        // Additional space added to font size when advancing a line.
+
+// Default the OS trace to be on.
+var _Trace = true;
+
+
 
 // OS queues
 var _KernelInterruptQueue = null;

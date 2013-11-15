@@ -245,8 +245,8 @@ function shellInit() {
     sc.command = "quantum";
     sc.description = "<int> - Set the Round Robin quantum.";
     sc.func = function (args) {
-        QUANTUM = args[0];
-        _StdIn.putText('Quantum set to ' + QUANTUM + ' cyles.');
+        scheduler.quantum = args[0];
+        _StdIn.putText('Quantum set to ' + scheduler.quantum + ' cyles.');
     };
     this.commandList[this.commandList.length] = sc;
 

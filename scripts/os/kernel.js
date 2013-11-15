@@ -40,6 +40,8 @@ function krnBootstrap()      // Page 8.
    // ... more?
    //
 
+   scheduler = new Scheduler();
+
    // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
    krnTrace("Enabling the interrupts.");
    krnEnableInterrupts();
@@ -87,8 +89,7 @@ function krnOnCPUClockPulse()
     }
     else if (_CPU.isExecuting) // If there are no interrupts then run one CPU cycle if there is anything being processed.
     {
-        CURRENT_CYCLE++;
-        scheduleCPU();
+        scheduler.schedule();
    
         // cycles will be handled with interrupts if single step is enabled
         if(!_SingleStep)
@@ -393,11 +394,3 @@ function updatePCB () {
     _CPU.process.Yreg = _CPU.Yreg;
     _CPU.process.Zflag = _CPU.Zflag;
 };
-
-// Round Robin Scheduling
-function scheduleCPU() {
-    if (CURRENT_CYCLE >= QUANTUM ) {
-        _KernelInterruptQueue.enqueue(new Interrupt(CONTEXTSWITCH_IRQ));
-        CURRENT_CYCLE = 0;
-    }
-}
