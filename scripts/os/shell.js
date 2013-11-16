@@ -29,56 +29,56 @@ function shellInit() {
     sc.command = "ver";
     sc.description = "- Displays the current version data.";
     sc.func = shellVer;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // help
     sc = new ShellCommand();
     sc.command = "help";
     sc.description = "- This is the help command. Seek help.";
     sc.func = shellHelp;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // shutdown
     sc = new ShellCommand();
     sc.command = "shutdown";
     sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running.";
     sc.func = shellShutdown;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
     // cls
     sc = new ShellCommand();
     sc.command = "cls";
     sc.description = "- Clears the screen and resets the cursor position.";
     sc.func = shellCls;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
     // man <topic>
     sc = new ShellCommand();
     sc.command = "man";
     sc.description = "<topic> - Displays the MANual page for <topic>.";
     sc.func = shellMan;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // trace <on | off>
     sc = new ShellCommand();
     sc.command = "trace";
     sc.description = "<on | off> - Turns the OS trace on or off.";
     sc.func = shellTrace;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
     // rot13 <string>
     sc = new ShellCommand();
     sc.command = "rot13";
     sc.description = "<string> - Does rot13 obfuscation on <string>.";
     sc.func = shellRot13;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
     // prompt <string>
     sc = new ShellCommand();
     sc.command = "prompt";
     sc.description = "<string> - Sets the prompt.";
     sc.func = shellPrompt;
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // date
     sc = new ShellCommand();
@@ -88,7 +88,7 @@ function shellInit() {
     	date = new Date();
     	_StdIn.putText(date.toLocaleDateString() + " " + date.toLocaleTimeString());
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // whereami
     sc = new ShellCommand();
@@ -97,7 +97,7 @@ function shellInit() {
     sc.func = function() {
     	_StdIn.putText("In a poorly lit room in front of a laptop.");
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // color
     sc = new ShellCommand();
@@ -113,7 +113,7 @@ function shellInit() {
     		_StdIn.putText("Background restored to default.");
     	}
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // load
     // TODO: Expand to store code in memory starting at mem[0]. Assign a PCB and PID, return PID to console
@@ -150,7 +150,7 @@ function shellInit() {
     		_StdIn.putText("The textbox is empty!");
     	}
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
 
     // Run <pid>
@@ -160,7 +160,7 @@ function shellInit() {
     sc.func = function (args) {
         krnRunProcess(args);
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
     // Runall
     sc = new ShellCommand();
@@ -169,7 +169,7 @@ function shellInit() {
     sc.func = function (args) {
         krnRunAll();
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
     // status <string>
     sc = new ShellCommand();
@@ -185,7 +185,7 @@ function shellInit() {
     		_StdIn.putText("Status set to '" + str + "'");
     	}
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // BSoD
     sc = new ShellCommand();
@@ -196,7 +196,7 @@ function shellInit() {
     	_Console.screenOfDeath("Screen of death!");
         krnShutdown();
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
     
     // Restart - command to refresh page (convenience)
     sc = new ShellCommand();
@@ -205,7 +205,7 @@ function shellInit() {
     sc.func = function() {
     	location.reload(true);
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
 
     // list all active processes
@@ -218,7 +218,7 @@ function shellInit() {
             _StdIn.advanceLine();
         }
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
     // KILL
     sc = new ShellCommand();
@@ -238,7 +238,7 @@ function shellInit() {
         }
         
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
 
     // Quantum
     sc = new ShellCommand();
@@ -248,7 +248,32 @@ function shellInit() {
         scheduler.quantum = args[0];
         _StdIn.putText('Quantum set to ' + scheduler.quantum + ' cyles.');
     };
-    this.commandList[this.commandList.length] = sc;
+    this.commandList.push(sc);
+
+    // Scheduler
+    sc = new ShellCommand();
+    sc.command = "setschedule";
+    sc.description = "<string> - Set the CPU scheduling algorithm.";
+    sc.func = function (args) {
+        switch (args[0]) {
+            case ROUND_ROBIN:
+                scheduler.algorithm = ROUND_ROBIN;
+                _StdIn.putText('Scheduler set to round robin.');
+                break;
+            case FIRST_COME_FIRST_SERVE:
+                scheduler.algorithm = FIRST_COME_FIRST_SERVE;
+                _StdIn.putText('Scheduler set to first-come-first-serve');
+                break;
+            case PRIORITY:
+                scheduler.algorithm = PRIORITY;
+                _StdIn.putText('Scheduler set to to priority');
+                break;
+            default:
+                _StdIn.putText('Invalid schedule! Choose between rr, fcfs, and priority');
+                break;
+        }
+    };
+    this.commandList.push(sc);
 
     //
     // Display the initial prompt.
