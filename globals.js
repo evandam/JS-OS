@@ -32,7 +32,7 @@ var CONTEXTSWITCH_IRQ = 6;
 
 // Scheduling Algorithm Constants
 var ROUND_ROBIN = 'rr';
-var FIRST_COME_FIRST_SERVE = 'fcfs';
+var FCFS = 'fcfs';
 var PRIORITY = 'priority';
 
 // Queues and lists for CPU scheduling

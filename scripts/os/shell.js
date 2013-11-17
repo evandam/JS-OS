@@ -119,8 +119,8 @@ function shellInit() {
     // TODO: Expand to store code in memory starting at mem[0]. Assign a PCB and PID, return PID to console
     sc = new ShellCommand();
     sc.command = "load";
-    sc.description = " - Validate text area and load instructions into memory.";
-    sc.func = function() {
+    sc.description = "[<int>] - Validate text area and load instructions into memory. Optional param for priority.";
+    sc.func = function(args) {
     	var input = document.getElementById("taProgramInput").value.trim();
     	var valid = true;
     	if(input) {
@@ -142,8 +142,12 @@ function shellInit() {
     				}
     			}
     		}
-    		if(valid) {
-    		    krnLoadProcess(instructions);
+    		if (valid) {
+                // priority
+    		    if (args[0])
+    		        krnLoadProcess(instructions, args[0]);
+    		    else
+    		        krnLoadProcess(instructions);
     		}
     	}
     	else {
@@ -260,8 +264,8 @@ function shellInit() {
                 scheduler.algorithm = ROUND_ROBIN;
                 _StdIn.putText('Scheduler set to round robin.');
                 break;
-            case FIRST_COME_FIRST_SERVE:
-                scheduler.algorithm = FIRST_COME_FIRST_SERVE;
+            case FCFS:
+                scheduler.algorithm = FCFS;
                 _StdIn.putText('Scheduler set to first-come-first-serve');
                 break;
             case PRIORITY:
@@ -272,6 +276,15 @@ function shellInit() {
                 _StdIn.putText('Invalid schedule! Choose between rr, fcfs, and priority');
                 break;
         }
+    };
+    this.commandList.push(sc);
+
+    // Scheduler
+    sc = new ShellCommand();
+    sc.command = "getschedule";
+    sc.description = "Get the CPU scheduling algorithm.";
+    sc.func = function () {
+        _StdIn.putText(scheduler.algorithm);
     };
     this.commandList.push(sc);
 

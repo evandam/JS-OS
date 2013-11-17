@@ -147,7 +147,7 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             krnEndProcessAbnormally(params);
             break;
         case CONTEXTSWITCH_IRQ:
-            contextSwitch();
+            scheduler.contextSwitch();
             break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -209,9 +209,13 @@ function krnTrapError(msg)
 
 // Load validated 6502a instructions to memory, assign a PID and PCB.
 // Return the PID to be printed by the console
-function krnLoadProcess(instructions) {
+function krnLoadProcess(instructions, priority) {
 
     var pcb = new PCB();
+
+    if (priority)
+        pcb.priority = priority;
+    // default priority of 1 otherwise
 
     // Check which partitions are available for limits
     if (PARTITION_1.avail) {
@@ -243,9 +247,11 @@ function krnLoadProcess(instructions) {
     _CPU.process = oldpcb;
     
     // add the process to the resident queue now that it is loaded
-    ResidentList.push(pcb);
+    ResidentList[pcb.pid] = pcb;
 
     pcb.status = 'Loaded';
+
+    updateProcessesDisplay();
 
     _StdIn.putText("Process created with PID=" + pcb.pid);
     _StdIn.advanceLine();
@@ -254,21 +260,14 @@ function krnLoadProcess(instructions) {
 
 function krnRunProcess(pid) {
     // get the process with the matching PID from the resident list
-    var pcb = null;
-    for (var i = 0; i < ResidentList.length; i++) {
-        if (ResidentList[i].pid == pid) {
-            pcb = ResidentList[i];
-            ReadyQueue.push(pcb);
-            pcb.status = 'Ready';
-            // start the cpu if it isn't executing
-            // if it is running, the process is just pushed to the back of the queue
-            if (!_CPU.isExecuting) {
-                contextSwitch();
-                _CPU.isExecuting = true;
-            }
-            updateReadyQueueDisplay();
-            break;
-        }
+    var pcb = ResidentList[pid];
+    if(pcb) {
+        pcb.status = 'Ready';
+        ReadyQueue.push(pcb);
+          
+        scheduler.schedue();
+       
+        updateProcessesDisplay();
     }
     if (pcb == null) {
         _StdIn.putText("Could not find process with PID=" + pid);
@@ -282,13 +281,13 @@ function krnRunProcess(pid) {
 function krnRunAll() {
     // add all processes to the ready queue
     for (var i = 0; i < ResidentList.length; i++) {
+        ResidentList[i].status = 'Ready';
         ReadyQueue.push(ResidentList[i]);
     }
-    updateReadyQueueDisplay();
 
-    // start the first process in the queue
-    contextSwitch();
-    _CPU.isExecuting = true;
+    scheduler.schedule();
+
+    updateProcessesDisplay();
 }
 
 // Handle a syscall (FF) from a process by printing to console
@@ -310,16 +309,6 @@ function krnEndProcess(pcb) {
     if (pcb.pid === _CPU.process.pid) {
         // set the process to null, so it won't go back on the ready queue
         _CPU.process = null;
-        // let round robin start the next process without waiting for quantum to expire
-        CURRENT_CYCLE = 0;
-
-        // start the next process if there is one, otherwise stop execution
-        if (ReadyQueue.length > 0) {
-            contextSwitch();
-        }
-        else {
-            _CPU.isExecuting = false;
-        }
     }
     // if its not the active process it must be in the ready queue
     else {
@@ -341,7 +330,7 @@ function krnEndProcess(pcb) {
     else
         PARTITION_3.avail = true;
 
-    updateReadyQueueDisplay();
+    updateProcessesDisplay();
 
     /*
     _StdIn.advanceLine();
@@ -356,41 +345,10 @@ function krnEndProcessAbnormally(pcb) {
     krnEndProcess(pcb);
 }
 
-// update the CPU state to match the next process' PCB from the ready queue
-function contextSwitch() {
-    hostLog("Context switching");
-
-    // flip the mode bit - these are kernel mode operations
-    _Mode = 0;
-   
-    if (_CPU.process) {
-        // save the current state of the CPU in the PCB
-        updatePCB();
-        _CPU.process.status = 'Ready';
-        // push the process back on the ready queue for the next round
-        ReadyQueue.push(_CPU.process);
-
-        updateReadyQueueDisplay();
-    }
-    // new process from the ready queue
-    _CPU.process = ReadyQueue.shift();
-    _CPU.process.status = 'Running';
-
-    _CPU.PC = _CPU.process.PC;
-    _CPU.Acc = _CPU.process.Acc;
-    _CPU.Xreg = _CPU.process.Xreg;
-    _CPU.Yreg = _CPU.process.Yreg;
-    _CPU.Zflag = _CPU.process.Zflag;
-
-    // done with kernel operations, flip back to user mode for processes
-    _Mode = 1;
-    updateReadyQueueDisplay();
-}
-
 function updatePCB () {
     _CPU.process.PC = _CPU.PC;
     _CPU.process.Acc = _CPU.Acc;
     _CPU.process.Xreg = _CPU.Xreg;
     _CPU.process.Yreg = _CPU.Yreg;
     _CPU.process.Zflag = _CPU.Zflag;
-};
+}

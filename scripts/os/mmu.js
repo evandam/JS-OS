@@ -25,8 +25,6 @@ MMU.prototype.inRange = function (addr) {
     return _CPU.process.base <= addr && _CPU.process.limit >= addr;
 };
 
-// TODO: will eventually need to translate logical/physical addresses
-// easy enough...just addr + pcb.base, but thats for project 3...
 MMU.prototype.read = function (addr) {
     addr = this.translate(addr);
     return _Memory.mem[addr];   // check base/limit here

@@ -31,13 +31,14 @@ var updateCPUDisplay = function () {
 };
 
 // Update the display for the ready queue
-var updateReadyQueueDisplay = function () {
+var updateProcessesDisplay = function () {
     var el = $('#processes tbody');
     el.html("");
     for (var i = 0; i < ResidentList.length; i++) {
         el.append('<tr>');
         el.append('<td>' + ResidentList[i].pid + '</td>');
         el.append('<td>' + ResidentList[i].status + '</td>');
+        el.append('<td>' + ResidentList[i].priority + '</td>');
         el.append('<td>' + ResidentList[i].base + '</td>');
         el.append('<td>' + ResidentList[i].limit + '</td>');
         el.append('<td>' + ResidentList[i].PC + '</td>');
