@@ -92,7 +92,8 @@ function krnOnCPUClockPulse()
         // cycles will be handled with interrupts if single step is enabled
         if (!_SingleStep) {
             scheduler.schedule();
-            _CPU.cycle();
+            if(_CPU.isExecuting)
+                _CPU.cycle();
         }
     }    
     else                       // If there are no interrupts and there is nothing being executed then just be idle.

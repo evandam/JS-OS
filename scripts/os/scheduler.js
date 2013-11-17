@@ -6,9 +6,6 @@ function Scheduler() {
 }
 
 Scheduler.prototype.schedule = function () {
-    if (!_CPU.isExecuting)
-        _CPU.isExecuting = true;
-
     switch (this.algorithm) {
         case ROUND_ROBIN:
             this.roundRobin();
@@ -23,7 +20,7 @@ Scheduler.prototype.schedule = function () {
             krnTrapError("Invalid Scheduler!");
             _CPU.isExecuting = false;
             break;
-    }
+    }    
 };
 
 Scheduler.prototype.roundRobin = function () {
@@ -65,7 +62,20 @@ Scheduler.prototype.fcfs = function () {
 Scheduler.prototype.priority = function () {
     // non-preemptive, so we don't want to do anything if theres already a running process
     if (!_CPU.process) {
-
+        if (ReadyQueue.length > 0) {
+            var highestPriority = 0;
+            for (var i = 0; i < ReadyQueue.length; i++) {
+                if (ReadyQueue[i].priority > ReadyQueue[highestPriority].priority) {
+                    highestPriority = i;
+                }
+            }
+            var nextPCB = ReadyQueue[highestPriority];
+            ReadyQueue = ReadyQueue.splice(highestPriority, 1);
+            ReadyQueue.unshift(nextPCB);
+            for (var i in ReadyQueue) {
+                console.log(ReadyQueue[i].priority);
+            }
+        }
     }
 };
 
@@ -93,6 +103,9 @@ Scheduler.prototype.contextSwitch = function () {
     _CPU.Xreg = _CPU.process.Xreg;
     _CPU.Yreg = _CPU.process.Yreg;
     _CPU.Zflag = _CPU.process.Zflag;
+
+    if (!_CPU.isExecuting)
+        _CPU.isExecuting = true;
 
     // done with kernel operations, flip back to user mode for processes
     _Mode = 1;
