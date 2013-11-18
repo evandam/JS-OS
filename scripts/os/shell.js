@@ -280,6 +280,51 @@ function shellInit() {
     };
     this.commandList.push(sc);
 
+    // Create file
+    sc = new ShellCommand();
+    sc.command = "create";
+    sc.description = "<filename> - Create a file, return success or failure.";
+    sc.func = function (args) {
+
+    };
+    this.commandList.push(sc);
+
+    // Read file
+    sc = new ShellCommand();
+    sc.command = "read";
+    sc.description = "<filename> - read a file and display contents.";
+    sc.func = function (args) {
+
+    };
+    this.commandList.push(sc);
+
+    // write file
+    sc = new ShellCommand();
+    sc.command = "write";
+    sc.description = '<filename> "data"- write data in quotes to the filename.';
+    sc.func = function (args) {
+
+    };
+    this.commandList.push(sc);
+
+    // delete file
+    sc = new ShellCommand();
+    sc.command = "delete";
+    sc.description = "<filename> - Delete a file, return success or failure.";
+    sc.func = function (args) {
+
+    };
+    this.commandList.push(sc);
+
+    // format file system
+    sc = new ShellCommand();
+    sc.command = "format";
+    sc.description = "Initialize all tracks, sectors, and blocks. Return success or failure.";
+    sc.func = function () {
+
+    };
+    this.commandList.push(sc);
+
     //
     // Display the initial prompt.
     this.putPrompt();
