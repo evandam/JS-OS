@@ -47,7 +47,6 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
 };
 
 DeviceDriverFileSystem.prototype.format = function () {
-    console.log('format');
     var formattedVal = '0---';  // available and location of data/next link (same for directory and file data)
     var dataBytes = BLOCK_SIZE - formattedVal.length;
     for (var i = 0; i < dataBytes; i++) {
@@ -62,7 +61,14 @@ DeviceDriverFileSystem.prototype.format = function () {
             }
         }
     }
-    
-    // set up the MBR
-    console.log('format complete!');
+    // set up the MBR?
+    var mbrData = '';
+    for (var i = 0; i < BLOCK_SIZE; i++)
+        mbrData += '0';
+    localStorage.setItem('000', mbrData);
+
+    initFileSystemDisplay();
+
+    _StdIn.putText('format complete!');
+    // not sure what would cause an error just yet...
 };

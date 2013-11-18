@@ -41,10 +41,6 @@ function krnBootstrap()      // Page 8.
    krnFileSystemDriver = new DeviceDriverFileSystem();
    krnFileSystemDriver.driverEntry();
    krnTrace(krnFileSystemDriver.status);
-    // testing with an IRQ
-
-   _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [FORMAT]));
-    
 
    //
    // ... more?

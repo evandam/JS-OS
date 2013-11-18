@@ -285,7 +285,11 @@ function shellInit() {
     sc.command = "create";
     sc.description = "<filename> - Create a file, return success or failure.";
     sc.func = function (args) {
-
+        var filename = args[0];
+        if (filename.match(/^[\d|\w]+$/))
+            _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [CREATE, filename]));
+        else
+            _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
     this.commandList.push(sc);
 
@@ -294,7 +298,11 @@ function shellInit() {
     sc.command = "read";
     sc.description = "<filename> - read a file and display contents.";
     sc.func = function (args) {
-
+        var filename = args[0];
+        if (filename.match(/^[\d|\w]+$/))
+            _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [READ, filename]));
+        else
+            _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
     this.commandList.push(sc);
 
@@ -303,7 +311,11 @@ function shellInit() {
     sc.command = "write";
     sc.description = '<filename> "data"- write data in quotes to the filename.';
     sc.func = function (args) {
-
+        var filename = args[0];
+        if (filename.match(/^[\d|\w]+$/))
+            _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, data]));
+        else
+            _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
     this.commandList.push(sc);
 
@@ -312,7 +324,11 @@ function shellInit() {
     sc.command = "delete";
     sc.description = "<filename> - Delete a file, return success or failure.";
     sc.func = function (args) {
-
+        var filename = args[0];
+        if (filename.match(/^[\d|\w]+$/))
+            _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [DELETE, filename]));
+        else
+            _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
     this.commandList.push(sc);
 
@@ -321,7 +337,8 @@ function shellInit() {
     sc.command = "format";
     sc.description = "Initialize all tracks, sectors, and blocks. Return success or failure.";
     sc.func = function () {
-
+        _StdIn.putText("Formatting file system...");
+        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [FORMAT]));
     };
     this.commandList.push(sc);
 
