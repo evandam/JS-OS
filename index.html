@@ -106,7 +106,7 @@
                     <textarea name="taLog"
                               id="taLog"
                               rows="8"
-                              cols="40"></textarea>
+                              cols="30"></textarea>
                 </label>
             </div>
 
@@ -117,7 +117,7 @@
                     <textarea name="taProgramInput"
                               id="taProgramInput"
                               rows="5"
-                              cols="40">
+                              cols="30">
 A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF A9 44 8D 42 00 A9 4F 8D 43 00 A9 4E 8D 44 00 A9 45 8D 45 00 A9 00 8D 46 00 A2 02 A0 42 FF 00
                     </textarea>
                 </label>
@@ -164,7 +164,8 @@ A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF
 
         </div>
         <div id="right">
-            <div id="divMemory">
+            <input type="button" class="normal_button" onclick="hostBtnToggleTables()" value="Memory/Disk"/>
+            <div id="divMemory" style="display:none">
                 <label> Memory </label>
                 <div id="divMemory-wrap">
                     <table border="1">
@@ -178,6 +179,20 @@ A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF
                             <th>5/D</th>
                             <th>6/E</th>
                             <th>7/F</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="divFileSystem">
+                <label> File System </label>
+                <div id="divFileSystem-wrap">
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th> (t,s,b) </th>
+                                <th> Data </th>
+                            </tr>
                         </thead>
                         <tbody></tbody>
                     </table>

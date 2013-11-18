@@ -49,6 +49,8 @@ function hostInit()
    _Memory = new Memory();
    initMemDisplay();
 
+   initFileSystemDisplay();
+
     // auto-start the OS - remove this line later
     // document.getElementById('btnStartOS').click();
 }
@@ -148,4 +150,9 @@ function toggleSingleStep() {
  */
 function singleStep() {
     _KernelInterruptQueue.enqueue(new Interrupt(SINGLESTEP_IRQ, null));
+}
+
+function hostBtnToggleTables() {
+    $('#divMemory').toggle();
+    $('#divFileSystem').toggle();
 }

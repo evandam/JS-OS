@@ -75,7 +75,7 @@ table, textarea {
     margin-left: 10px;
 }
 
-#divMemory-wrap {
+#divMemory-wrap, #divFileSystem-wrap {
     max-height: 400px;
     overflow-y: scroll;
 }
