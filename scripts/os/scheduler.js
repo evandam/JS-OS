@@ -2,7 +2,7 @@
 function Scheduler() {
     this.cycle = 0;
     this.quantum = 6;
-    this.algorithm = ROUND_ROBIN;
+    this.algorithm = PRIORITY;
 }
 
 Scheduler.prototype.schedule = function () {
@@ -38,9 +38,13 @@ Scheduler.prototype.roundRobin = function () {
         }
     }
     else {
+        // the process can execute a cycle and then check the quantum
+        _CPU.cycle();
         this.cycle++;
         if (this.cycle >= this.quantum) {
-            _KernelInterruptQueue.enqueue(new Interrupt(CONTEXTSWITCH_IRQ));
+            if (ReadyQueue.length > 0) {
+                _KernelInterruptQueue.enqueue(new Interrupt(CONTEXTSWITCH_IRQ));
+            }
             this.cycle = 0;
         }
     }
@@ -52,15 +56,20 @@ Scheduler.prototype.fcfs = function () {
         // start the next process in the ready queue
         if (ReadyQueue.length > 0) {
             _KernelInterruptQueue.enqueue(new Interrupt(CONTEXTSWITCH_IRQ));
+            _CPU.isExecuting = false;
         }
         else {
             _CPU.isExecuting = false;
         }
     }
+    // there's still a process to execute
+    else
+        _CPU.cycle();
 };
 
 Scheduler.prototype.priority = function () {
     // non-preemptive, so we don't want to do anything if theres already a running process
+    // this searches the queue in order, so it uses FCFS for tie breakers
     if (!_CPU.process) {
         if (ReadyQueue.length > 0) {
             var highestPriority = 0;
@@ -70,13 +79,19 @@ Scheduler.prototype.priority = function () {
                 }
             }
             var nextPCB = ReadyQueue[highestPriority];
-            ReadyQueue = ReadyQueue.splice(highestPriority, 1);
+            ReadyQueue.splice(highestPriority, 1);
             ReadyQueue.unshift(nextPCB);
-            for (var i in ReadyQueue) {
-                console.log(ReadyQueue[i].priority);
-            }
+
+            _KernelInterruptQueue.enqueue(new Interrupt(CONTEXTSWITCH_IRQ));
+            _CPU.isExecuting = false;
+        }
+        else {
+            _CPU.isExecuting = false;
         }
     }
+    // there's still a process to execute
+    else
+        _CPU.cycle();
 };
 
 // update the CPU state to match the next process' PCB from the ready queue
@@ -87,12 +102,15 @@ Scheduler.prototype.contextSwitch = function () {
     _Mode = 0;
     if (_CPU.process) {
         // save the current state of the CPU in the PCB
-        updatePCB();
+        _CPU.process.PC = _CPU.PC;
+        _CPU.process.Acc = _CPU.Acc;
+        _CPU.process.Xreg = _CPU.Xreg;
+        _CPU.process.Yreg = _CPU.Yreg;
+        _CPU.process.Zflag = _CPU.Zflag;
+
         _CPU.process.status = 'Ready';
         // push the process back on the ready queue for the next round
         ReadyQueue.push(_CPU.process);
-
-        updateProcessesDisplay();
     }
     // new process from the ready queue
     _CPU.process = ReadyQueue.shift();

@@ -92,8 +92,6 @@ function krnOnCPUClockPulse()
         // cycles will be handled with interrupts if single step is enabled
         if (!_SingleStep) {
             scheduler.schedule();
-            if(_CPU.isExecuting)
-                _CPU.cycle();
         }
     }    
     else                       // If there are no interrupts and there is nothing being executed then just be idle.
@@ -211,12 +209,7 @@ function krnTrapError(msg)
 // Load validated 6502a instructions to memory, assign a PID and PCB.
 // Return the PID to be printed by the console
 function krnLoadProcess(instructions, priority) {
-
     var pcb = new PCB();
-
-    if (priority)
-        pcb.priority = priority;
-    // default priority of 1 otherwise
 
     // Check which partitions are available for limits
     if (PARTITION_1.avail) {
@@ -239,6 +232,11 @@ function krnLoadProcess(instructions, priority) {
         return;
     }
 
+    // set priority if the optional param was included
+    if (priority) {
+        pcb.priority = priority;
+    }
+
     // bounds checks while loading in the new process
     var oldpcb = _CPU.process;
     _CPU.process = pcb;
@@ -248,32 +246,27 @@ function krnLoadProcess(instructions, priority) {
     _CPU.process = oldpcb;
     
     // add the process to the resident queue now that it is loaded
-    ResidentList[pcb.pid] = pcb;
+    ResidentList.push(pcb);
 
     pcb.status = 'Loaded';
 
     updateProcessesDisplay();
 
-    _StdIn.putText("Process created with PID=" + pcb.pid);
+    _StdIn.putText("Process created with PID=" + pcb.pid + " and priority=" + pcb.priority);
     _StdIn.advanceLine();
     _OsShell.putPrompt();
 }
 
 function krnRunProcess(pid) {
     // get the process with the matching PID from the resident list
-    var pcb = ResidentList[pid];
+    var pcb = getPCB(pid);
     if(pcb) {
         pcb.status = 'Ready';
         ReadyQueue.push(pcb);
           
-        scheduler.schedue();
+        scheduler.schedule();
        
         updateProcessesDisplay();
-    }
-    if (pcb == null) {
-        _StdIn.putText("Could not find process with PID=" + pid);
-        _StdIn.advanceLine();
-        _OsShell.putPrompt();
     }
 }
 
@@ -307,15 +300,14 @@ function singleStep() {
 function krnEndProcess(pcb) {
 
     // the process is currently running
-    if (pcb.pid === _CPU.process.pid) {
+    if (_CPU.process && pcb.pid === _CPU.process.pid) {
         // set the process to null, so it won't go back on the ready queue
         _CPU.process = null;
     }
     // if its not the active process it must be in the ready queue
     else {
         var index = ReadyQueue.indexOf(pcb);
-        if (index > -1)
-            ReadyQueue.splice(index, 1);
+        ReadyQueue.splice(index, 1);
     }
 
     // remove the process from the resident list
@@ -324,9 +316,9 @@ function krnEndProcess(pcb) {
         ResidentList.splice(index, 1);
     
     // free up the partition of memory it occupied
-    if (pcb.limit < PARTITION_SIZE)
+    if (pcb.base === PARTITION_1.base)
         PARTITION_1.avail = true;
-    else if (pcb.limit < PARTITION_SIZE * 2)
+    else if (pcb.base === PARTITION_2.base)
         PARTITION_2.avail = true;
     else
         PARTITION_3.avail = true;
@@ -346,10 +338,12 @@ function krnEndProcessAbnormally(pcb) {
     krnEndProcess(pcb);
 }
 
-function updatePCB () {
-    _CPU.process.PC = _CPU.PC;
-    _CPU.process.Acc = _CPU.Acc;
-    _CPU.process.Xreg = _CPU.Xreg;
-    _CPU.process.Yreg = _CPU.Yreg;
-    _CPU.process.Zflag = _CPU.Zflag;
+// search the resident list for the process with matching pid
+function getPCB(pid) {
+    for (var i = 0; i < ResidentList.length; i++) {
+        if (ResidentList[i].pid === pid)
+            return ResidentList[i];
+    }
+    _StdIn.putText("No such process with PID " + pid);
+    return null;
 }

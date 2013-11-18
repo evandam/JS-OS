@@ -46,7 +46,6 @@ var updateProcessesDisplay = function () {
         el.append('<td>' + ResidentList[i].Xreg + '</td>');
         el.append('<td>' + ResidentList[i].Yreg + '</td>');
         el.append('<td>' + ResidentList[i].Zflag + '</td>');
-        el.append('</tr>')
+        el.append('</tr>');
     }
-
 }

@@ -143,11 +143,10 @@ function shellInit() {
     			}
     		}
     		if (valid) {
-                // priority
     		    if (args[0])
-    		        krnLoadProcess(instructions, args[0]);
+    		        krnLoadProcess(instructions, parseInt(args[0]));
     		    else
-    		        krnLoadProcess(instructions);
+    		        krnLoadProcess(instructions, null);
     		}
     	}
     	else {
@@ -229,18 +228,11 @@ function shellInit() {
     sc.command = "kill";
     sc.description = "<PID> - Kill a process.";
     sc.func = function (args) {
-
-        // Get the PCB from the PID (in resident list)
-        for (var i = 0; i < ResidentList.length; i++) {
-            // 
-            if (ResidentList[i].pid == args) {
-                var process = ResidentList[i];
-                krnEndProcess(process);
-                _StdIn.putText('Killing process ' + process.pid);
-                break;
-            }
+        var pcb = getPCB(parseInt(args[0]));
+        if (pcb) {
+            krnEndProcess(pcb);
+            _StdIn.putText('Killing process ' + pcb.pid);
         }
-        
     };
     this.commandList.push(sc);
 
