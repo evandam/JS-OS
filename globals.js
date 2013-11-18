@@ -30,6 +30,8 @@ var KILL_IRQ = 5;   // end process abnormally
 
 var CONTEXTSWITCH_IRQ = 6;
 
+var FILESYSTEM_IRQ = 7;
+
 // Scheduling Algorithm Constants
 var ROUND_ROBIN = 'rr';
 var FCFS = 'fcfs';
@@ -61,6 +63,18 @@ var PARTITION_3 = {
     limit: PARTITION_2.limit + PARTITION_SIZE,
     avail: true
 };
+
+// File system sizes
+var TRACKS = 4;
+var SECTORS = 8;
+var BLOCKS = 8;
+var BLOCK_SIZE = 64;
+// operations to implement in filesystem API (pass in the isr)
+var READ = 'read';
+var WRITE = 'write';
+var CREATE = 'create';
+var DELETE = 'delete';
+var FORMAT = 'format';
 
 //
 // Global Variables
@@ -106,6 +120,7 @@ var _SarcasticMode = false;
 
 // Global Device Driver Objects - page 12
 var krnKeyboardDriver = null;
+var krnFileSystemDriver = null;
 
 // For testing...
 var _GLaDOS = null;

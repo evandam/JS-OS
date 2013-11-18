@@ -36,6 +36,15 @@ function krnBootstrap()      // Page 8.
    krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
    krnTrace(krnKeyboardDriver.status);
 
+    // load the file system driver
+   krnTrace("Loading the file system driver.");
+   krnFileSystemDriver = new DeviceDriverFileSystem();
+   krnFileSystemDriver.driverEntry();
+   krnTrace(krnFileSystemDriver.status);
+   // testing with an IRQ
+   _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [FORMAT]));
+    
+
    //
    // ... more?
    //
@@ -148,6 +157,8 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case CONTEXTSWITCH_IRQ:
             scheduler.contextSwitch();
             break;
+        case FILESYSTEM_IRQ:
+            krnFileSystemDriver.isr(params);
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
     }
@@ -174,7 +185,6 @@ function krnTimerISR()  // The built-in TIMER (not clock) Interrupt Service Rout
 // - ReadFile
 // - WriteFile
 // - CloseFile
-
 
 //
 // OS Utility Routines
