@@ -32,6 +32,15 @@ DeviceDriverFileSystem.prototype.krnFileSystemIO = function (params) {
 
 DeviceDriverFileSystem.prototype.create = function (filename) {
     console.log('create ' + filename);
+    var dirEntry = this.getNextDirEntry();
+    var fileEntry = this.getNextFileEntry();
+    var dirData = '1' + fileEntry + filename;
+    var remainingBytes = BLOCK_SIZE - dirData.length;
+    for (var i = 0; i < remainingBytes; i++)
+        dirData += '0';
+    localStorage.setItem(dirEntry, dirData);
+    updateFileSystemDisplay(dirEntry, dirData);
+    console.log(dirData);
 };
 
 DeviceDriverFileSystem.prototype.read = function (filename) {
@@ -61,14 +70,26 @@ DeviceDriverFileSystem.prototype.format = function () {
             }
         }
     }
-    // set up the MBR?
-    var mbrData = '';
-    for (var i = 0; i < BLOCK_SIZE; i++)
-        mbrData += '0';
+    // set up the MBR
+    // first 3 bytes are the next available directory entry (001)
+    // the next 3 are the next available file entry (100)
+    // the remaining bytes can be used to track the total size or something
+    var mbrData = '0011000';     
     localStorage.setItem('000', mbrData);
 
     initFileSystemDisplay();
 
     _StdIn.putText('format complete!');
+    _StdIn.advanceLine();
+    _OsShell.putPrompt();
     // not sure what would cause an error just yet...
+};
+
+// just read it from the mbr
+DeviceDriverFileSystem.prototype.getNextDirEntry = function () {
+    return localStorage.getItem('000').substring(0, 3);
+};
+
+DeviceDriverFileSystem.prototype.getNextFileEntry = function () {
+    return localStorage.getItem('000').substring(3, 6);
 };

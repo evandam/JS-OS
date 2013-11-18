@@ -56,13 +56,12 @@ function initFileSystemDisplay() {
         for (var s = 0; s < SECTORS; s++) {
             for (var b = 0; b < BLOCKS; b++) {
                 var tsb = t + '' + s + '' + b;
-                el.append('<tr><th>' + tsb + '</th><td id="'+ tsb +'">' + localStorage.getItem(tsb) + '</td></tr>');
+                el.append('<tr><th>' + tsb + '</th><td id="tsb'+ tsb +'">' + localStorage.getItem(tsb) + '</td></tr>');
             }
         }
     }
 }
 
 function updateFileSystemDisplay(tsb, data) {
-    var el = $('#divFileSystem table tbody');
-    el.find('#' + tsb).text(data);
+    $('#tsb' + tsb).text(data);
 }
