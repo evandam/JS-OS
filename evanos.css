@@ -54,7 +54,6 @@ table, textarea {
 
 #middle {
     display: inline-block;
-    margin-left: 10px;
     text-align: center;
     vertical-align: top;
 }
@@ -72,12 +71,15 @@ table, textarea {
     display: inline-block;
     text-align: center;
     vertical-align: top;
-    margin-left: 10px;
 }
 
 #divMemory-wrap, #divFileSystem-wrap {
     max-height: 400px;
     overflow-y: scroll;
+}
+
+#divFileSystem tbody {
+    font-size: 8pt;
 }
 
 .footerText {
