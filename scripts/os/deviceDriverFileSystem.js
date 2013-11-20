@@ -1,4 +1,9 @@
 ﻿// Use HTML5 Local storage to simulate a disk drive
+/*
+Use a single interrupt code to access the file system:
+but specify parameters to determine what to do...
+ie [CREATE, filename]
+*/
 
 DeviceDriverFileSystem.prototype = new DeviceDriver;  // "Inherit" from prototype DeviceDriver in deviceDriver.js.
 
@@ -24,10 +29,35 @@ DeviceDriverFileSystem.prototype.krnFileSystemIO = function (params) {
         case FORMAT:
             this.format();  // implement quick format?
             break;
+        case LIST:
+            this.list();    // ls
+            break;
         default:
             krnTrapError("Invalid Request for Filesystem!");
             break;
     }
+};
+
+// ls
+DeviceDriverFileSystem.prototype.list = function () {
+    var allocated = this.getAllocatedBlocks();
+    var total = TRACKS * SECTORS * BLOCKS * BLOCK_SIZE;
+    _StdIn.putText(allocated + '/' + total + ' blocks');
+    _StdIn.advanceLine();
+    // traverse the first track and list the filenames of each occupied entry
+    for (var sector = 0; sector < SECTORS; sector++) {
+        for (var block = 0; block < BLOCKS; block++) {
+            var tsb = '0' + sector + '' + block;
+            var entry = localStorage.getItem(tsb);
+            // entry is taken
+            if (parseInt(entry.charAt(0)) === 1) {
+                var filename = entry.substring(4, entry.indexOf('\\'));
+                _StdIn.putText(filename);
+                _StdIn.advanceLine();
+            }
+        }
+    }
+    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.create = function (filename) {
@@ -37,7 +67,7 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
     else {
         var dirEntry = this.getNextDirEntry();
         var fileEntry = this.getNextFileEntry();
-        var dirData = '1' + fileEntry + filename.toUpperCase() + '\\';       // available byte, address of file data, then the filename (null terminated with a back slash)
+        var dirData = '1' + fileEntry + filename.toLowerCase() + '\\';       // available byte, address of file data, then the filename (null terminated with a back slash)
         // fill with old data..not just boring zeros
         var oldData = localStorage.getItem(dirEntry);
         dirData += oldData.substring(dirData.length);
@@ -54,9 +84,9 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
         this.incrementSize();   // another block is taken up, so update that in the mbr too (not sure if this will be used)
 
         _StdIn.putText(filename + ' created at directory entry ' + dirEntry);
-        _StdIn.advanceLine();
-        _OsShell.putPrompt();
     }
+    _StdIn.advanceLine();
+    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.read = function (filename) {
@@ -76,6 +106,8 @@ DeviceDriverFileSystem.prototype.read = function (filename) {
         krnTrapError('No such file!');
         _StdIn.putText("No such file named " + filename);
     }
+    _StdIn.advanceLine();
+    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.write = function (filename, data) {
@@ -129,6 +161,8 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
         krnTrapError('No such file!');
         _StdIn.putText("No such file named " + filename);
     }
+    _StdIn.advanceLine();
+    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.delete = function (filename) {
@@ -167,6 +201,8 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
         krnTrapError('No such file!');
         _StdIn.putText("No such file named " + filename);
     }
+    _StdIn.advanceLine();
+    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.format = function () {
@@ -296,16 +332,19 @@ DeviceDriverFileSystem.prototype.getFile = function (filename) {
         for (var block = 0; block < BLOCKS; block++) {
             var tsb = '0' + sector + '' + block;
             var dirData = localStorage.getItem(tsb);
-            var fileName = '';
-            // add each char until null terminated
-            for (var char = 4; char < BLOCK_SIZE; char++) {
-                if (dirData.charAt(char) != '\\')
-                    fileName += dirData.charAt(char);
-                else
-                    break;
+            // only check taken entries
+            if (parseInt(dirData.charAt(0)) === 1) {
+                var fileName = '';
+                // add each char until null terminated
+                for (var char = 4; char < BLOCK_SIZE; char++) {
+                    if (dirData.charAt(char) != '\\')
+                        fileName += dirData.charAt(char);
+                    else
+                        break;
+                }
+                if (fileName == filename.toLowerCase())
+                    return tsb;
             }
-            if (fileName == filename.toUpperCase())
-                return tsb;
         }
     }
     return null;
@@ -313,4 +352,4 @@ DeviceDriverFileSystem.prototype.getFile = function (filename) {
 
 DeviceDriverFileSystem.prototype.updateDisplay = function (addr) {
     updateFileSystemDisplay(addr, localStorage.getItem(addr));
-}
+};

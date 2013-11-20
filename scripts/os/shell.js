@@ -344,12 +344,17 @@ function shellInit() {
     };
     this.commandList.push(sc);
 
-    //
+    // list files
+    sc = new ShellCommand();
+    sc.command = "ls";
+    sc.description = "List files stored on disk.";
+    sc.func = function () {
+        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [LIST]));
+    };
+    this.commandList.push(sc);
+
     // Display the initial prompt.
-    this.putPrompt();
-    
-    
-    
+    this.putPrompt();   
 }
 
 function shellPutPrompt()
