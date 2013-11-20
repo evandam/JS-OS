@@ -61,6 +61,10 @@ DeviceDriverFileSystem.prototype.list = function () {
 };
 
 DeviceDriverFileSystem.prototype.create = function (filename) {
+    if (filename.length > BLOCK_SIZE - 5) {
+        _StdIn.putText('Filename is too long!');
+        return;
+    }
     if(this.getFile(filename)) {
         _StdIn.putText('File already exists with same name!');
     }
