@@ -31,30 +31,50 @@ DeviceDriverFileSystem.prototype.krnFileSystemIO = function (params) {
 };
 
 DeviceDriverFileSystem.prototype.create = function (filename) {
-    var dirEntry = this.getNextDirEntry();
-    var fileEntry = this.getNextFileEntry();
-    var dirData = '1' + fileEntry + filename.toUpperCase();       // available byte, address of file data, then the filename
-    var remainingBytes = BLOCK_SIZE - dirData.length;
-    for (var i = 0; i < remainingBytes; i++)    // pad with 0s
-        dirData += '0';
-    localStorage.setItem(dirEntry, dirData);
-    updateFileSystemDisplay(dirEntry, dirData);
-    this.updateNextDirEntry();  // update the MBR now that this addr is taken
+    if(this.getFile(filename)) {
+        _StdIn.putText('File already exists with same name!');
+    }
+    else {
+        var dirEntry = this.getNextDirEntry();
+        var fileEntry = this.getNextFileEntry();
+        var dirData = '1' + fileEntry + filename.toUpperCase() + '\\';       // available byte, address of file data, then the filename (null terminated with a back slash)
+        var remainingBytes = BLOCK_SIZE - dirData.length;
+        for (var i = 0; i < remainingBytes; i++)    // pad with 0s
+            dirData += '0';
+        localStorage.setItem(dirEntry, dirData);
+        updateFileSystemDisplay(dirEntry, dirData);
+        this.updateNextDirEntry();  // update the MBR now that this addr is taken
 
-    var fileData = localStorage.getItem(fileEntry);
-    fileData = '1' + fileData.substring(1);  // set to taken
-    localStorage.setItem(fileEntry, fileData);
-    updateFileSystemDisplay(fileEntry, fileData);
-    this.updateNextFileEntry(); // update the MBR to point to next avail file addr
-    this.incrementSize();   // another block is taken up, so update that in the mbr too (not sure if this will be used)
+        var fileData = localStorage.getItem(fileEntry);
+        fileData = '1' + fileData.substring(1);  // set to taken
+        localStorage.setItem(fileEntry, fileData);
+        updateFileSystemDisplay(fileEntry, fileData);
+        this.updateNextFileEntry(); // update the MBR to point to next avail file addr
+        this.incrementSize();   // another block is taken up, so update that in the mbr too (not sure if this will be used)
 
-    // update MBR display
-    updateFileSystemDisplay('000', localStorage.getItem('000'));
-    
+        // update MBR display
+        updateFileSystemDisplay('000', localStorage.getItem('000'));
+    }
 };
 
 DeviceDriverFileSystem.prototype.read = function (filename) {
-    console.log('read ' + filename)
+    var f = this.getFile(filename);
+    console.log(f);
+    if (f) {
+        var dir = localStorage.getItem(f);
+        var fileData = localStorage.getItem(dir.substring(1,4));
+        // follow chain and print data
+        while(fileData.substring(1, 4).match(/\d{3}/)) {
+            _StdIn.putText(fileData.substring(4));
+            var nextAddr = fileData.substring(1, 4);
+            fileData = localStorage.getItem(nextAddr);
+        }
+        _StdIn.putText(fileData.substring(4, fileData.indexOf('\\')));
+    }
+    else {
+        krnTrapError('No such file!');
+        _StdIn.putText("No such file named " + filename);
+    }
 };
 
 DeviceDriverFileSystem.prototype.write = function (filename, data) {
@@ -66,7 +86,7 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
 };
 
 DeviceDriverFileSystem.prototype.format = function () {
-    var formattedVal = '0---';  // available and location of data/next link (same for directory and file data)
+    var formattedVal = '0---\\';  // available and location of data/next link (same for directory and file data)
     var dataBytes = BLOCK_SIZE - formattedVal.length;
     for (var i = 0; i < dataBytes; i++) {
         formattedVal += '0';
@@ -176,4 +196,25 @@ DeviceDriverFileSystem.prototype.incrementSize = function () {
     var size = parseInt(mbrData.substring(6));
     size++;
     localStorage.setItem('000', mbrData.substring(0, 6) + size);
+}
+
+// search for the file name and return the directory entry
+DeviceDriverFileSystem.prototype.getFile = function (filename) {
+    for (var sector = 0; sector < SECTORS; sector++) {
+        for (var block = 0; block < BLOCKS; block++) {
+            var tsb = '0' + sector + '' + block;
+            var dirData = localStorage.getItem(tsb);
+            var fileName = '';
+            // add each char until null terminated
+            for (var char = 4; char < BLOCK_SIZE; char++) {
+                if (dirData.charAt(char) != '\\')
+                    fileName += dirData.charAt(char);
+                else
+                    break;
+            }
+            if (fileName == filename.toUpperCase())
+                return tsb;
+        }
+    }
+    return null;
 }
