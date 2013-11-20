@@ -54,14 +54,17 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
 
         // update MBR display
         updateFileSystemDisplay('000', localStorage.getItem('000'));
+
+        _StdIn.putText(filename + ' created at directory entry ' + dirEntry);
+        _StdIn.advanceLine();
+        _OsShell.putPrompt();
     }
 };
 
 DeviceDriverFileSystem.prototype.read = function (filename) {
-    var f = this.getFile(filename);
-    console.log(f);
-    if (f) {
-        var dir = localStorage.getItem(f);
+    var addr = this.getFile(filename);
+    if (addr) {
+        var dir = localStorage.getItem(addr);
         var fileData = localStorage.getItem(dir.substring(1,4));
         // follow chain and print data
         while(fileData.substring(1, 4).match(/\d{3}/)) {
@@ -78,7 +81,54 @@ DeviceDriverFileSystem.prototype.read = function (filename) {
 };
 
 DeviceDriverFileSystem.prototype.write = function (filename, data) {
-    console.log('write to ' + filename + ' : ' + data);
+    console.log('write to ' + filename + ': ' + data);
+    data += '\\';   // null-terminate
+    var addr = this.getFile(filename);
+    if (addr) {
+        var dir = localStorage.getItem(addr).substring(1, 4);
+        var dataSpace = BLOCK_SIZE - 4; // 1 available bit, 3 addr
+        var blocksRequired = Math.ceil(data.length / dataSpace);
+        // blocks this data uses must be <= total data blocks - allocated blocks
+        if (blocksRequired <= (BLOCKS * SECTORS * (TRACKS - 1) - this.getAllocatedBlocks())) {
+            // once this exceeds the dataSpace in a block we need to go to the next one
+            var curPos = 0; var curData = '';
+            // write one char at a time
+            for (var char = 0; char < data.length; char++) {
+                if (data.charAt(char) != '\\') {
+                    curData += data.charAt(char);
+                    curPos++;
+                    // reached the end of the block
+                    if (curPos > dataSpace) {
+                        // link to the next available entry
+                        this.updateNextFileEntry();
+                        var entryInfo = '1' + this.getNextFileEntry() + curData;                        
+                        localStorage.setItem(dir, entryInfo);
+                        updateFileSystemDisplay(dir, entryInfo);  
+                        dir = this.getNextFileEntry();
+                    }
+                }
+                else {
+                    // hit the terminator, just flush the rest of the data to the current block
+                    var entryInfo = '1---' + curData + '\\';
+                    // pad with zeros
+                    while (entryInfo.length < BLOCK_SIZE)
+                        entryInfo += '0';
+                    localStorage.setItem(dir, entryInfo);
+                    console.log(dir + ' ' + entryInfo);
+                    updateFileSystemDisplay(dir, entryInfo);
+                    _StdIn.putText("Wrote to " + filename + "!");
+                }
+            }
+        }
+        else {
+            krnTrapError('Insufficient disk space to write!');
+            _StdIn.putText('Insufficient disk space to write the data!');
+        }
+    }
+    else {
+        krnTrapError('No such file!');
+        _StdIn.putText("No such file named " + filename);
+    }
 };
 
 DeviceDriverFileSystem.prototype.delete = function (filename) {
@@ -127,7 +177,7 @@ DeviceDriverFileSystem.prototype.getNextFileEntry = function () {
 };
 
 // bytes [6:9] in MBR = number of blocks taken (why not)
-DeviceDriverFileSystem.prototype.getAllocateSize = function () {
+DeviceDriverFileSystem.prototype.getAllocatedBlocks = function () {
     return parseInt(localStorage.getItem('000').substring(6,9));
 };
 
@@ -182,7 +232,6 @@ DeviceDriverFileSystem.prototype.updateNextFileEntry = function () {
             return;
         }
     }
-    console.log(addr + ' = next file addr');
     var mbrData = localStorage.getItem('000');
     mbrData = mbrData.substring(0,3) + addr + mbrData.substring(6);
     localStorage.setItem('000', mbrData);

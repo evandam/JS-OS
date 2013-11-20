@@ -312,8 +312,10 @@ function shellInit() {
     sc.description = '<filename> "data"- write data in quotes to the filename.';
     sc.func = function (args) {
         var filename = args[0];
-        if (filename.match(/^[\d|\w]+$/))
+        if (filename.match(/^[\d|\w]+$/))  {
+            var data = args.join('').match(/"(.+)"/)[1];
             _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, data]));
+        }
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
