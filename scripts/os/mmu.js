@@ -45,10 +45,10 @@ MMU.prototype.write = function (addr, byte) {
 
 // load a process from disk into memory
 MMU.prototype.rollIn = function (pcb) {
-
+    console.log('roll in');
 };
 
 // store a process from memory to disk
 MMU.prototype.rollOut = function (pcb) {
-
+    console.log('rollout!');
 };

@@ -235,7 +235,7 @@ function krnLoadProcess(instructions, priority) {
     }
     else {
         // all partitions are taken so load it to disk
-        pcb.init(-1, -1);
+        pcb.init(DISK_PARTITION);
         loadToDisk = true;
     }
 
@@ -281,7 +281,8 @@ function krnRunProcess(pid) {
             pcb.status = 'Ready';
             ReadyQueue.push(pcb);
 
-            scheduler.schedule();
+            if(!_CPU.isExecuting)
+                _CPU.isExecuting = true;
 
             updateProcessesDisplay();
         }
@@ -306,13 +307,8 @@ function krnRunProcess(pid) {
 function krnRunAll() {
     // add all processes to the ready queue
     for (var i = 0; i < ResidentList.length; i++) {
-        ResidentList[i].status = 'Ready';
-        ReadyQueue.push(ResidentList[i]);
+        krnRunProcess(ResidentList[i].pid);
     }
-
-    scheduler.schedule();
-
-    updateProcessesDisplay();
 }
 
 // Handle a syscall (FF) from a process by printing to console

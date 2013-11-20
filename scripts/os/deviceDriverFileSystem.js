@@ -135,7 +135,6 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                     // reached the end of the block
                     if (curPos === dataSpace) {
                         // link to the next available entry
-                        console.log(dir);
                         var nextDir = localStorage.getItem(dir).substring(1, 4);
                         // try to follow chain, if not get the next available entry
                         if (!nextDir.match(/\d{3}/)) {
@@ -159,7 +158,6 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                         dir = this.getNextFileEntry();                        
                         this.incrementSize();
                     }
-                    console.log(dir);
 
                     // TODO: Unlink further chains here?                    
                     var entryInfo = '1---' + curData + '\\';

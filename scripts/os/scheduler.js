@@ -2,7 +2,7 @@
 function Scheduler() {
     this.cycle = 0;
     this.quantum = 6;
-    this.algorithm = PRIORITY;
+    this.algorithm = ROUND_ROBIN;
 }
 
 Scheduler.prototype.schedule = function () {

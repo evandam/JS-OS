@@ -65,6 +65,12 @@ var PARTITION_3 = {
     avail: true
 };
 
+// each process on disk gets this
+var DISK_PARTITION = {
+    base: -1,
+    limit: -1
+};
+
 // File system sizes
 var TRACKS = 4;
 var SECTORS = 8;
