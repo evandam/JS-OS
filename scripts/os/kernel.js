@@ -356,7 +356,8 @@ function krnEndProcessAbnormally(pcb) {
 // search the resident list for the process with matching pid
 function getPCB(pid) {
     for (var i = 0; i < ResidentList.length; i++) {
-        if (ResidentList[i].pid === pid)
+        console.log(ResidentList[i].pid);
+        if (ResidentList[i].pid === parseInt(pid))
             return ResidentList[i];
     }
     _StdIn.putText("No such process with PID " + pid);

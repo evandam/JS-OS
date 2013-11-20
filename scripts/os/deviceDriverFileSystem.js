@@ -133,7 +133,6 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                     curPos++;
                     // reached the end of the block
                     if (curPos === dataSpace) {
-                        console.log('writing to block ' + dir);
                         // link to the next available entry
                         var entryInfo = '1' + this.getNextFileEntry() + curData;                        
                         localStorage.setItem(dir, entryInfo);
@@ -151,7 +150,6 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                         this.updateNextFileEntry();
                     dir = this.getNextFileEntry();
                     // TODO: Unlink further chains here?
-                    console.log('writing to block ' + dir);
                     // hit the terminator, just flush the rest of the data to the current block
                     var entryInfo = '1---' + curData + '\\';
                     // fill the remaining bytes with the old data, seems like fun
