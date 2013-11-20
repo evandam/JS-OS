@@ -39,8 +39,8 @@ function updateProcessesDisplay() {
         el.append('<td>' + ResidentList[i].pid + '</td>');
         el.append('<td>' + ResidentList[i].status + '</td>');
         el.append('<td>' + ResidentList[i].priority + '</td>');
-        el.append('<td>' + ResidentList[i].base + '</td>');
-        el.append('<td>' + ResidentList[i].limit + '</td>');
+        el.append('<td>' + ResidentList[i].partition.base + '</td>');
+        el.append('<td>' + ResidentList[i].partition.limit + '</td>');
         el.append('<td>' + ResidentList[i].PC + '</td>');
         el.append('<td>' + ResidentList[i].Acc + '</td>');
         el.append('<td>' + ResidentList[i].Xreg + '</td>');
