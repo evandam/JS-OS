@@ -275,13 +275,29 @@ function krnLoadProcess(instructions, priority) {
 function krnRunProcess(pid) {
     // get the process with the matching PID from the resident list
     var pcb = getPCB(pid);
-    if(pcb) {
-        pcb.status = 'Ready';
-        ReadyQueue.push(pcb);
-          
-        scheduler.schedule();
-       
-        updateProcessesDisplay();
+    if (pcb) {
+        // process is in memory
+        if (pcb.base > -1) {
+            pcb.status = 'Ready';
+            ReadyQueue.push(pcb);
+
+            scheduler.schedule();
+
+            updateProcessesDisplay();
+        }
+        // process is on disk
+        else {
+            // store an active process to disk and free up a partition
+            _CPU.mmu.rollOut();
+            // load this pcb into that free partition
+            _CPU.mmu.rollIn(pcb);
+            /*
+            pcb.status = 'Ready';
+            ReadyQueue.push(pcb);
+            scheduler.schedule();
+            updateProcessesDisplay();
+            */
+        }
     }
 }
 

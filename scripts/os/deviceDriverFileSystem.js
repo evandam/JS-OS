@@ -41,7 +41,7 @@ DeviceDriverFileSystem.prototype.krnFileSystemIO = function (params) {
 // ls
 DeviceDriverFileSystem.prototype.list = function () {
     var allocated = this.getAllocatedBlocks();
-    var total = TRACKS * SECTORS * BLOCKS * BLOCK_SIZE;
+    var total = (TRACKS - 1) * SECTORS * BLOCKS;
     _StdIn.putText(allocated + '/' + total + ' blocks');
     _StdIn.advanceLine();
     // traverse the first track and list the filenames of each occupied entry
@@ -128,39 +128,54 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
             var curPos = 0; var curData = '';
             // write one char at a time
             for (var char = 0; char < data.length; char++) {
+                // data left to write
                 if (data.charAt(char) != '\\') {
                     curData += data.charAt(char);
                     curPos++;
                     // reached the end of the block
                     if (curPos === dataSpace) {
                         // link to the next available entry
-                        var entryInfo = '1' + this.getNextFileEntry() + curData;                        
+                        console.log(dir);
+                        var nextDir = localStorage.getItem(dir).substring(1, 4);
+                        // try to follow chain, if not get the next available entry
+                        if (!nextDir.match(/\d{3}/)) {
+                            nextDir = this.getNextFileEntry();
+                            this.updateNextFileEntry();
+                            this.incrementSize();
+                        }
+                        var entryInfo = '1' + nextDir + curData;                        
                         localStorage.setItem(dir, entryInfo);
                         this.updateDisplay(dir);
-                        dir = this.getNextFileEntry();
-                        this.incrementSize();   // taking up another block so update MBR
+                        dir = nextDir;
                         curPos = 0;
                         curData = '';
-                        this.updateNextFileEntry();
                         isChained = true;
                     }
                 }
+                // hit the terminator, just flush the rest of the data to the current block
                 else {
-                    if (isChained)
+                    if (isChained) {
                         this.updateNextFileEntry();
-                    dir = this.getNextFileEntry();
-                    // TODO: Unlink further chains here?
-                    // hit the terminator, just flush the rest of the data to the current block
+                        dir = this.getNextFileEntry();                        
+                        this.incrementSize();
+                    }
+                    console.log(dir);
+
+                    // TODO: Unlink further chains here?                    
                     var entryInfo = '1---' + curData + '\\';
                     // fill the remaining bytes with the old data, seems like fun
                     var oldData = localStorage.getItem(dir);
                     entryInfo += oldData.substring(entryInfo.length);
                     localStorage.setItem(dir, entryInfo);
                     this.updateDisplay(dir);
-                    _StdIn.putText("Wrote to " + filename + "!");
 
-                    if (isChained)
+                    if (isChained) {
                         this.updateNextFileEntry();
+                        this.incrementSize();
+                    }
+
+                    _StdIn.putText("Wrote to " + filename + "!");
+                    
                     break;
                 }
             }

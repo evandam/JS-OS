@@ -42,3 +42,13 @@ MMU.prototype.write = function (addr, byte) {
     // update the display of this block
     updateMemoryDisplay(addr, hex);
 };
+
+// load a process from disk into memory
+MMU.prototype.rollIn = function (pcb) {
+
+};
+
+// store a process from memory to disk
+MMU.prototype.rollOut = function (pcb) {
+
+};
