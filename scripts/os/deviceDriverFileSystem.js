@@ -2,7 +2,7 @@
 /*
 Use a single interrupt code to access the file system:
 but specify parameters to determine what to do...
-ie [CREATE, filename]
+ie [CREATE, filename], [FORMAT], [WRITE, filename, data], etc
 */
 
 DeviceDriverFileSystem.prototype = new DeviceDriver;  // "Inherit" from prototype DeviceDriver in deviceDriver.js.
@@ -131,12 +131,13 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                     curData += data.charAt(char);
                     curPos++;
                     // reached the end of the block
-                    if (curPos >= dataSpace) {
+                    if (curPos === dataSpace) {
+                        console.log('writing to block ' + dir);
                         // link to the next available entry
-                        this.updateNextFileEntry();
                         var entryInfo = '1' + this.getNextFileEntry() + curData;                        
                         localStorage.setItem(dir, entryInfo);
-                        this.updateDisplay(dir);  
+                        this.updateDisplay(dir);
+                        this.updateNextFileEntry();
                         dir = this.getNextFileEntry();
                         this.incrementSize();   // taking up another block so update MBR
                         curPos = 0;
@@ -144,15 +145,18 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                     }
                 }
                 else {
+                    console.log('writing to block ' + dir);
                     // hit the terminator, just flush the rest of the data to the current block
                     var entryInfo = '1---' + curData + '\\';
                     // fill the remaining bytes with the old data, seems like fun
                     var oldData = localStorage.getItem(dir);
                     entryInfo += oldData.substring(entryInfo.length);
-
+                    this.updateNextFileEntry();
                     localStorage.setItem(dir, entryInfo);
                     this.updateDisplay(dir);
+                    this.updateNextDirEntry();
                     _StdIn.putText("Wrote to " + filename + "!");
+                    break;
                 }
             }
         }

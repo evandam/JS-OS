@@ -299,10 +299,7 @@ function shellInit() {
     sc.description = "<filename> - read a file and display contents.";
     sc.func = function (args) {
         var filename = args[0];
-        if (filename.match(/^[\d|\w]+$/))
-            _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [READ, filename]));
-        else
-            _StdIn.putText(filename + ' is an invalid filename. No special characters!');
+        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [READ, filename]));
     };
     this.commandList.push(sc);
 

@@ -219,6 +219,7 @@ function krnTrapError(msg)
 function krnLoadProcess(instructions, priority) {
     var pcb = new PCB();
 
+    var loadToDisk = false;
     // Check which partitions are available for limits
     if (PARTITION_1.avail) {
         pcb.init(PARTITION_1.base, PARTITION_1.limit);
@@ -233,11 +234,9 @@ function krnLoadProcess(instructions, priority) {
         PARTITION_3.avail = false;
     }
     else {
-        krnTrapError("Unable to allocate a partition for the process");
-        _StdIn.putText("Memory full!");
-        _StdIn.advanceLine();
-        _OsShell.putPrompt();
-        return;
+        // all partitions are taken so load it to disk
+        pcb.init(-1, -1);
+        loadToDisk = true;
     }
 
     // set priority if the optional param was included
@@ -246,17 +245,25 @@ function krnLoadProcess(instructions, priority) {
     }
 
     // bounds checks while loading in the new process
-    var oldpcb = _CPU.process;
-    _CPU.process = pcb;
-    for (var i = 0; i < instructions.length; i++) {
-        _CPU.mmu.write(i, instructions[i]);
+    if (!loadToDisk) {
+        var oldpcb = _CPU.process;
+        _CPU.process = pcb;
+        for (var i = 0; i < instructions.length; i++) {
+            _CPU.mmu.write(i, instructions[i]);
+        }
+        _CPU.process = oldpcb;
+        pcb.status = 'Loaded';
     }
-    _CPU.process = oldpcb;
+    // not writing it to memory, but disk
+    else {
+        pcb.status = 'On disk';
+        var filename = SWAP + pcb.pid;    // i.e. $WAP3
+        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [CREATE, filename]));
+        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, instructions.join(' ')]));
+    }
     
     // add the process to the resident queue now that it is loaded
     ResidentList.push(pcb);
-
-    pcb.status = 'Loaded';
 
     updateProcessesDisplay();
 

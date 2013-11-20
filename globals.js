@@ -32,6 +32,7 @@ var CONTEXTSWITCH_IRQ = 6;
 
 var FILESYSTEM_IRQ = 7;
 
+var SWAP = '$WAP';  // invalid filename for users to create / delete...but let them read it!
 // Scheduling Algorithm Constants
 var ROUND_ROBIN = 'rr';
 var FCFS = 'fcfs';
