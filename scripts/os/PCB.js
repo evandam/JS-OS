@@ -4,13 +4,12 @@ The PCB tracks the current state of registers, PC and flags,
 as well as the base and limit of the process's memory space.
 */
 function PCB() {
-    this.init = function (base, limit) {
+    this.init = function (partition) {
         if (ResidentList.length > 0)
             this.pid = ResidentList[ResidentList.length - 1].pid + 1;
         else
             this.pid = 0;
-        this.base = base;
-        this.limit = limit;
+        this.partition = partition;
         this.PC = 0; 
         this.Acc = 0;
         this.Xreg = 0;
@@ -29,7 +28,7 @@ function PCB() {
        ', Xreg: ' + this.Xreg +
        ', Yreg: ' + this.Yreg +
        ', Zflag: ' + this.Zflag +
-       ', Base: ' + this.base +
-       ', Limit: ' + this.limit + '}';
+       ', Base: ' + this.partition.base +
+       ', Limit: ' + this.partition.limit + '}';
     }
 };

@@ -11,7 +11,7 @@ function MMU() {
 
 // add the base limit of the current process to the target address
 MMU.prototype.translate = function (addr) {
-    var trans = _CPU.process.base + addr;
+    var trans = _CPU.process.partition.base + addr;
     if (this.inRange(trans))
         return trans;
     else {
@@ -22,7 +22,7 @@ MMU.prototype.translate = function (addr) {
 
 // target address must be within the process' base and limit
 MMU.prototype.inRange = function (addr) {
-    return _CPU.process.base <= addr && _CPU.process.limit >= addr;
+    return _CPU.process.partition.base <= addr && _CPU.process.partition.limit >= addr;
 };
 
 MMU.prototype.read = function (addr) {

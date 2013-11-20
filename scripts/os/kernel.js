@@ -222,15 +222,15 @@ function krnLoadProcess(instructions, priority) {
     var loadToDisk = false;
     // Check which partitions are available for limits
     if (PARTITION_1.avail) {
-        pcb.init(PARTITION_1.base, PARTITION_1.limit);
+        pcb.init(PARTITION_1);
         PARTITION_1.avail = false;
     }
     else if (PARTITION_2.avail) {
-        pcb.init(PARTITION_2.base, PARTITION_2.limit);
+        pcb.init(PARTITION_2);
         PARTITION_2.avail = false;
     }
     else if (PARTITION_3.avail) {
-        pcb.init(PARTITION_3.base, PARTITION_3.limit);
+        pcb.init(PARTITION_3);
         PARTITION_3.avail = false;
     }
     else {
@@ -277,7 +277,7 @@ function krnRunProcess(pid) {
     var pcb = getPCB(pid);
     if (pcb) {
         // process is in memory
-        if (pcb.base > -1) {
+        if (pcb.partition) {
             pcb.status = 'Ready';
             ReadyQueue.push(pcb);
 
@@ -347,11 +347,11 @@ function krnEndProcess(pcb) {
         ResidentList.splice(index, 1);
     
     // free up the partition of memory it occupied
-    if (pcb.base === PARTITION_1.base)
+    if (pcb.partition === PARTITION_1)
         PARTITION_1.avail = true;
-    else if (pcb.base === PARTITION_2.base)
+    else if (pcb.partition === PARTITION_2)
         PARTITION_2.avail = true;
-    else
+    else if(pcb.partition === PARTITION_3)
         PARTITION_3.avail = true;
 
     updateProcessesDisplay();
