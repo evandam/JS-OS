@@ -43,18 +43,15 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
         dirData += oldData.substring(dirData.length);
 
         localStorage.setItem(dirEntry, dirData);
-        updateFileSystemDisplay(dirEntry, dirData);
+        this.updateDisplay(dirEntry);
         this.updateNextDirEntry();  // update the MBR now that this addr is taken
 
         var fileData = localStorage.getItem(fileEntry);
         fileData = '1' + fileData.substring(1);  // set to taken
         localStorage.setItem(fileEntry, fileData);
-        updateFileSystemDisplay(fileEntry, fileData);
+        this.updateDisplay(fileEntry);
         this.updateNextFileEntry(); // update the MBR to point to next avail file addr
         this.incrementSize();   // another block is taken up, so update that in the mbr too (not sure if this will be used)
-
-        // update MBR display
-        updateFileSystemDisplay('000', localStorage.getItem('000'));
 
         _StdIn.putText(filename + ' created at directory entry ' + dirEntry);
         _StdIn.advanceLine();
@@ -103,7 +100,7 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                         this.updateNextFileEntry();
                         var entryInfo = '1' + this.getNextFileEntry() + curData;                        
                         localStorage.setItem(dir, entryInfo);
-                        updateFileSystemDisplay(dir, entryInfo);  
+                        this.updateDisplay(dir);  
                         dir = this.getNextFileEntry();
                         this.incrementSize();   // taking up another block so update MBR
                         curPos = 0;
@@ -118,7 +115,7 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                     entryInfo += oldData.substring(entryInfo.length);
 
                     localStorage.setItem(dir, entryInfo);
-                    updateFileSystemDisplay(dir, entryInfo);
+                    this.updateDisplay(dir);
                     _StdIn.putText("Wrote to " + filename + "!");
                 }
             }
@@ -140,7 +137,7 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
         // make dir entry available 
         var dirEntry = localStorage.getItem(addr);
         localStorage.setItem(addr, '0' + dirEntry.substring(1));
-        updateFileSystemDisplay(addr, '0' + dirEntry.substring(1));
+        this.updateDisplay(addr);
 
         var fileEntry = localStorage.getItem(dirEntry.substring(1, 4));
 
@@ -150,7 +147,7 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
             // mark available
             newData = '0' + fileEntry.substring(1);
             localStorage.setItem(nextAddr, newData)
-            updateFileSystemDisplay(nextAddr, newData);
+            this.updateDisplay(nextAddr);
 
             this.decrementSize();   // freeing up a block, so update MBR here
 
@@ -161,7 +158,7 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
         // mark the unchained entry as available
         var newData = '0' + fileEntry.substring(1);
         localStorage.setItem(nextAddr, newData);
-        updateFileSystemDisplay(nextAddr, newData);
+        this.updateDisplay(nextAddr);
         this.decrementSize();   // freeing up a block, so update MBR here
 
         _StdIn.putText('Deleted ' + filename + '!');
@@ -182,7 +179,7 @@ DeviceDriverFileSystem.prototype.format = function () {
             for (var block = 0; block < BLOCKS; block++) {
                 var tsb = track + '' + sector + '' + block;
                 localStorage.setItem(tsb, formattedVal);
-                updateFileSystemDisplay(tsb, formattedVal);
+                this.updateDisplay(tsb);
             }
         }
     }
@@ -193,7 +190,7 @@ DeviceDriverFileSystem.prototype.format = function () {
     var mbrData = '0011000';     
     localStorage.setItem('000', mbrData);
 
-    updateFileSystemDisplay('000', mbrData);
+    this.updateDisplay('000');
 
     _StdIn.putText('format complete!');
     _StdIn.advanceLine();
@@ -241,6 +238,7 @@ DeviceDriverFileSystem.prototype.updateNextDirEntry = function () {
     var mbrData = localStorage.getItem('000');
     mbrData = addr + mbrData.substring(3);
     localStorage.setItem('000', mbrData);
+    this.updateDisplay('000');
 };
 
 DeviceDriverFileSystem.prototype.updateNextFileEntry = function () {
@@ -270,6 +268,7 @@ DeviceDriverFileSystem.prototype.updateNextFileEntry = function () {
     var mbrData = localStorage.getItem('000');
     mbrData = mbrData.substring(0,3) + addr + mbrData.substring(6);
     localStorage.setItem('000', mbrData);
+    this.updateDisplay('000');
 };
 
 // Can use the remaining bytes [6:] of the MBR to track the number of blocks taken
@@ -280,6 +279,7 @@ DeviceDriverFileSystem.prototype.incrementSize = function () {
     var size = parseInt(mbrData.substring(6));
     size++;
     localStorage.setItem('000', mbrData.substring(0, 6) + size);
+    this.updateDisplay('000');
 };
 
 DeviceDriverFileSystem.prototype.decrementSize = function () {
@@ -287,6 +287,7 @@ DeviceDriverFileSystem.prototype.decrementSize = function () {
     var size = parseInt(mbrData.substring(6));
     size--;
     localStorage.setItem('000', mbrData.substring(0, 6) + size);
+    this.updateDisplay('000');
 }
 
 // search for the file name and return the directory entry
@@ -309,3 +310,7 @@ DeviceDriverFileSystem.prototype.getFile = function (filename) {
     }
     return null;
 };
+
+DeviceDriverFileSystem.prototype.updateDisplay = function (addr) {
+    updateFileSystemDisplay(addr, localStorage.getItem(addr));
+}
