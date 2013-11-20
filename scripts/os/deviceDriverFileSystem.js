@@ -123,6 +123,7 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
         var blocksRequired = Math.ceil(data.length / dataSpace);
         // blocks this data uses must be <= total data blocks - allocated blocks
         if (blocksRequired <= (BLOCKS * SECTORS * (TRACKS - 1) - this.getAllocatedBlocks())) {
+            var isChained = false;
             // once this exceeds the dataSpace in a block we need to go to the next one
             var curPos = 0; var curData = '';
             // write one char at a time
@@ -137,25 +138,31 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                         var entryInfo = '1' + this.getNextFileEntry() + curData;                        
                         localStorage.setItem(dir, entryInfo);
                         this.updateDisplay(dir);
-                        this.updateNextFileEntry();
                         dir = this.getNextFileEntry();
                         this.incrementSize();   // taking up another block so update MBR
                         curPos = 0;
                         curData = '';
+                        this.updateNextFileEntry();
+                        isChained = true;
                     }
                 }
                 else {
+                    if (isChained)
+                        this.updateNextFileEntry();
+                    dir = this.getNextFileEntry();
+                    // TODO: Unlink further chains here?
                     console.log('writing to block ' + dir);
                     // hit the terminator, just flush the rest of the data to the current block
                     var entryInfo = '1---' + curData + '\\';
                     // fill the remaining bytes with the old data, seems like fun
                     var oldData = localStorage.getItem(dir);
                     entryInfo += oldData.substring(entryInfo.length);
-                    this.updateNextFileEntry();
                     localStorage.setItem(dir, entryInfo);
                     this.updateDisplay(dir);
-                    this.updateNextDirEntry();
                     _StdIn.putText("Wrote to " + filename + "!");
+
+                    if (isChained)
+                        this.updateNextFileEntry();
                     break;
                 }
             }
