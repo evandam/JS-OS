@@ -313,7 +313,7 @@ function shellInit() {
     sc.func = function (args) {
         var filename = args[0];
         if (filename.match(/^[\d|\w]+$/))  {
-            var data = args.join('').match(/"(.+)"/)[1];
+            var data = args.join('').match(/"(.*?)"/)[1];
             _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, data]));
         }
         else

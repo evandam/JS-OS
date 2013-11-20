@@ -38,9 +38,10 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
         var dirEntry = this.getNextDirEntry();
         var fileEntry = this.getNextFileEntry();
         var dirData = '1' + fileEntry + filename.toUpperCase() + '\\';       // available byte, address of file data, then the filename (null terminated with a back slash)
-        var remainingBytes = BLOCK_SIZE - dirData.length;
-        for (var i = 0; i < remainingBytes; i++)    // pad with 0s
-            dirData += '0';
+        // fill with old data..not just boring zeros
+        var oldData = localStorage.getItem(dirEntry);
+        dirData += oldData.substring(dirData.length);
+
         localStorage.setItem(dirEntry, dirData);
         updateFileSystemDisplay(dirEntry, dirData);
         this.updateNextDirEntry();  // update the MBR now that this addr is taken
@@ -97,13 +98,16 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                     curData += data.charAt(char);
                     curPos++;
                     // reached the end of the block
-                    if (curPos > dataSpace) {
+                    if (curPos >= dataSpace) {
                         // link to the next available entry
                         this.updateNextFileEntry();
                         var entryInfo = '1' + this.getNextFileEntry() + curData;                        
                         localStorage.setItem(dir, entryInfo);
                         updateFileSystemDisplay(dir, entryInfo);  
                         dir = this.getNextFileEntry();
+                        this.incrementSize();   // taking up another block so update MBR
+                        curPos = 0;
+                        curData = '';
                     }
                 }
                 else {
@@ -139,22 +143,27 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
         updateFileSystemDisplay(addr, '0' + dirEntry.substring(1));
 
         var fileEntry = localStorage.getItem(dirEntry.substring(1, 4));
-        // mark the first file entry as available
-        var newData = '0' + fileEntry.substring(1);
-        localStorage.setItem(dirEntry.substring(1, 4), newData);
-        updateFileSystemDisplay(dirEntry.substring(1, 4), newData);
 
-        // follow chain and print data if necessary
+        // follow chain and mark available if necessary
         var nextAddr = dirEntry.substring(1, 4);
         while (fileEntry.substring(1, 4).match(/\d{3}/)) {
             // mark available
-            newData = '0-' + fileEntry.substring(1);
+            newData = '0' + fileEntry.substring(1);
             localStorage.setItem(nextAddr, newData)
             updateFileSystemDisplay(nextAddr, newData);
+
+            this.decrementSize();   // freeing up a block, so update MBR here
 
             nextAddr = fileEntry.substring(1, 4);
             fileEntry = localStorage.getItem(nextAddr);
         }
+
+        // mark the unchained entry as available
+        var newData = '0' + fileEntry.substring(1);
+        localStorage.setItem(nextAddr, newData);
+        updateFileSystemDisplay(nextAddr, newData);
+        this.decrementSize();   // freeing up a block, so update MBR here
+
         _StdIn.putText('Deleted ' + filename + '!');
     }
     else {
@@ -165,10 +174,8 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
 
 DeviceDriverFileSystem.prototype.format = function () {
     var formattedVal = '0---\\';  // available and location of data/next link (same for directory and file data)
-    var dataBytes = BLOCK_SIZE - formattedVal.length;
-    for (var i = 0; i < dataBytes; i++) {
+    while (formattedVal.length < BLOCK_SIZE)
         formattedVal += '0';
-    }
 
     for (var track = 0; track < TRACKS; track++) {
         for (var sector = 0; sector < SECTORS; sector++) {
@@ -273,6 +280,13 @@ DeviceDriverFileSystem.prototype.incrementSize = function () {
     var size = parseInt(mbrData.substring(6));
     size++;
     localStorage.setItem('000', mbrData.substring(0, 6) + size);
+};
+
+DeviceDriverFileSystem.prototype.decrementSize = function () {
+    var mbrData = localStorage.getItem('000');
+    var size = parseInt(mbrData.substring(6));
+    size--;
+    localStorage.setItem('000', mbrData.substring(0, 6) + size);
 }
 
 // search for the file name and return the directory entry
@@ -294,4 +308,4 @@ DeviceDriverFileSystem.prototype.getFile = function (filename) {
         }
     }
     return null;
-}
+};
