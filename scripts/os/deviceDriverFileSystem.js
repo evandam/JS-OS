@@ -64,15 +64,15 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
 DeviceDriverFileSystem.prototype.read = function (filename) {
     var addr = this.getFile(filename);
     if (addr) {
-        var dir = localStorage.getItem(addr);
-        var fileData = localStorage.getItem(dir.substring(1,4));
+        var dirEntry = localStorage.getItem(addr);
+        var fileEntry = localStorage.getItem(dirEntry.substring(1,4));
         // follow chain and print data
-        while(fileData.substring(1, 4).match(/\d{3}/)) {
-            _StdIn.putText(fileData.substring(4));
-            var nextAddr = fileData.substring(1, 4);
-            fileData = localStorage.getItem(nextAddr);
+        while(fileEntry.substring(1, 4).match(/\d{3}/)) {
+            _StdIn.putText(fileEntry.substring(4)); // data portion
+            var nextAddr = fileEntry.substring(1, 4);
+            fileEntry = localStorage.getItem(nextAddr);
         }
-        _StdIn.putText(fileData.substring(4, fileData.indexOf('\\')));
+        _StdIn.putText(fileEntry.substring(4, fileEntry.indexOf('\\')));
     }
     else {
         krnTrapError('No such file!');
@@ -81,7 +81,6 @@ DeviceDriverFileSystem.prototype.read = function (filename) {
 };
 
 DeviceDriverFileSystem.prototype.write = function (filename, data) {
-    console.log('write to ' + filename + ': ' + data);
     data += '\\';   // null-terminate
     var addr = this.getFile(filename);
     if (addr) {
@@ -110,11 +109,11 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                 else {
                     // hit the terminator, just flush the rest of the data to the current block
                     var entryInfo = '1---' + curData + '\\';
-                    // pad with zeros
-                    while (entryInfo.length < BLOCK_SIZE)
-                        entryInfo += '0';
+                    // fill the remaining bytes with the old data, seems like fun
+                    var oldData = localStorage.getItem(dir);
+                    entryInfo += oldData.substring(entryInfo.length);
+
                     localStorage.setItem(dir, entryInfo);
-                    console.log(dir + ' ' + entryInfo);
                     updateFileSystemDisplay(dir, entryInfo);
                     _StdIn.putText("Wrote to " + filename + "!");
                 }
@@ -132,7 +131,36 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
 };
 
 DeviceDriverFileSystem.prototype.delete = function (filename) {
-    console.log('delete ' + filename);
+    var addr = this.getFile(filename);
+    if (addr) {
+        // make dir entry available 
+        var dirEntry = localStorage.getItem(addr);
+        localStorage.setItem(addr, '0' + dirEntry.substring(1));
+        updateFileSystemDisplay(addr, '0' + dirEntry.substring(1));
+
+        var fileEntry = localStorage.getItem(dirEntry.substring(1, 4));
+        // mark the first file entry as available
+        var newData = '0' + fileEntry.substring(1);
+        localStorage.setItem(dirEntry.substring(1, 4), newData);
+        updateFileSystemDisplay(dirEntry.substring(1, 4), newData);
+
+        // follow chain and print data if necessary
+        var nextAddr = dirEntry.substring(1, 4);
+        while (fileEntry.substring(1, 4).match(/\d{3}/)) {
+            // mark available
+            newData = '0-' + fileEntry.substring(1);
+            localStorage.setItem(nextAddr, newData)
+            updateFileSystemDisplay(nextAddr, newData);
+
+            nextAddr = fileEntry.substring(1, 4);
+            fileEntry = localStorage.getItem(nextAddr);
+        }
+        _StdIn.putText('Deleted ' + filename + '!');
+    }
+    else {
+        krnTrapError('No such file!');
+        _StdIn.putText("No such file named " + filename);
+    }
 };
 
 DeviceDriverFileSystem.prototype.format = function () {
