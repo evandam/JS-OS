@@ -156,6 +156,7 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
             break;
         case FILESYSTEM_IRQ:
             krnFileSystemDriver.isr(params);
+            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
     }
