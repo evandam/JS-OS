@@ -57,19 +57,34 @@ MMU.prototype.getFreePartition = function () {
 
 // load a process from disk into memory
 MMU.prototype.rollIn = function (pcb, partition) {
+    pcb.partition = partition;
+
+    // load the process from disk
     var filename = SWAP + pcb.pid;
-    var instructions = krnRead(filename);
-    console.log(instructions);
+    // instructions are all stored together but we know
+    // that they are broken into blocks of 2 hex digits...
+    var data = krnRead(filename).split('');
+    var instructions = [];
+    for (var i = 0; i < data.length; i += 2) {
+        instructions.push(data[i] + '' + data[i + 1]);
+    }
+    // can delete the swap file once read
+    krnDelete(filename);
+
+    _CPU.process = pcb;
+    // write the instructions into memory
+    for (var i = 0; i < instructions.length; i++) {
+        this.write(i, instructions[i]);
+    }
+    pcb.status = READY;
 };
 
 // store a process from memory to disk
-// try to use the active process since it will be the last to go next in RR
-// otherwise get the last process from the ready queue
+// Get the last process from the ready queue since it was just put there by the scheduler
 // if there aren't actually any running processes, we just take the first loaded one out of the resident list
 MMU.prototype.rollOut = function () {
     // use active process or last in ready
-    if (!_CPU.process)
-        _CPU.process = ReadyQueue.pop();
+    _CPU.process = ReadyQueue.pop();
     // if none in ready queue use one from resident
     if (!_CPU.process) {
         for (var i = 0; i < ResidentList.length; i++) {
@@ -79,6 +94,10 @@ MMU.prototype.rollOut = function () {
             }
         }
     }
+    // put the proces back on the ready queue
+    else {
+        ReadyQueue.push(_CPU.process);
+    }
     var instructions = [];
     for (var addr = 0; addr < PARTITION_SIZE; addr++) {
         instructions.push(this.read(addr).toHex());
@@ -86,18 +105,14 @@ MMU.prototype.rollOut = function () {
     // swap files are defined by the format "$WAP#" where # is the PID of the process
     var filename = SWAP + _CPU.process.pid;
     // create the swap file and the process' instructions to it
-    _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [CREATE, filename]));
-    _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, instructions.join(' ')]));
+    krnCreate(filename);
+    krnWrite(filename, instructions.join(''));
 
-    // process is now on disk and has the partition is free
-    
+    // process is now on disk and has the partition is free   
     var partition = _CPU.process.partition;
     _CPU.partition = DISK_PARTITION;
     _CPU.process.status = ONDISK;
     partition.avail = true;
-
-    // set the cpu process to null until the next one is rolled in
-    _CPU.process = null;
 
     // return the free partition for rollIn
     return partition;

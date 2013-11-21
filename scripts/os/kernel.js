@@ -219,8 +219,6 @@ function krnLoadProcess(instructions, priority) {
     var partition = _CPU.mmu.getFreePartition();
     pcb.init(partition);
 
-
-
     // set priority if the optional param was included
     if (priority) {
         pcb.priority = priority;
@@ -241,8 +239,8 @@ function krnLoadProcess(instructions, priority) {
     else {
         pcb.status = ONDISK;
         var filename = SWAP + pcb.pid;    // i.e. $WAP3
-        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [CREATE, filename]));
-        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, instructions.join(' ')]));
+        krnCreate(filename);
+        krnWrite(filename, instructions.join(''));
     }
     
     // add the process to the resident queue now that it is loaded
@@ -252,7 +250,6 @@ function krnLoadProcess(instructions, priority) {
 
     _StdIn.putText("Process created with PID=" + pcb.pid + " and priority=" + pcb.priority);
     _StdIn.advanceLine();
-    _OsShell.putPrompt();
 }
 
 function krnRunProcess(pid) {

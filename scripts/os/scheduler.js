@@ -112,6 +112,7 @@ Scheduler.prototype.contextSwitch = function () {
         // push the process back on the ready queue for the next round
         ReadyQueue.push(_CPU.process);
     }
+
     // new process from the ready queue
     var nextProcess = ReadyQueue.shift();
     if (nextProcess.status == ONDISK) {
