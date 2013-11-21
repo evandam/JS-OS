@@ -5,17 +5,20 @@ but specify parameters to determine what to do...
 ie [CREATE, filename], [FORMAT], [WRITE, filename, data], etc
 */
 
-var nullChain = '---';
-var MBR = new mbr();
+
 DeviceDriverFileSystem.prototype = new DeviceDriver;  // "Inherit" from prototype DeviceDriver in deviceDriver.js.
 
 function DeviceDriverFileSystem() {
     this.driverEntry = krnKbdDriverEntry;
+    this.nullTerm = '~';
+    this.blankChar = '.';   // use this to pad the remaining portion of data
+    this.nullAddr = '---';
+    this.MBR = new MBR();
 }
 
 // ls
 DeviceDriverFileSystem.prototype.list = function () {
-    var allocated = MBR.getUsedBlocks();
+    var allocated = this.MBR.getUsedBlocks();
     var total = (TRACKS - 1) * SECTORS * BLOCKS;
     var list = [];  // lines to be printed
     list.push(allocated + '/' + total + ' blocks');
@@ -40,20 +43,20 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
         return false;
     }
     else {
-        // get the next available file address from the MBR and set it to null
+        // get the next available file address from the this.MBR and set it to null
         var fileAddr = this.getNextFileEntryAddr();
         var fileEntry = new Entry(fileAddr);
         fileEntry.avail = 1;
-        fileEntry.targetAddr = nullChain;
-        fileEntry.writeData('\\');
+        fileEntry.targetAddr = this.nullAddr;
+        fileEntry.writeData(this.nullTerm);
         fileEntry.update();
 
-        // get the next available directry address from the MBR and set it to point to the file
+        // get the next available directry address from the this.MBR and set it to point to the file
         var dirAddr = this.getNextDirEntryAddr();
         var dirEntry = new Entry(dirAddr);
         dirEntry.avail = 1;
         dirEntry.targetAddr = fileAddr;
-        dirEntry.writeData(filename.toLowerCase() + '\\');
+        dirEntry.writeData(filename.toLowerCase() + this.nullTerm);
         dirEntry.update();
 
         return true;
@@ -68,11 +71,11 @@ DeviceDriverFileSystem.prototype.read = function (filename) {
         var fileEntry = new Entry(dirEntry.targetAddr);
         var readData = fileEntry.data;
         // follow chain and print data
-        while(fileEntry.targetAddr != nullChain) {
+        while(fileEntry.targetAddr != this.nullAddr) {
             fileEntry = new Entry(fileEntry.targetAddr);
             readData += fileEntry.data;
         }
-        readData = readData.substring(0, readData.indexOf('\\'));
+        readData = readData.substring(0, readData.indexOf(this.nullTerm));
         return readData;
     }
     else {
@@ -83,26 +86,26 @@ DeviceDriverFileSystem.prototype.read = function (filename) {
 
 // return success
 DeviceDriverFileSystem.prototype.write = function (filename, data) {
-    data += '\\';   // null-terminate
+    data += this.nullTerm;   // null-terminate
     var dirAddr = this.getFile(filename);
     if (dirAddr) {
         var dirEntry = new Entry(dirAddr);
         var blocksRequired = Math.ceil(data.length / dirEntry.data.length);
         // blocks this data uses must be <= total data blocks - allocated blocks
-        if (blocksRequired <= (BLOCKS * SECTORS * (TRACKS - 1) - MBR.getUsedBlocks())) {          
+        if (blocksRequired <= (BLOCKS * SECTORS * (TRACKS - 1) - this.MBR.getUsedBlocks())) {          
             var fileEntry = new Entry(dirEntry.targetAddr);
             // once this exceeds the dataSpace in a block we need to go to the next one
             var curPos = 0; var curData = '';
             for (var char = 0; char < data.length; char++) {
                 // still data left to write
-                if (data.charAt(char) != '\\') {
+                if (data.charAt(char) != this.nullTerm) {
                     curData += data.charAt(char);
                     curPos++;
                     // reached the end of the block
                     if (curPos === fileEntry.data.length) {
                         // link to the next available entry
                         // try to follow chain, if not get the next available entry
-                        if (fileEntry.targetAddr == nullChain) {
+                        if (fileEntry.targetAddr == this.nullAddr) {
                             fileEntry.targetAddr = this.getNextFileEntryAddr();
                         }
                         fileEntry.avail = 1;
@@ -117,9 +120,9 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                 }
                 // hit the terminator, just flush the rest of the data to the current block
                 else {
-                    curData += '\\';
+                    curData += this.nullTerm;
                     fileEntry.avail = 1;
-                    fileEntry.targetAddr = nullChain;
+                    fileEntry.targetAddr = this.nullAddr;
                     fileEntry.writeData(curData);
                     fileEntry.update();                 
                     return true;
@@ -149,13 +152,13 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
         var fileEntry = new Entry(dirEntry.targetAddr);
         fileEntry.avail = 0;
         fileEntry.update();
-        MBR.addUsedBlocks(-1);   // freeing up a block, so update MBR here
+        this.MBR.addUsedBlocks(-1);   // freeing up a block, so update this.MBR here
         // follow chain and mark available if necessary
-        while (fileEntry.targetAddr != nullChain) {
+        while (fileEntry.targetAddr != this.nullAddr) {
             fileEntry = new Entry(fileEntry.targetAddr);
             fileEntry.avail = 0;
             fileEntry.update();
-            MBR.addUsedBlocks(-1);   // freeing up a block, so update MBR here
+            this.MBR.addUsedBlocks(-1);   // freeing up a block, so update this.MBR here
         }
         return true;
     }
@@ -174,10 +177,10 @@ DeviceDriverFileSystem.prototype.format = function () {
                 if (tsb != '000') {
                     var entry = new Entry(tsb);
                     entry.avail = 0;
-                    entry.targetAddr = nullChain;
-                    data = '\\';
+                    entry.targetAddr = this.nullAddr;
+                    data = this.nullTerm;
                     while ((entry.avail + '' + entry.targetAddr + '' + data).length < BLOCK_SIZE) {
-                        data += '0';
+                        data += this.blankChar;
                     }
                     entry.writeData(data);
                     entry.update();
@@ -185,21 +188,21 @@ DeviceDriverFileSystem.prototype.format = function () {
             }
         }
     }
-    // set up the MBR
+    // set up the this.MBR
     // first 3 bytes are the next available directory entry (001)
     // the next 3 are the next available file entry (100)
     // the remaining bytes can be used to track the total size or something
-    MBR.setNextDirAddr('001');
-    MBR.setNextFileAddr('100');
-    MBR.resetUsedBlocks();
+    this.MBR.setNextDirAddr('001');
+    this.MBR.setNextFileAddr('100');
+    this.MBR.resetUsedBlocks();
 
     return true;
     // not sure what would cause an error just yet...
 };
 
-// bytes [0:3] in MBR = available dir entry
+// bytes [0:3] in this.MBR = available dir entry
 DeviceDriverFileSystem.prototype.getNextDirEntryAddr = function () {
-    var startAddr = MBR.getNextDirAddr();
+    var startAddr = this.MBR.getNextDirAddr();
     // now update the next addr pointer
     var addr = startAddr;
     var entry = new Entry(addr);
@@ -218,18 +221,18 @@ DeviceDriverFileSystem.prototype.getNextDirEntryAddr = function () {
         }
         if (addr == startAddr) {
             krnTrapError('NO AVAILABLE DIRECTORY ENTRIES!');
-            return nullChain;
+            return this.nullAddr;
         }
         entry = new Entry(addr);
     } while (entry.avail === 1);
-    MBR.setNextDirAddr(addr);
+    this.MBR.setNextDirAddr(addr);
 
     return startAddr;
 };
 
-// bytes [3:6] in MBR = available file entry
+// bytes [3:6] in this.MBR = available file entry
 DeviceDriverFileSystem.prototype.getNextFileEntryAddr = function () {
-    var startAddr = MBR.getNextFileAddr();
+    var startAddr = this.MBR.getNextFileAddr();
     // now update to the next addr
     var addr = startAddr;
     var entry = new Entry(addr);
@@ -252,12 +255,12 @@ DeviceDriverFileSystem.prototype.getNextFileEntryAddr = function () {
         }
         if (addr == startAddr) {
             krnTrapError('NO AVAILABLE DIRECTORY ENTRIES!');
-            return nullChain;
+            return this.nullAddr;
         }
         entry = new Entry(addr);
     } while (entry.avail === 1);
-    MBR.setNextFileAddr(addr);
-    MBR.addUsedBlocks(1);   // a new block was allocated so update the total size taken on disk
+    this.MBR.setNextFileAddr(addr);
+    this.MBR.addUsedBlocks(1);   // a new block was allocated so update the total size taken on disk
     return startAddr;
 };
 
@@ -272,7 +275,7 @@ DeviceDriverFileSystem.prototype.getFile = function (filename) {
                 var fileName = '';
                 // add each char until null terminated
                 for (var char = 0; char < MAX_FILENAME; char++) {
-                    if (dirEntry.data.charAt(char) != '\\')
+                    if (dirEntry.data.charAt(char) != this.nullTerm)
                         fileName += dirEntry.data.charAt(char);
                     else
                         break;
@@ -308,7 +311,7 @@ Entry.prototype.writeData = function (data) {
     this.data = data + this.data.substring(data.length);
 };
 
-function mbr() {
+function MBR() {
     this.getNextDirAddr = function () {
         return _Disk.read('000').substring(0, 3);
     };
@@ -319,20 +322,20 @@ function mbr() {
         return parseInt(_Disk.read('000').substring(6));
     };
     this.setNextDirAddr = function (addr) {
-        var mbrData = _Disk.read('000');
-        _Disk.write('000', addr + mbrData.substring(3));
+        var MBRData = _Disk.read('000');
+        _Disk.write('000', addr + MBRData.substring(3));
     };
     this.setNextFileAddr = function (addr) {
-        var mbrData = _Disk.read('000');
-        _Disk.write('000', mbrData.substring(0, 3) + addr + mbrData.substring(6));
+        var MBRData = _Disk.read('000');
+        _Disk.write('000', MBRData.substring(0, 3) + addr + MBRData.substring(6));
     };
     this.addUsedBlocks = function (i) {
-        var mbrData = _Disk.read('000');
+        var MBRData = _Disk.read('000');
         var size = this.getUsedBlocks() + i;
-        _Disk.write('000', mbrData.substring(0, 6) + size);
+        _Disk.write('000', MBRData.substring(0, 6) + size);
     };
     this.resetUsedBlocks = function () {
-        var mbrData = _Disk.read('000');
-        _Disk.write('000', mbrData.substring(0, 6) + '0');
+        var MBRData = _Disk.read('000');
+        _Disk.write('000', MBRData.substring(0, 6) + '0');
     };
 }

@@ -80,25 +80,23 @@ MMU.prototype.rollIn = function (pcb, partition) {
 };
 
 // store a process from memory to disk
-// Get the last process from the ready queue since it was just put there by the scheduler
-// if there aren't actually any running processes, we just take the first loaded one out of the resident list
+// First look for a loaded process that isn't running..
+// Otherwise take out the process that is last on the ready queue
 MMU.prototype.rollOut = function () {
-    // use active process or last in ready
-    _CPU.process = ReadyQueue.pop();
-    // if none in ready queue use one from resident
-    if (!_CPU.process) {
-        for (var i = 0; i < ResidentList.length; i++) {
-            if (ResidentList[i].status == LOADED) {
-                _CPU.process = ResidentList[i];
-                break;
-            }
+    var process = null;
+    // try to get a loaded process not running though
+    for (var i = 0; i < ResidentList.length; i++) {
+        if (ResidentList[i].status == LOADED) {
+            process = ResidentList[i];
+            break;
         }
     }
-    // put the proces back on the ready queue
-    else {
-        ReadyQueue.push(_CPU.process);
-    }
+    // get the last process off the ready queue
+    if(!process)
+        process = ReadyQueue[ReadyQueue.length - 1];
+
     var instructions = [];
+    _CPU.process = process;
     for (var addr = 0; addr < PARTITION_SIZE; addr++) {
         instructions.push(this.read(addr).toHex());
     }
