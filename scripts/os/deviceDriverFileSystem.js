@@ -11,41 +11,14 @@ DeviceDriverFileSystem.prototype = new DeviceDriver;  // "Inherit" from prototyp
 
 function DeviceDriverFileSystem() {
     this.driverEntry = krnKbdDriverEntry;
-    this.isr = this.krnFileSystemIO;
 }
-
-DeviceDriverFileSystem.prototype.krnFileSystemIO = function (params) {
-    switch (params[0]) {
-        case CREATE:
-            this.create(params[1]); // create filename
-            break;
-        case READ:
-            this.read(params[1]);   // read filename
-            break;
-        case WRITE:
-            this.write(params[1], params[2]);   // need to deal with quotes
-            break;
-        case DELETE:
-            this.delete(params[1]); // remove filename
-            break;
-        case FORMAT:
-            this.format();  // implement quick format?
-            break;
-        case LIST:
-            this.list();    // ls
-            break;
-        default:
-            krnTrapError("Invalid Request for Filesystem!");
-            break;
-    }
-};
 
 // ls
 DeviceDriverFileSystem.prototype.list = function () {
     var allocated = MBR.getUsedBlocks();
     var total = (TRACKS - 1) * SECTORS * BLOCKS;
-    _StdIn.putText(allocated + '/' + total + ' blocks');
-    _StdIn.advanceLine();
+    var list = [];  // lines to be printed
+    list.push(allocated + '/' + total + ' blocks');
     // traverse the first track and list the filenames of each occupied entry
     for (var sector = 0; sector < SECTORS; sector++) {
         for (var block = 0; block < BLOCKS; block++) {
@@ -54,17 +27,16 @@ DeviceDriverFileSystem.prototype.list = function () {
             // entry is taken
             if (entry.avail === 1) {
                 var filename = entry.data;
-                _StdIn.putText(filename);
-                _StdIn.advanceLine();
+                list.push(filename);
             }
         }
     }
-    _OsShell.putPrompt();
+    return list;
 };
 
 DeviceDriverFileSystem.prototype.create = function (filename) {
     if(this.getFile(filename)) {
-        _StdIn.putText('File already exists with same name!');
+        return 'File already exists with same name!';
     }
     else {
         // get the next available file address from the MBR and set it to null
@@ -83,10 +55,8 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
         dirEntry.writeData(filename.toLowerCase() + '\\');
         dirEntry.update();
 
-        _StdIn.putText(filename + ' created at directory entry ' + dirAddr);
+        return filename + ' created at directory entry ' + dirAddr;
     }
-    _StdIn.advanceLine();
-    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.read = function (filename) {
@@ -101,14 +71,12 @@ DeviceDriverFileSystem.prototype.read = function (filename) {
             readData += fileEntry.data;
         }
         readData = readData.substring(0, readData.indexOf('\\'));
-        _StdIn.putText(readData);
+        return readData;
     }
     else {
         krnTrapError('No such file!');
-        _StdIn.putText("No such file named " + filename);
+        return "No such file named " + filename;
     }
-    _StdIn.advanceLine();
-    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.write = function (filename, data) {
@@ -151,22 +119,20 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                     fileEntry.targetAddr = nullChain;
                     fileEntry.writeData(curData);
                     fileEntry.update();
-                    _StdIn.putText("Wrote to " + filename + "!");
+                    return "Wrote to " + filename + "!";
                     return;
                 }
             }
         }
         else {
             krnTrapError('Insufficient disk space to write!');
-            _StdIn.putText('Insufficient disk space to write the data!');
+            return 'Insufficient disk space to write the data!';
         }
     }
     else {
         krnTrapError('No such file!');
-        _StdIn.putText("No such file named " + filename);
+        return "No such file named " + filename;
     }
-    _StdIn.advanceLine();
-    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.delete = function (filename) {
@@ -188,14 +154,12 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
             fileEntry.update();
             MBR.addUsedBlocks(-1);   // freeing up a block, so update MBR here
         }
-        _StdIn.putText('Deleted ' + filename + '!');
+        return 'Deleted ' + filename + '!';
     }
     else {
         krnTrapError('No such file!');
-        _StdIn.putText("No such file named " + filename);
+        return "No such file named " + filename;
     }
-    _StdIn.advanceLine();
-    _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.format = function () {
@@ -225,9 +189,7 @@ DeviceDriverFileSystem.prototype.format = function () {
     MBR.setNextFileAddr('100');
     MBR.resetUsedBlocks();
 
-    _StdIn.putText('format complete!');
-    _StdIn.advanceLine();
-    _OsShell.putPrompt();
+    return 'format complete!';
     // not sure what would cause an error just yet...
 };
 

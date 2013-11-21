@@ -113,7 +113,18 @@ Scheduler.prototype.contextSwitch = function () {
         ReadyQueue.push(_CPU.process);
     }
     // new process from the ready queue
-    _CPU.process = ReadyQueue.shift();
+    var nextProcess = ReadyQueue.shift();
+    if (nextProcess.status == ONDISK) {
+        var partition = _CPU.mmu.getFreePartition();
+        // roll a process out if no free partitions
+        if (partition == DISK_PARTITION)
+            partition = _CPU.mmu.rollOut();
+
+        // roll the process we want to run into
+        _CPU.mmu.rollIn(nextProcess, partition);
+    }
+
+    _CPU.process = nextProcess;
     _CPU.process.status = RUNNING;
 
     _CPU.PC = _CPU.process.PC;

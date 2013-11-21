@@ -290,7 +290,7 @@ function shellInit() {
             _StdIn.putText('Filename is too long!');
         }
         else if (filename.match(/^[\d|\w]+$/))
-            _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [CREATE, filename]));
+            _StdIn.putText(krnCreate(filename));
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
@@ -302,7 +302,7 @@ function shellInit() {
     sc.description = "<filename> - read a file and display contents.";
     sc.func = function (args) {
         var filename = args[0];
-        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [READ, filename]));
+        _StdIn.putText(krnRead(filename));
     };
     this.commandList.push(sc);
 
@@ -314,7 +314,7 @@ function shellInit() {
         var filename = args[0];
         if (filename.match(/^[\d|\w]+$/))  {
             var data = args.join('').match(/"(.*?)"/)[1];
-            _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, data]));
+            _StdIn.putText(krnWrite(filename, data));
         }
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
@@ -328,7 +328,7 @@ function shellInit() {
     sc.func = function (args) {
         var filename = args[0];
         if (filename.match(/^[\d|\w]+$/))
-            _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [DELETE, filename]));
+            _StdIn.putText(krnDelete(filename));
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
@@ -340,7 +340,7 @@ function shellInit() {
     sc.description = "Initialize all tracks, sectors, and blocks. Return success or failure.";
     sc.func = function () {
         _StdIn.putText("Formatting file system...");
-        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [FORMAT]));
+        _StdIn.putText(krnFormat());
     };
     this.commandList.push(sc);
 

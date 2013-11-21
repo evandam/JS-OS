@@ -154,9 +154,6 @@ function krnInterruptHandler(irq, params)    // This is the Interrupt Handler Ro
         case CONTEXTSWITCH_IRQ:
             scheduler.contextSwitch();
             break;
-        case FILESYSTEM_IRQ:
-            krnFileSystemDriver.isr(params);
-            break;
         default: 
             krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
     }
@@ -219,25 +216,10 @@ function krnTrapError(msg)
 function krnLoadProcess(instructions, priority) {
     var pcb = new PCB();
 
-    var loadToONDISK = false;
-    // Check which partitions are available for limits
-    if (PARTITION_1.avail) {
-        pcb.init(PARTITION_1);
-        PARTITION_1.avail = false;
-    }
-    else if (PARTITION_2.avail) {
-        pcb.init(PARTITION_2);
-        PARTITION_2.avail = false;
-    }
-    else if (PARTITION_3.avail) {
-        pcb.init(PARTITION_3);
-        PARTITION_3.avail = false;
-    }
-    else {
-        // all partitions are taken so load it to ONDISK
-        pcb.init(ONDISK_PARTITION);
-        loadToONDISK = true;
-    }
+    var partition = _CPU.mmu.getFreePartition();
+    pcb.init(partition);
+
+
 
     // set priority if the optional param was included
     if (priority) {
@@ -245,7 +227,8 @@ function krnLoadProcess(instructions, priority) {
     }
 
     // bounds checks while loading in the new process
-    if (!loadToONDISK) {
+    if (pcb.partition != DISK_PARTITION) {
+        pcb.partition.avail = false;
         var oldpcb = _CPU.process;
         _CPU.process = pcb;
         for (var i = 0; i < instructions.length; i++) {
@@ -276,31 +259,32 @@ function krnRunProcess(pid) {
     // get the process with the matching PID from the resident list
     var pcb = getPCB(pid);
     if (pcb) {
-        // process is in memory
-        if (pcb.partition) {
-            if(pcb.status != ONDISK)
-                pcb.status = READY;
-            ReadyQueue.push(pcb);
+        if(pcb.status != ONDISK)
+            pcb.status = READY;
+        ReadyQueue.push(pcb);
 
-            if(!_CPU.isExecuting)
-                _CPU.isExecuting = true;
+        if(!_CPU.isExecuting)
+            _CPU.isExecuting = true;
 
-            updateProcessesDisplay();
-        }
-        // process is on ONDISK
-        else {
-            // store an active process to ONDISK and free up a partition
-            _CPU.mmu.rollOut();
-            // load this pcb into that free partition
-            _CPU.mmu.rollIn(pcb);
-            /*
-            pcb.status = 'Ready';
-            ReadyQueue.push(pcb);
-            scheduler.schedule();
-            updateProcessesDisplay();
-            */
-        }
+        updateProcessesDisplay();
     }
+}
+
+// FILESYSTEM COMMANDS
+function krnCreate(filename) {
+    return krnFileSystemDriver.create(filename);
+}
+function krnRead(filename) {
+    return krnFileSystemDriver.read(filename);
+}
+function krnWrite(filename, data) {
+    return krnFileSystemDriver.write(filename, data);
+}
+function krnDelete(filename) {
+    return krnFileSystemDriver.delete(filename);
+}
+function krnFormat(filename) {
+    return krnFileSystemDriver.format();
 }
 
 // run all processes and let the schedule determine which processes to
@@ -369,7 +353,6 @@ function krnEndProcessAbnormally(pcb) {
 // search the resident list for the process with matching pid
 function getPCB(pid) {
     for (var i = 0; i < ResidentList.length; i++) {
-        console.log(ResidentList[i].pid);
         if (ResidentList[i].pid === parseInt(pid))
             return ResidentList[i];
     }
