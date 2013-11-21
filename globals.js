@@ -32,7 +32,14 @@ var CONTEXTSWITCH_IRQ = 6;
 
 var FILESYSTEM_IRQ = 7;
 
+// Process Statuses
+var RUNNING = 'running';
+var READY = 'ready';
+var LOADED = 'loaded';
+var DISK = 'disk';
+
 var SWAP = '$WAP';  // invalid filename for users to create / delete...but let them read it!
+
 // Scheduling Algorithm Constants
 var ROUND_ROBIN = 'rr';
 var FCFS = 'fcfs';
@@ -83,6 +90,8 @@ var CREATE = 'create';
 var DELETE = 'delete';
 var FORMAT = 'format';
 var LIST = 'ls';
+
+var MAX_FILENAME = 30;  // completely arbitrary
 
 //
 // Global Variables

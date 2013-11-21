@@ -108,13 +108,13 @@ Scheduler.prototype.contextSwitch = function () {
         _CPU.process.Yreg = _CPU.Yreg;
         _CPU.process.Zflag = _CPU.Zflag;
 
-        _CPU.process.status = 'Ready';
+        _CPU.process.status = READY;
         // push the process back on the ready queue for the next round
         ReadyQueue.push(_CPU.process);
     }
     // new process from the ready queue
     _CPU.process = ReadyQueue.shift();
-    _CPU.process.status = 'Running';
+    _CPU.process.status = RUNNING;
 
     _CPU.PC = _CPU.process.PC;
     _CPU.Acc = _CPU.process.Acc;

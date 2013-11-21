@@ -5,6 +5,8 @@ but specify parameters to determine what to do...
 ie [CREATE, filename], [FORMAT], [WRITE, filename, data], etc
 */
 
+var nullChain = '---';
+var MBR = new mbr();
 DeviceDriverFileSystem.prototype = new DeviceDriver;  // "Inherit" from prototype DeviceDriver in deviceDriver.js.
 
 function DeviceDriverFileSystem() {
@@ -40,7 +42,7 @@ DeviceDriverFileSystem.prototype.krnFileSystemIO = function (params) {
 
 // ls
 DeviceDriverFileSystem.prototype.list = function () {
-    var allocated = this.getAllocatedBlocks();
+    var allocated = MBR.getUsedBlocks();
     var total = (TRACKS - 1) * SECTORS * BLOCKS;
     _StdIn.putText(allocated + '/' + total + ' blocks');
     _StdIn.advanceLine();
@@ -48,10 +50,10 @@ DeviceDriverFileSystem.prototype.list = function () {
     for (var sector = 0; sector < SECTORS; sector++) {
         for (var block = 0; block < BLOCKS; block++) {
             var tsb = '0' + sector + '' + block;
-            var entry = localStorage.getItem(tsb);
+            var entry = new Entry(tsb);
             // entry is taken
-            if (parseInt(entry.charAt(0)) === 1) {
-                var filename = entry.substring(4, entry.indexOf('\\'));
+            if (entry.avail === 1) {
+                var filename = entry.data;
                 _StdIn.putText(filename);
                 _StdIn.advanceLine();
             }
@@ -61,50 +63,45 @@ DeviceDriverFileSystem.prototype.list = function () {
 };
 
 DeviceDriverFileSystem.prototype.create = function (filename) {
-    if (filename.length > BLOCK_SIZE - 5) {
-        _StdIn.putText('Filename is too long!');
-        return;
-    }
     if(this.getFile(filename)) {
         _StdIn.putText('File already exists with same name!');
     }
     else {
-        var dirEntry = this.getNextDirEntry();
-        var fileEntry = this.getNextFileEntry();
-        var dirData = '1' + fileEntry + filename.toLowerCase() + '\\';       // available byte, address of file data, then the filename (null terminated with a back slash)
-        // fill with old data..not just boring zeros
-        var oldData = localStorage.getItem(dirEntry);
-        dirData += oldData.substring(dirData.length);
+        // get the next available file address from the MBR and set it to null
+        var fileAddr = this.getNextFileEntryAddr();
+        var fileEntry = new Entry(fileAddr);
+        fileEntry.avail = 1;
+        fileEntry.targetAddr = nullChain;
+        fileEntry.writeData('\\');
+        fileEntry.update();
 
-        localStorage.setItem(dirEntry, dirData);
-        this.updateDisplay(dirEntry);
-        this.updateNextDirEntry();  // update the MBR now that this addr is taken
+        // get the next available directry address from the MBR and set it to point to the file
+        var dirAddr = this.getNextDirEntryAddr();
+        var dirEntry = new Entry(dirAddr);
+        dirEntry.avail = 1;
+        dirEntry.targetAddr = fileAddr;
+        dirEntry.writeData(filename.toLowerCase() + '\\');
+        dirEntry.update();
 
-        var fileData = localStorage.getItem(fileEntry);
-        fileData = '1' + fileData.substring(1);  // set to taken
-        localStorage.setItem(fileEntry, fileData);
-        this.updateDisplay(fileEntry);
-        this.updateNextFileEntry(); // update the MBR to point to next avail file addr
-        this.incrementSize();   // another block is taken up, so update that in the mbr too (not sure if this will be used)
-
-        _StdIn.putText(filename + ' created at directory entry ' + dirEntry);
+        _StdIn.putText(filename + ' created at directory entry ' + dirAddr);
     }
     _StdIn.advanceLine();
     _OsShell.putPrompt();
 };
 
 DeviceDriverFileSystem.prototype.read = function (filename) {
-    var addr = this.getFile(filename);
-    if (addr) {
-        var dirEntry = localStorage.getItem(addr);
-        var fileEntry = localStorage.getItem(dirEntry.substring(1,4));
+    var dirAddr = this.getFile(filename);
+    if (dirAddr) {
+        var dirEntry = new Entry(dirAddr);
+        var fileEntry = new Entry(dirEntry.targetAddr);
+        var readData = fileEntry.data;
         // follow chain and print data
-        while(fileEntry.substring(1, 4).match(/\d{3}/)) {
-            _StdIn.putText(fileEntry.substring(4)); // data portion
-            var nextAddr = fileEntry.substring(1, 4);
-            fileEntry = localStorage.getItem(nextAddr);
+        while(fileEntry.targetAddr != nullChain) {
+            fileEntry = new Entry(fileEntry.targetAddr);
+            readData += fileEntry.data;
         }
-        _StdIn.putText(fileEntry.substring(4, fileEntry.indexOf('\\')));
+        readData = readData.substring(0, readData.indexOf('\\'));
+        _StdIn.putText(readData);
     }
     else {
         krnTrapError('No such file!');
@@ -116,65 +113,46 @@ DeviceDriverFileSystem.prototype.read = function (filename) {
 
 DeviceDriverFileSystem.prototype.write = function (filename, data) {
     data += '\\';   // null-terminate
-    var addr = this.getFile(filename);
-    if (addr) {
-        var dir = localStorage.getItem(addr).substring(1, 4);
-        var dataSpace = BLOCK_SIZE - 4; // 1 available bit, 3 addr
-        var blocksRequired = Math.ceil(data.length / dataSpace);
+    var dirAddr = this.getFile(filename);
+    if (dirAddr) {
+        var dirEntry = new Entry(dirAddr);
+        var blocksRequired = Math.ceil(data.length / dirEntry.data.length);
         // blocks this data uses must be <= total data blocks - allocated blocks
-        if (blocksRequired <= (BLOCKS * SECTORS * (TRACKS - 1) - this.getAllocatedBlocks())) {
-            var isChained = false;
+        if (blocksRequired <= (BLOCKS * SECTORS * (TRACKS - 1) - MBR.getUsedBlocks())) {          
+            var fileEntry = new Entry(dirEntry.targetAddr);
             // once this exceeds the dataSpace in a block we need to go to the next one
             var curPos = 0; var curData = '';
-            // write one char at a time
             for (var char = 0; char < data.length; char++) {
-                // data left to write
+                // still data left to write
                 if (data.charAt(char) != '\\') {
                     curData += data.charAt(char);
                     curPos++;
                     // reached the end of the block
-                    if (curPos === dataSpace) {
+                    if (curPos === fileEntry.data.length) {
                         // link to the next available entry
-                        var nextDir = localStorage.getItem(dir).substring(1, 4);
                         // try to follow chain, if not get the next available entry
-                        if (!nextDir.match(/\d{3}/)) {
-                            nextDir = this.getNextFileEntry();
-                            this.updateNextFileEntry();
-                            this.incrementSize();
+                        if (fileEntry.targetAddr == nullChain) {
+                            fileEntry.targetAddr = this.getNextFileEntryAddr();
                         }
-                        var entryInfo = '1' + nextDir + curData;                        
-                        localStorage.setItem(dir, entryInfo);
-                        this.updateDisplay(dir);
-                        dir = nextDir;
+                        fileEntry.avail = 1;
+                        fileEntry.writeData(curData);
+                        fileEntry.update();
+
+                        // begin writing to new block next iteration
+                        fileEntry = new Entry(fileEntry.targetAddr);                        
                         curPos = 0;
                         curData = '';
-                        isChained = true;
                     }
                 }
                 // hit the terminator, just flush the rest of the data to the current block
                 else {
-                    if (isChained) {
-                        this.updateNextFileEntry();
-                        dir = this.getNextFileEntry();                        
-                        this.incrementSize();
-                    }
-
-                    // TODO: Unlink further chains here?                    
-                    var entryInfo = '1---' + curData + '\\';
-                    // fill the remaining bytes with the old data, seems like fun
-                    var oldData = localStorage.getItem(dir);
-                    entryInfo += oldData.substring(entryInfo.length);
-                    localStorage.setItem(dir, entryInfo);
-                    this.updateDisplay(dir);
-
-                    if (isChained) {
-                        this.updateNextFileEntry();
-                        this.incrementSize();
-                    }
-
+                    curData += '\\';
+                    fileEntry.avail = 1;
+                    fileEntry.targetAddr = nullChain;
+                    fileEntry.writeData(curData);
+                    fileEntry.update();
                     _StdIn.putText("Wrote to " + filename + "!");
-                    
-                    break;
+                    return;
                 }
             }
         }
@@ -195,32 +173,21 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
     var addr = this.getFile(filename);
     if (addr) {
         // make dir entry available 
-        var dirEntry = localStorage.getItem(addr);
-        localStorage.setItem(addr, '0' + dirEntry.substring(1));
-        this.updateDisplay(addr);
+        var dirEntry = new Entry(addr);
+        dirEntry.avail = 0;
+        dirEntry.update();
 
-        var fileEntry = localStorage.getItem(dirEntry.substring(1, 4));
-
+        var fileEntry = new Entry(dirEntry.targetAddr);
+        fileEntry.avail = 0;
+        fileEntry.update();
+        MBR.addUsedBlocks(-1);   // freeing up a block, so update MBR here
         // follow chain and mark available if necessary
-        var nextAddr = dirEntry.substring(1, 4);
-        while (fileEntry.substring(1, 4).match(/\d{3}/)) {
-            // mark available
-            newData = '0' + fileEntry.substring(1);
-            localStorage.setItem(nextAddr, newData)
-            this.updateDisplay(nextAddr);
-
-            this.decrementSize();   // freeing up a block, so update MBR here
-
-            nextAddr = fileEntry.substring(1, 4);
-            fileEntry = localStorage.getItem(nextAddr);
+        while (fileEntry.targetAddr != nullChain) {
+            fileEntry = new Entry(fileEntry.targetAddr);
+            fileEntry.avail = 0;
+            fileEntry.update();
+            MBR.addUsedBlocks(-1);   // freeing up a block, so update MBR here
         }
-
-        // mark the unchained entry as available
-        var newData = '0' + fileEntry.substring(1);
-        localStorage.setItem(nextAddr, newData);
-        this.updateDisplay(nextAddr);
-        this.decrementSize();   // freeing up a block, so update MBR here
-
         _StdIn.putText('Deleted ' + filename + '!');
     }
     else {
@@ -232,16 +199,21 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
 };
 
 DeviceDriverFileSystem.prototype.format = function () {
-    var formattedVal = '0---\\';  // available and location of data/next link (same for directory and file data)
-    while (formattedVal.length < BLOCK_SIZE)
-        formattedVal += '0';
-
     for (var track = 0; track < TRACKS; track++) {
         for (var sector = 0; sector < SECTORS; sector++) {
             for (var block = 0; block < BLOCKS; block++) {
                 var tsb = track + '' + sector + '' + block;
-                localStorage.setItem(tsb, formattedVal);
-                this.updateDisplay(tsb);
+                if (tsb != '000') {
+                    var entry = new Entry(tsb);
+                    entry.avail = 0;
+                    entry.targetAddr = nullChain;
+                    data = '\\';
+                    while ((entry.avail + '' + entry.targetAddr + '' + data).length < BLOCK_SIZE) {
+                        data += '0';
+                    }
+                    entry.writeData(data);
+                    entry.update();
+                }
             }
         }
     }
@@ -249,10 +221,9 @@ DeviceDriverFileSystem.prototype.format = function () {
     // first 3 bytes are the next available directory entry (001)
     // the next 3 are the next available file entry (100)
     // the remaining bytes can be used to track the total size or something
-    var mbrData = '0011000';     
-    localStorage.setItem('000', mbrData);
-
-    this.updateDisplay('000');
+    MBR.setNextDirAddr('001');
+    MBR.setNextFileAddr('100');
+    MBR.resetUsedBlocks();
 
     _StdIn.putText('format complete!');
     _StdIn.advanceLine();
@@ -261,27 +232,14 @@ DeviceDriverFileSystem.prototype.format = function () {
 };
 
 // bytes [0:3] in MBR = available dir entry
-DeviceDriverFileSystem.prototype.getNextDirEntry = function () {
-    return localStorage.getItem('000').substring(0, 3);
-};
-
-// bytes [3:6] in MBR = available file entry
-DeviceDriverFileSystem.prototype.getNextFileEntry = function () {
-    return localStorage.getItem('000').substring(3, 6);
-};
-
-// bytes [6:9] in MBR = number of blocks taken (why not)
-DeviceDriverFileSystem.prototype.getAllocatedBlocks = function () {
-    return parseInt(localStorage.getItem('000').substring(6,9));
-};
-
-// Get the next available directory entry and update the MBR with it
-// Will usually be the next addr, but may not be if wrapping around
-DeviceDriverFileSystem.prototype.updateNextDirEntry = function () {
-    var addr = this.getNextDirEntry();
-    var startAddr = addr;
+DeviceDriverFileSystem.prototype.getNextDirEntryAddr = function () {
+    var startAddr = MBR.getNextDirAddr();
+    // now update the next addr pointer
+    var addr = startAddr;
+    var entry = new Entry(addr);
     // probing for next entry that is not taken (first byte=available)
-    while (localStorage.getItem(addr)[0] != '0') {
+    // it pains me to use a do-while loop but otherwise the addr is never incremented
+    do {
         // increment the block
         addr = addr[0] + addr[1] + (parseInt(addr[2]) + 1);
         // check the one's place for overflow
@@ -294,20 +252,24 @@ DeviceDriverFileSystem.prototype.updateNextDirEntry = function () {
         }
         if (addr == startAddr) {
             krnTrapError('NO AVAILABLE DIRECTORY ENTRIES!');
-            return;
+            return nullChain;
         }
-    }
-    var mbrData = localStorage.getItem('000');
-    mbrData = addr + mbrData.substring(3);
-    localStorage.setItem('000', mbrData);
-    this.updateDisplay('000');
+        entry = new Entry(addr);
+    } while (entry.avail === 1);
+    MBR.setNextDirAddr(addr);
+
+    return startAddr;
 };
 
-DeviceDriverFileSystem.prototype.updateNextFileEntry = function () {
-    var addr = this.getNextFileEntry();
-    var startAddr = addr;
+// bytes [3:6] in MBR = available file entry
+DeviceDriverFileSystem.prototype.getNextFileEntryAddr = function () {
+    var startAddr = MBR.getNextFileAddr();
+    // now update to the next addr
+    var addr = startAddr;
+    var entry = new Entry(addr);
     // probing for next entry that is not taken (first byte=available)
-    while (localStorage.getItem(addr)[0] != '0') {
+    // it pains me to use a do-while loop but otherwise the addr is never incremented
+    do {
         // increment the block
         addr = addr[0] + addr[1] + (parseInt(addr[2]) + 1);
         // check the one's place for overflow (blocks)
@@ -324,47 +286,28 @@ DeviceDriverFileSystem.prototype.updateNextFileEntry = function () {
         }
         if (addr == startAddr) {
             krnTrapError('NO AVAILABLE DIRECTORY ENTRIES!');
-            return;
+            return nullChain;
         }
-    }
-    var mbrData = localStorage.getItem('000');
-    mbrData = mbrData.substring(0,3) + addr + mbrData.substring(6);
-    localStorage.setItem('000', mbrData);
-    this.updateDisplay('000');
+        entry = new Entry(addr);
+    } while (entry.avail === 1);
+    MBR.setNextFileAddr(addr);
+    MBR.addUsedBlocks(1);   // a new block was allocated so update the total size taken on disk
+    return startAddr;
 };
-
-// Can use the remaining bytes [6:] of the MBR to track the number of blocks taken
-// Useful for eventually checking if theres sufficient space to create/write
-// And possibly query it in the 'ls' command
-DeviceDriverFileSystem.prototype.incrementSize = function () {
-    var mbrData = localStorage.getItem('000');
-    var size = parseInt(mbrData.substring(6));
-    size++;
-    localStorage.setItem('000', mbrData.substring(0, 6) + size);
-    this.updateDisplay('000');
-};
-
-DeviceDriverFileSystem.prototype.decrementSize = function () {
-    var mbrData = localStorage.getItem('000');
-    var size = parseInt(mbrData.substring(6));
-    size--;
-    localStorage.setItem('000', mbrData.substring(0, 6) + size);
-    this.updateDisplay('000');
-}
 
 // search for the file name and return the directory entry
 DeviceDriverFileSystem.prototype.getFile = function (filename) {
     for (var sector = 0; sector < SECTORS; sector++) {
         for (var block = 0; block < BLOCKS; block++) {
             var tsb = '0' + sector + '' + block;
-            var dirData = localStorage.getItem(tsb);
+            var dirEntry = new Entry(tsb);
             // only check taken entries
-            if (parseInt(dirData.charAt(0)) === 1) {
+            if (dirEntry.avail === 1) {
                 var fileName = '';
                 // add each char until null terminated
-                for (var char = 4; char < BLOCK_SIZE; char++) {
-                    if (dirData.charAt(char) != '\\')
-                        fileName += dirData.charAt(char);
+                for (var char = 0; char < MAX_FILENAME; char++) {
+                    if (dirEntry.data.charAt(char) != '\\')
+                        fileName += dirEntry.data.charAt(char);
                     else
                         break;
                 }
@@ -376,6 +319,59 @@ DeviceDriverFileSystem.prototype.getFile = function (filename) {
     return null;
 };
 
-DeviceDriverFileSystem.prototype.updateDisplay = function (addr) {
-    updateFileSystemDisplay(addr, localStorage.getItem(addr));
+// prototype for a file system entry
+function Entry(addr) {
+    var entry = localStorage.getItem(addr);
+    this.addr = addr;
+    this.avail = parseInt(entry.charAt(0)); // 0 for available, 1 for taken
+    this.targetAddr = entry.substring(1, 4);
+    this.data = entry.substring(4);
+}
+
+Entry.prototype = new Object();
+
+// write the entry back into localStorage
+Entry.prototype.update = function () {
+    var str = this.avail + '' + this.targetAddr + this.data;
+    localStorage.setItem(this.addr, str);
+    updateFileSystemDisplay(this.addr, str);
 };
+
+// overwrite old data but keep any not overwritten
+// data should be terminated with a back slash (\)
+Entry.prototype.writeData = function (data) {
+    this.data = data + this.data.substring(data.length);
+};
+
+function mbr() {
+    this.getNextDirAddr = function () {
+        return localStorage.getItem('000').substring(0, 3);
+    };
+    this.getNextFileAddr = function () {
+        return localStorage.getItem('000').substring(3, 6);
+    };
+    this.getUsedBlocks = function () {
+        return parseInt(localStorage.getItem('000').substring(6));
+    };
+    this.setNextDirAddr = function (addr) {
+        var mbrData = localStorage.getItem('000');
+        localStorage.setItem('000', addr + mbrData.substring(3));
+        updateFileSystemDisplay('000', addr + mbrData.substring(3));
+    };
+    this.setNextFileAddr = function (addr) {
+        var mbrData = localStorage.getItem('000');
+        localStorage.setItem('000', mbrData.substring(0, 3) + addr + mbrData.substring(6));
+        updateFileSystemDisplay('000', mbrData.substring(0, 3) + addr + mbrData.substring(6));
+    };
+    this.addUsedBlocks = function (i) {
+        var mbrData = localStorage.getItem('000');
+        var size = this.getUsedBlocks() + i;
+        localStorage.setItem('000', mbrData.substring(0, 6) + size);
+        updateFileSystemDisplay('000', mbrData.substring(0, 6) + size);
+    };
+    this.resetUsedBlocks = function () {
+        var mbrData = localStorage.getItem('000');
+        localStorage.setItem('000', mbrData.substring(0, 6) + '0');
+        updateFileSystemDisplay('000', mbrData.substring(0, 6) + '0');
+    };
+}

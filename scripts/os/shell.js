@@ -286,7 +286,10 @@ function shellInit() {
     sc.description = "<filename> - Create a file, return success or failure.";
     sc.func = function (args) {
         var filename = args[0];
-        if (filename.match(/^[\d|\w]+$/))
+        if (filename.length > MAX_FILENAME) {
+            _StdIn.putText('Filename is too long!');
+        }
+        else if (filename.match(/^[\d|\w]+$/))
             _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [CREATE, filename]));
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');

@@ -252,11 +252,11 @@ function krnLoadProcess(instructions, priority) {
             _CPU.mmu.write(i, instructions[i]);
         }
         _CPU.process = oldpcb;
-        pcb.status = 'Loaded';
+        pcb.status = LOADED;
     }
     // not writing it to memory, but disk
     else {
-        pcb.status = 'On disk';
+        pcb.status = DISK;
         var filename = SWAP + pcb.pid;    // i.e. $WAP3
         _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [CREATE, filename]));
         _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, instructions.join(' ')]));
@@ -278,7 +278,8 @@ function krnRunProcess(pid) {
     if (pcb) {
         // process is in memory
         if (pcb.partition) {
-            pcb.status = 'Ready';
+            if(pcb.status != DISK)
+                pcb.status = READY;
             ReadyQueue.push(pcb);
 
             if(!_CPU.isExecuting)
