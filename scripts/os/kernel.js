@@ -219,7 +219,7 @@ function krnTrapError(msg)
 function krnLoadProcess(instructions, priority) {
     var pcb = new PCB();
 
-    var loadToDisk = false;
+    var loadToONDISK = false;
     // Check which partitions are available for limits
     if (PARTITION_1.avail) {
         pcb.init(PARTITION_1);
@@ -234,9 +234,9 @@ function krnLoadProcess(instructions, priority) {
         PARTITION_3.avail = false;
     }
     else {
-        // all partitions are taken so load it to disk
-        pcb.init(DISK_PARTITION);
-        loadToDisk = true;
+        // all partitions are taken so load it to ONDISK
+        pcb.init(ONDISK_PARTITION);
+        loadToONDISK = true;
     }
 
     // set priority if the optional param was included
@@ -245,7 +245,7 @@ function krnLoadProcess(instructions, priority) {
     }
 
     // bounds checks while loading in the new process
-    if (!loadToDisk) {
+    if (!loadToONDISK) {
         var oldpcb = _CPU.process;
         _CPU.process = pcb;
         for (var i = 0; i < instructions.length; i++) {
@@ -254,9 +254,9 @@ function krnLoadProcess(instructions, priority) {
         _CPU.process = oldpcb;
         pcb.status = LOADED;
     }
-    // not writing it to memory, but disk
+    // not writing it to memory, but ONDISK
     else {
-        pcb.status = DISK;
+        pcb.status = ONDISK;
         var filename = SWAP + pcb.pid;    // i.e. $WAP3
         _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [CREATE, filename]));
         _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [WRITE, filename, instructions.join(' ')]));
@@ -278,7 +278,7 @@ function krnRunProcess(pid) {
     if (pcb) {
         // process is in memory
         if (pcb.partition) {
-            if(pcb.status != DISK)
+            if(pcb.status != ONDISK)
                 pcb.status = READY;
             ReadyQueue.push(pcb);
 
@@ -287,9 +287,9 @@ function krnRunProcess(pid) {
 
             updateProcessesDisplay();
         }
-        // process is on disk
+        // process is on ONDISK
         else {
-            // store an active process to disk and free up a partition
+            // store an active process to ONDISK and free up a partition
             _CPU.mmu.rollOut();
             // load this pcb into that free partition
             _CPU.mmu.rollIn(pcb);

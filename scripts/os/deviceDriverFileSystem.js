@@ -321,7 +321,7 @@ DeviceDriverFileSystem.prototype.getFile = function (filename) {
 
 // prototype for a file system entry
 function Entry(addr) {
-    var entry = localStorage.getItem(addr);
+    var entry = _Disk.read(addr);
     this.addr = addr;
     this.avail = parseInt(entry.charAt(0)); // 0 for available, 1 for taken
     this.targetAddr = entry.substring(1, 4);
@@ -330,11 +330,10 @@ function Entry(addr) {
 
 Entry.prototype = new Object();
 
-// write the entry back into localStorage
+// write the entry back into disk
 Entry.prototype.update = function () {
     var str = this.avail + '' + this.targetAddr + this.data;
-    localStorage.setItem(this.addr, str);
-    updateFileSystemDisplay(this.addr, str);
+    _Disk.write(this.addr, str);
 };
 
 // overwrite old data but keep any not overwritten
@@ -345,33 +344,29 @@ Entry.prototype.writeData = function (data) {
 
 function mbr() {
     this.getNextDirAddr = function () {
-        return localStorage.getItem('000').substring(0, 3);
+        return _Disk.read('000').substring(0, 3);
     };
     this.getNextFileAddr = function () {
-        return localStorage.getItem('000').substring(3, 6);
+        return _Disk.read('000').substring(3, 6);
     };
     this.getUsedBlocks = function () {
-        return parseInt(localStorage.getItem('000').substring(6));
+        return parseInt(_Disk.read('000').substring(6));
     };
     this.setNextDirAddr = function (addr) {
-        var mbrData = localStorage.getItem('000');
-        localStorage.setItem('000', addr + mbrData.substring(3));
-        updateFileSystemDisplay('000', addr + mbrData.substring(3));
+        var mbrData = _Disk.read('000');
+        _Disk.write('000', addr + mbrData.substring(3));
     };
     this.setNextFileAddr = function (addr) {
-        var mbrData = localStorage.getItem('000');
-        localStorage.setItem('000', mbrData.substring(0, 3) + addr + mbrData.substring(6));
-        updateFileSystemDisplay('000', mbrData.substring(0, 3) + addr + mbrData.substring(6));
+        var mbrData = _Disk.read('000');
+        _Disk.write('000', mbrData.substring(0, 3) + addr + mbrData.substring(6));
     };
     this.addUsedBlocks = function (i) {
-        var mbrData = localStorage.getItem('000');
+        var mbrData = _Disk.read('000');
         var size = this.getUsedBlocks() + i;
-        localStorage.setItem('000', mbrData.substring(0, 6) + size);
-        updateFileSystemDisplay('000', mbrData.substring(0, 6) + size);
+        _Disk.write('000', mbrData.substring(0, 6) + size);
     };
     this.resetUsedBlocks = function () {
-        var mbrData = localStorage.getItem('000');
-        localStorage.setItem('000', mbrData.substring(0, 6) + '0');
-        updateFileSystemDisplay('000', mbrData.substring(0, 6) + '0');
+        var mbrData = _Disk.read('000');
+        _Disk.write('000', mbrData.substring(0, 6) + '0');
     };
 }

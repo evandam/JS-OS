@@ -49,6 +49,7 @@ function hostInit()
    _Memory = new Memory();
    initMemDisplay();
 
+   _Disk = new Disk();
    initFileSystemDisplay();
 
     // auto-start the OS - remove this line later

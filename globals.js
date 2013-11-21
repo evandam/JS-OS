@@ -36,7 +36,7 @@ var FILESYSTEM_IRQ = 7;
 var RUNNING = 'running';
 var READY = 'ready';
 var LOADED = 'loaded';
-var DISK = 'disk';
+var ONDISK = 'disk';
 
 var SWAP = '$WAP';  // invalid filename for users to create / delete...but let them read it!
 
@@ -101,6 +101,8 @@ var _CPU = null;
 var scheduler = null;
 
 var _Memory = null;
+
+var _Disk = null;
 
 var _OSclock = 0;       // Page 23.
 
