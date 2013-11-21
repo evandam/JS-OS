@@ -57,8 +57,9 @@ MMU.prototype.getFreePartition = function () {
 
 // load a process from disk into memory
 MMU.prototype.rollIn = function (pcb, partition) {
-    console.log(pcb);
-    console.log(partition);
+    var filename = SWAP + pcb.pid;
+    var instructions = krnRead(filename);
+    console.log(instructions);
 };
 
 // store a process from memory to disk

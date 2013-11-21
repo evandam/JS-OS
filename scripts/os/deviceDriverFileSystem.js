@@ -34,9 +34,10 @@ DeviceDriverFileSystem.prototype.list = function () {
     return list;
 };
 
+// return true if file created, false if already exists
 DeviceDriverFileSystem.prototype.create = function (filename) {
     if(this.getFile(filename)) {
-        return 'File already exists with same name!';
+        return false;
     }
     else {
         // get the next available file address from the MBR and set it to null
@@ -55,10 +56,11 @@ DeviceDriverFileSystem.prototype.create = function (filename) {
         dirEntry.writeData(filename.toLowerCase() + '\\');
         dirEntry.update();
 
-        return filename + ' created at directory entry ' + dirAddr;
+        return true;
     }
 };
 
+// return the data of entry, null if file not found
 DeviceDriverFileSystem.prototype.read = function (filename) {
     var dirAddr = this.getFile(filename);
     if (dirAddr) {
@@ -75,10 +77,11 @@ DeviceDriverFileSystem.prototype.read = function (filename) {
     }
     else {
         krnTrapError('No such file!');
-        return "No such file named " + filename;
+        return null;
     }
 };
 
+// return success
 DeviceDriverFileSystem.prototype.write = function (filename, data) {
     data += '\\';   // null-terminate
     var dirAddr = this.getFile(filename);
@@ -118,23 +121,23 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                     fileEntry.avail = 1;
                     fileEntry.targetAddr = nullChain;
                     fileEntry.writeData(curData);
-                    fileEntry.update();
-                    return "Wrote to " + filename + "!";
-                    return;
+                    fileEntry.update();                 
+                    return true;
                 }
             }
         }
         else {
             krnTrapError('Insufficient disk space to write!');
-            return 'Insufficient disk space to write the data!';
+            return false;
         }
     }
     else {
         krnTrapError('No such file!');
-        return "No such file named " + filename;
+        return false;
     }
 };
 
+// return success
 DeviceDriverFileSystem.prototype.delete = function (filename) {
     var addr = this.getFile(filename);
     if (addr) {
@@ -154,14 +157,15 @@ DeviceDriverFileSystem.prototype.delete = function (filename) {
             fileEntry.update();
             MBR.addUsedBlocks(-1);   // freeing up a block, so update MBR here
         }
-        return 'Deleted ' + filename + '!';
+        return true;
     }
     else {
         krnTrapError('No such file!');
-        return "No such file named " + filename;
+        return false;
     }
 };
 
+// return success
 DeviceDriverFileSystem.prototype.format = function () {
     for (var track = 0; track < TRACKS; track++) {
         for (var sector = 0; sector < SECTORS; sector++) {
@@ -189,7 +193,7 @@ DeviceDriverFileSystem.prototype.format = function () {
     MBR.setNextFileAddr('100');
     MBR.resetUsedBlocks();
 
-    return 'format complete!';
+    return true;
     // not sure what would cause an error just yet...
 };
 

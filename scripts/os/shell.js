@@ -289,8 +289,13 @@ function shellInit() {
         if (filename.length > MAX_FILENAME) {
             _StdIn.putText('Filename is too long!');
         }
-        else if (filename.match(/^[\d|\w]+$/))
-            _StdIn.putText(krnCreate(filename));
+        else if (filename.match(/^[\d|\w]+$/)) {
+            var success = krnCreate(filename);
+            if (success)
+                _StdIn.putText("Created " + filename);
+            else
+                _StdIn.putText("Could not create " + filename + "...maybe it already exists?");
+        }
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
@@ -302,7 +307,11 @@ function shellInit() {
     sc.description = "<filename> - read a file and display contents.";
     sc.func = function (args) {
         var filename = args[0];
-        _StdIn.putText(krnRead(filename));
+        var data = krnRead(filename);
+        if (data)
+            _StdIn.putText(data);
+        else
+            _StdIn.putText('No data found...does the file exist and is there data written to it?');
     };
     this.commandList.push(sc);
 
@@ -314,7 +323,11 @@ function shellInit() {
         var filename = args[0];
         if (filename.match(/^[\d|\w]+$/))  {
             var data = args.join('').match(/"(.*?)"/)[1];
-            _StdIn.putText(krnWrite(filename, data));
+            var success = krnWrite(filename, data);
+            if (success)
+                _StdIn.putText("Wrote to " + filename);
+            else
+                _StdIn.putText("Could not write to " + filename);
         }
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
@@ -327,8 +340,13 @@ function shellInit() {
     sc.description = "<filename> - Delete a file, return success or failure.";
     sc.func = function (args) {
         var filename = args[0];
-        if (filename.match(/^[\d|\w]+$/))
-            _StdIn.putText(krnDelete(filename));
+        if (filename.match(/^[\d|\w]+$/)) {
+            var success = krnDelete(filename);
+            if (success)
+                _StdIn.putText("Deleted " + filename);
+            else
+                _StdIn.putText("Could not delete " + filename);
+        }
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
     };
@@ -340,7 +358,11 @@ function shellInit() {
     sc.description = "Initialize all tracks, sectors, and blocks. Return success or failure.";
     sc.func = function () {
         _StdIn.putText("Formatting file system...");
-        _StdIn.putText(krnFormat());
+        var success = krnFormat();
+        if (success)
+            _StdIn.putText("Format complete!");
+        else
+            _StdIn.putText("Error while formatting");
     };
     this.commandList.push(sc);
 
@@ -349,7 +371,11 @@ function shellInit() {
     sc.command = "ls";
     sc.description = "List files stored on disk.";
     sc.func = function () {
-        _KernelInterruptQueue.enqueue(new Interrupt(FILESYSTEM_IRQ, [LIST]));
+        var lines = krnLS();
+        for (var i = 0; i < lines.length; i++) {
+            _StdIn.putText(lines[i]);
+            _StdIn.advanceLine();
+        }
     };
     this.commandList.push(sc);
 

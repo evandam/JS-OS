@@ -270,7 +270,7 @@ function krnRunProcess(pid) {
     }
 }
 
-// FILESYSTEM COMMANDS
+// FILESYSTEM COMMANDS - interrupts?
 function krnCreate(filename) {
     return krnFileSystemDriver.create(filename);
 }
@@ -285,6 +285,10 @@ function krnDelete(filename) {
 }
 function krnFormat(filename) {
     return krnFileSystemDriver.format();
+}
+function krnLS() {
+    var lines = krnFileSystemDriver.list();
+    return lines;
 }
 
 // run all processes and let the schedule determine which processes to
