@@ -293,8 +293,11 @@ function shellInit() {
             var success = krnCreate(filename);
             if (success)
                 _StdIn.putText("Created " + filename);
-            else
-                _StdIn.putText("Could not create " + filename + "...maybe it already exists?");
+            else {
+                _StdIn.putText("Could not create " + filename + ".");
+                _StdIn.advanceLine();
+                _StdIn.putText("Make sure the disk is formatted and the file exists.");
+            }
         }
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
@@ -310,8 +313,11 @@ function shellInit() {
         var data = krnRead(filename);
         if (data)
             _StdIn.putText(data);
-        else
-            _StdIn.putText('No data found...does the file exist and is there data written to it?');
+        else {
+            _StdIn.putText("Could not read " + filename + ".");
+            _StdIn.advanceLine();
+            _StdIn.putText("Make sure the disk is formatted, the file exists and has data written.");
+        }
     };
     this.commandList.push(sc);
 
@@ -322,12 +328,20 @@ function shellInit() {
     sc.func = function (args) {
         var filename = args[0];
         if (filename.match(/^[\d|\w]+$/))  {
-            var data = args.join('').match(/"(.*?)"/)[1];
-            var success = krnWrite(filename, data);
-            if (success)
-                _StdIn.putText("Wrote to " + filename);
-            else
-                _StdIn.putText("Could not write to " + filename);
+            var data = args.join('').match(/"(.*?)"/);
+            if (data) {
+                var success = krnWrite(filename, data[1]);
+                if (success)
+                    _StdIn.putText("Wrote to " + filename);
+                else {
+                    _StdIn.putText("Could not write to " + filename + ".");
+                    _StdIn.advanceLine();
+                    _StdIn.putText("Make sure the disk is formatted and the file exists.");
+                }
+            }
+            else {
+                _StdIn.putText("Please enter the data to write in quotes");
+            }
         }
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
@@ -344,8 +358,11 @@ function shellInit() {
             var success = krnDelete(filename);
             if (success)
                 _StdIn.putText("Deleted " + filename);
-            else
-                _StdIn.putText("Could not delete " + filename);
+            else {
+                _StdIn.putText("Could not delete " + filename + ".");
+                _StdIn.advanceLine();
+                _StdIn.putText("Make sure the disk is formatted and the file exists.");
+            }
         }
         else
             _StdIn.putText(filename + ' is an invalid filename. No special characters!');
