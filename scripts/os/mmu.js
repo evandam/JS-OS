@@ -63,8 +63,6 @@ MMU.prototype.rollIn = function (pcb, partition) {
     // load the process from disk
     var filename = SWAP + pcb.pid;
     var data = krnRead(filename);
-    // can delete the swap file once read
-    krnDelete(filename);
     
     var instructions = [];
     // instructions are all stored together but we know

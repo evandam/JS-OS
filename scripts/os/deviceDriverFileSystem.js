@@ -122,6 +122,21 @@ DeviceDriverFileSystem.prototype.write = function (filename, data) {
                 else {
                     curData += this.nullTerm;
                     fileEntry.avail = 1;
+                    
+                    // follow chain and mark available if necessary
+                    if (fileEntry.targetAddr != this.nullAddr) {
+                        var nextEntry = new Entry(fileEntry.targetAddr);
+                        while (nextEntry.avail === 1) {
+                            nextEntry.avail = 0;
+                            nextEntry.update();
+                            this.MBR.addUsedBlocks(-1);   // freeing up a block, so update this.MBR here
+                            if (nextEntry.targetAddr == this.nullAddr)
+                                break;
+                            else
+                                nextEntry = new Entry(nextEntry.targetAddr);
+                        }
+                    }
+
                     fileEntry.targetAddr = this.nullAddr;
                     fileEntry.writeData(curData);
                     fileEntry.update();                 

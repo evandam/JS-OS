@@ -350,11 +350,8 @@ function krnEndProcess(pcb) {
 
     updateProcessesDisplay();
 
-    /*
-    _StdIn.advanceLine();
-    _StdIn.putText(pcb.toString());
-    _StdIn.advanceLine();
-    */
+    // also try to delete the swap file it may have been using
+    krnDelete(SWAP + pcb.pid);
 }
 
 function krnEndProcessAbnormally(pcb) {
