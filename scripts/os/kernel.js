@@ -237,6 +237,10 @@ function krnLoadProcess(instructions, priority) {
     }
     // not writing it to memory, but ONDISK
     else {
+        // pad with 0s
+        while (instructions.length < PARTITION_SIZE - 1)
+            instructions.push('00');
+
         pcb.status = ONDISK;
         var filename = SWAP + pcb.pid;    // i.e. $WAP3
         krnCreate(filename);

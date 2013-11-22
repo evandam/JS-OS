@@ -97,7 +97,6 @@ Scheduler.prototype.priority = function () {
 // update the CPU state to match the next process' PCB from the ready queue
 Scheduler.prototype.contextSwitch = function () {
     hostLog("Context switching");
-
     // flip the mode bit - these are kernel mode operations
     _Mode = 0;
     if (_CPU.process) {
@@ -122,7 +121,7 @@ Scheduler.prototype.contextSwitch = function () {
         if (partition == DISK_PARTITION)
             partition = _CPU.mmu.rollOut();
 
-        // roll the process we want to run into
+        // roll the process we want to run in to the free partition
        nextProcess = _CPU.mmu.rollIn(nextProcess, partition);
     }
 

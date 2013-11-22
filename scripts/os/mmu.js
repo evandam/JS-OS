@@ -65,21 +65,19 @@ MMU.prototype.rollIn = function (pcb, partition) {
     var data = krnRead(filename);
     // can delete the swap file once read
     krnDelete(filename);
-
+    
     var instructions = [];
     // instructions are all stored together but we know
     // that they are broken into blocks of 2 hex digits...
     for (var i = 0; i < data.length; i += 2) {
         instructions.push(data.substring(i, i + 2));
-    }   
+    }
 
-    var prevProcess = _CPU.process; // not sure if this matters
     _CPU.process = pcb;
     // write the instructions into memory
     for (var i = 0; i < instructions.length; i++) {
         this.write(i, instructions[i]);
     }
-    _CPU.process = prevProcess  // probably null
 
     pcb.status = READY;
     return pcb;
@@ -111,13 +109,11 @@ MMU.prototype.rollOut = function () {
 
     // save the data in the partition of the process
     var instructions = [];
-    var prevProcess = _CPU.process; // not sure if this matters
     _CPU.process = process;
     for (var addr = 0; addr < PARTITION_SIZE; addr++) {
         var instr = this.read(addr);
         instructions.push(instr.toHex());
     }
-    _CPU.process = prevProcess; // return to old one (probably null?)
 
     // swap files are defined by the format "$WAP#" where # is the PID of the process
     var filename = SWAP + process.pid;

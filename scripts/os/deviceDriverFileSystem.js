@@ -16,12 +16,12 @@ function DeviceDriverFileSystem() {
     this.MBR = new MBR();
 }
 
-// ls
+// ls - size only reflects the 3 available data tracks
 DeviceDriverFileSystem.prototype.list = function () {
-    var allocated = this.MBR.getUsedBlocks();
-    var total = (TRACKS - 1) * SECTORS * BLOCKS;
+    var allocated = this.MBR.getUsedBlocks() * BLOCK_SIZE;
+    var total = (TRACKS - 1) * SECTORS * BLOCKS * BLOCK_SIZE;
     var list = [];  // lines to be printed
-    list.push(allocated + '/' + total + ' blocks');
+    list.push(allocated + '/' + total + ' bytes');
     // traverse the first track and list the filenames of each occupied entry
     for (var sector = 0; sector < SECTORS; sector++) {
         for (var block = 0; block < BLOCKS; block++) {
@@ -29,7 +29,7 @@ DeviceDriverFileSystem.prototype.list = function () {
             var entry = new Entry(tsb);
             // entry is taken
             if (entry.avail === 1) {
-                var filename = entry.data;
+                var filename = entry.data.substring(0, entry.data.indexOf(this.nullTerm));
                 list.push(filename);
             }
         }
@@ -297,8 +297,6 @@ function Entry(addr) {
     this.data = entry.substring(4);
 }
 
-Entry.prototype = new Object();
-
 // write the entry back into disk
 Entry.prototype.update = function () {
     var str = this.avail + '' + this.targetAddr + this.data;
@@ -332,6 +330,8 @@ function MBR() {
     this.addUsedBlocks = function (i) {
         var MBRData = _Disk.read('000');
         var size = this.getUsedBlocks() + i;
+        if (size < 0)
+            size = 0;
         _Disk.write('000', MBRData.substring(0, 6) + size);
     };
     this.resetUsedBlocks = function () {
