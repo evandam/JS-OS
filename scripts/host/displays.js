@@ -34,18 +34,19 @@ function updateCPUDisplay() {
 function updateProcessesDisplay() {
     var el = $('#processes tbody');
     el.html("");
-    for (var i = 0; i < ResidentList.length; i++) {
+    var processes = ResidentList;
+    for (var i = 0; i < processes.length; i++) {
         el.append('<tr>');
-        el.append('<td>' + ResidentList[i].pid + '</td>');
-        el.append('<td>' + ResidentList[i].status + '</td>');
-        el.append('<td>' + ResidentList[i].priority + '</td>');
-        el.append('<td>' + ResidentList[i].partition.base + '</td>');
-        el.append('<td>' + ResidentList[i].partition.limit + '</td>');
-        el.append('<td>' + ResidentList[i].PC + '</td>');
-        el.append('<td>' + ResidentList[i].Acc + '</td>');
-        el.append('<td>' + ResidentList[i].Xreg + '</td>');
-        el.append('<td>' + ResidentList[i].Yreg + '</td>');
-        el.append('<td>' + ResidentList[i].Zflag + '</td>');
+        el.append('<td>' + processes[i].pid + '</td>');
+        el.append('<td>' + processes[i].status + '</td>');
+        el.append('<td>' + processes[i].priority + '</td>');
+        el.append('<td>' + processes[i].partition.base + '</td>');
+        el.append('<td>' + processes[i].partition.limit + '</td>');
+        el.append('<td>' + processes[i].PC + '</td>');
+        el.append('<td>' + processes[i].Acc + '</td>');
+        el.append('<td>' + processes[i].Xreg + '</td>');
+        el.append('<td>' + processes[i].Yreg + '</td>');
+        el.append('<td>' + processes[i].Zflag + '</td>');
         el.append('</tr>');
     }
 }

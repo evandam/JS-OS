@@ -256,14 +256,22 @@ function krnRunProcess(pid) {
     // get the process with the matching PID from the resident list
     var pcb = getPCB(pid);
     if (pcb) {
-        if(pcb.status != ONDISK)
-            pcb.status = READY;
-        ReadyQueue.push(pcb);
+        if (pcb.status == READY || pcb.status == RUNNING) {
+            _StdIn.putText('process ' + pid + ' is already running!');
+            _StdIn.advanceLine();
+        }
+        else {
+            // we want to know if the process is still on disk...
+            // otherwise we can directly move it to ready
+            if (pcb.status != ONDISK)
+                pcb.status = READY;
+            ReadyQueue.push(pcb);
 
-        if(!_CPU.isExecuting)
-            _CPU.isExecuting = true;
+            if (!_CPU.isExecuting)
+                _CPU.isExecuting = true;
 
-        updateProcessesDisplay();
+            updateProcessesDisplay();
+        }
     }
 }
 
@@ -347,7 +355,7 @@ function krnEndProcess(pcb) {
 
 function krnEndProcessAbnormally(pcb) {
     _StdIn.advanceLine();
-    _StdIn.putText("Ended Process Abnormally!");
+    _StdIn.putText("Process " + pcb.pid + " Ended Abnormally!");
     krnEndProcess(pcb);
 }
 

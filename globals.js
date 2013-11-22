@@ -74,8 +74,9 @@ var PARTITION_3 = {
 
 // each process on disk gets this
 var DISK_PARTITION = {
-    base: -1,
-    limit: -1
+    base: '--',
+    limit: '--',
+    avail: true // this will always be true
 };
 
 // File system sizes

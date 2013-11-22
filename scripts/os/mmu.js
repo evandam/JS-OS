@@ -11,7 +11,7 @@ function MMU() {
 
 // add the base limit of the current process to the target address
 MMU.prototype.translate = function (addr) {
-    var trans = _CPU.process.partition.base + addr;
+    var trans = parseInt(_CPU.process.partition.base) + parseInt(addr);
     if (this.inRange(trans))
         return trans;
     else {
@@ -38,7 +38,6 @@ MMU.prototype.write = function (addr, byte) {
         hex = '0' + hex;
     _Memory.mem[addr].hi = hex.charAt(0);
     _Memory.mem[addr].lo = hex.charAt(1);
-
     // update the display of this block
     updateMemoryDisplay(addr, hex);
 };
@@ -57,26 +56,33 @@ MMU.prototype.getFreePartition = function () {
 
 // load a process from disk into memory
 MMU.prototype.rollIn = function (pcb, partition) {
+    hostLog("Rolling in PID " + pcb.pid);
+    partition.avail = false;
     pcb.partition = partition;
 
     // load the process from disk
     var filename = SWAP + pcb.pid;
-    // instructions are all stored together but we know
-    // that they are broken into blocks of 2 hex digits...
-    var data = krnRead(filename).split('');
-    var instructions = [];
-    for (var i = 0; i < data.length; i += 2) {
-        instructions.push(data[i] + '' + data[i + 1]);
-    }
+    var data = krnRead(filename);
     // can delete the swap file once read
     krnDelete(filename);
 
+    var instructions = [];
+    // instructions are all stored together but we know
+    // that they are broken into blocks of 2 hex digits...
+    for (var i = 0; i < data.length; i += 2) {
+        instructions.push(data.substring(i, i + 2));
+    }   
+
+    var prevProcess = _CPU.process; // not sure if this matters
     _CPU.process = pcb;
     // write the instructions into memory
     for (var i = 0; i < instructions.length; i++) {
         this.write(i, instructions[i]);
     }
+    _CPU.process = prevProcess  // probably null
+
     pcb.status = READY;
+    return pcb;
 };
 
 // store a process from memory to disk
@@ -91,27 +97,38 @@ MMU.prototype.rollOut = function () {
             break;
         }
     }
-    // get the last process off the ready queue
-    if(!process)
-        process = ReadyQueue[ReadyQueue.length - 1];
+    if (!process) {
+        // get the last process off the ready queue not already on disk
+        for (var i = ReadyQueue.length - 1; i >= 0; i++) {
+            if (ReadyQueue[i].status != ONDISK) {
+                process = ReadyQueue[i];
+                break;
+            }
+        }
+    }
 
+    hostLog("Rolling out PID " + process.pid);
+
+    // save the data in the partition of the process
     var instructions = [];
+    var prevProcess = _CPU.process; // not sure if this matters
     _CPU.process = process;
     for (var addr = 0; addr < PARTITION_SIZE; addr++) {
-        instructions.push(this.read(addr).toHex());
+        var instr = this.read(addr);
+        instructions.push(instr.toHex());
     }
+    _CPU.process = prevProcess; // return to old one (probably null?)
+
     // swap files are defined by the format "$WAP#" where # is the PID of the process
-    var filename = SWAP + _CPU.process.pid;
+    var filename = SWAP + process.pid;
     // create the swap file and the process' instructions to it
     krnCreate(filename);
     krnWrite(filename, instructions.join(''));
 
     // process is now on disk and has the partition is free   
-    var partition = _CPU.process.partition;
-    _CPU.partition = DISK_PARTITION;
-    _CPU.process.status = ONDISK;
-    partition.avail = true;
-
-    // return the free partition for rollIn
-    return partition;
+    var freePartition = process.partition;
+    freePartition.avail = true;
+    process.partition = DISK_PARTITION;
+    process.status = ONDISK;
+    return freePartition;
 };

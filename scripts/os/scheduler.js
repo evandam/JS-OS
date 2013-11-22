@@ -115,6 +115,7 @@ Scheduler.prototype.contextSwitch = function () {
 
     // new process from the ready queue
     var nextProcess = ReadyQueue.shift();
+    // need to swap the file in from disk to mem
     if (nextProcess.status == ONDISK) {
         var partition = _CPU.mmu.getFreePartition();
         // roll a process out if no free partitions
@@ -122,7 +123,7 @@ Scheduler.prototype.contextSwitch = function () {
             partition = _CPU.mmu.rollOut();
 
         // roll the process we want to run into
-        _CPU.mmu.rollIn(nextProcess, partition);
+       nextProcess = _CPU.mmu.rollIn(nextProcess, partition);
     }
 
     _CPU.process = nextProcess;
@@ -137,7 +138,7 @@ Scheduler.prototype.contextSwitch = function () {
     if (!_CPU.isExecuting)
         _CPU.isExecuting = true;
 
+    updateProcessesDisplay();
     // done with kernel operations, flip back to user mode for processes
     _Mode = 1;
-    updateProcessesDisplay();
 };
