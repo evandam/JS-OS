@@ -328,7 +328,7 @@ function shellInit() {
     sc.func = function (args) {
         var filename = args[0];
         if (filename.match(/^[\d|\w]+$/))  {
-            var data = args.join('').match(/"(.*?)"/);
+            var data = args.join(' ').match(/"(.*?)"/);
             if (data) {
                 var success = krnWrite(filename, data[1]);
                 if (success)
