@@ -105,7 +105,7 @@ function krnKbdDispatchKeyPress(params)
 }
 
 // Keycodes for symbols on digits represented by their index. ex. 0 shifted = ")" (ascii 41) and 1 shifted = "!" (ascii 33)
-var shifted_digit = [41, 33, 64, 35, 38, 37, 94, 38, 42, 40];
+var shifted_digit = [41, 33, 64, 35, 36, 37, 94, 38, 42, 40];
 
 // misc keycodes that didn't seem to follow a pattern.
 // keys are javascript keycodes
